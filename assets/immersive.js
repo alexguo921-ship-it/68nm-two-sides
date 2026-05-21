@@ -63,9 +63,9 @@
   @keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 
   /* 海浪 canvas 全屏 */
-  #wave-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;mix-blend-mode:screen;opacity:.85}
+  #wave-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none;mix-blend-mode:normal;opacity:.95}
   .hero{position:relative;isolation:isolate}
-  .hero .frame, .hero .inner, .hero .scroll-tip{position:relative;z-index:3}
+  .hero .frame, .hero .inner, .hero .scroll-tip{position:relative;z-index:4}
 
   /* 蓝眼泪粒子 */
   .tears-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:auto;cursor:crosshair}
@@ -175,7 +175,7 @@
     });
   }
 
-  // ============ 2. 首屏海浪 Canvas（轻量级，纯 2D） ============
+  // ============ 2. 首屏海浪 Canvas（全屏分层动态） ============
   function initWave() {
     const hero = document.querySelector('.hero');
     if (!hero) return;
@@ -186,12 +186,31 @@
     const ctx = canvas.getContext('2d');
     let w = 0, h = 0, dpr = Math.min(window.devicePixelRatio || 1, 2);
 
+    // 天空粒子（漂浮微光）
+    const skyDots = [];
+    function spawnSky(){
+      skyDots.length = 0;
+      const N = Math.max(40, Math.min(80, Math.floor(w * h / 22000)));
+      for (let i = 0; i < N; i++) {
+        skyDots.push({
+          x: Math.random() * w,
+          y: Math.random() * (h * 0.55),
+          r: Math.random() * 1.4 + 0.4,
+          vx: (Math.random() - 0.5) * 0.18,
+          vy: (Math.random() - 0.5) * 0.08,
+          a: Math.random() * 0.6 + 0.25,
+          tw: Math.random() * Math.PI * 2
+        });
+      }
+    }
+
     function resize() {
       const r = hero.getBoundingClientRect();
       w = r.width; h = r.height;
       canvas.width = w * dpr; canvas.height = h * dpr;
       canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
-      ctx.scale(dpr, dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      spawnSky();
     }
     resize();
     window.addEventListener('resize', () => { dpr = Math.min(window.devicePixelRatio || 1, 2); resize(); });
@@ -203,53 +222,100 @@
       my = (e.clientY - r.top) / r.height;
     });
 
-    // 多层正弦波，模拟海面深度
+    // 5 层水波，由远（上方）到近（下方）覆盖整个海面
     const waves = [
-      { amp: 18, len: 320, speed: 0.020, color: 'rgba(14, 82, 103, 0.35)', y: 0.62 },
-      { amp: 24, len: 260, speed: 0.014, color: 'rgba(36, 130, 160, 0.28)', y: 0.71 },
-      { amp: 30, len: 200, speed: 0.010, color: 'rgba(80, 180, 200, 0.22)', y: 0.80 },
-      { amp: 22, len: 460, speed: 0.006, color: 'rgba(255, 204, 0, 0.10)', y: 0.86 }
+      { amp: 6,  len: 380, speed: 0.014, y: 0.52, color: 'rgba(80, 165, 200, 0.20)' },
+      { amp: 10, len: 300, speed: 0.018, y: 0.62, color: 'rgba(40, 130, 175, 0.30)' },
+      { amp: 16, len: 260, speed: 0.022, y: 0.72, color: 'rgba(20, 95, 140, 0.42)' },
+      { amp: 22, len: 220, speed: 0.026, y: 0.82, color: 'rgba(10, 60, 95, 0.55)' },
+      { amp: 14, len: 480, speed: 0.010, y: 0.92, color: 'rgba(255, 215, 110, 0.10)' }
     ];
 
     let t = 0;
     function draw() {
       ctx.clearRect(0, 0, w, h);
 
-      // 深海渐变背景
-      const g = ctx.createLinearGradient(0, 0, 0, h);
-      g.addColorStop(0, 'rgba(8, 16, 28, 0)');
-      g.addColorStop(0.55, 'rgba(14, 60, 90, 0.55)');
-      g.addColorStop(1.0, 'rgba(8, 28, 50, 0.85)');
-      ctx.fillStyle = g;
+      // 上半区：夜空渐变
+      const sky = ctx.createLinearGradient(0, 0, 0, h * 0.6);
+      sky.addColorStop(0, 'rgba(8, 14, 30, 0.0)');
+      sky.addColorStop(1, 'rgba(20, 60, 95, 0.18)');
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, w, h * 0.6);
+
+      // 漂浮的天空粒子（随时间闪烁）
+      skyDots.forEach(d => {
+        d.x += d.vx + (mx - 0.5) * 0.04;
+        d.y += d.vy;
+        d.tw += 0.04;
+        if (d.x < -5) d.x = w + 5;
+        if (d.x > w + 5) d.x = -5;
+        if (d.y < 0) d.y = h * 0.55;
+        if (d.y > h * 0.55) d.y = 0;
+        const flick = (Math.sin(d.tw) + 1) * 0.5;
+        ctx.beginPath();
+        ctx.fillStyle = `rgba(255,224,160,${d.a * (0.6 + flick * 0.4)})`;
+        ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // 海平线主光带
+      const horizonY = h * 0.50;
+      const hg = ctx.createLinearGradient(0, horizonY - 20, 0, horizonY + 20);
+      hg.addColorStop(0, 'rgba(255,210,130,0)');
+      hg.addColorStop(0.5, 'rgba(255,225,140,0.28)');
+      hg.addColorStop(1, 'rgba(255,210,130,0)');
+      ctx.fillStyle = hg;
+      ctx.fillRect(0, horizonY - 20, w, 40);
+
+      // 月光反射（跟随鼠标）
+      const moonX = w * (0.30 + (mx - 0.5) * 0.18);
+      const moonY = h * (0.36 + (my - 0.5) * 0.08);
+      const moon = ctx.createRadialGradient(moonX, moonY, 6, moonX, moonY, 280);
+      moon.addColorStop(0, 'rgba(255, 235, 170, 0.38)');
+      moon.addColorStop(0.4, 'rgba(255, 220, 130, 0.18)');
+      moon.addColorStop(1, 'rgba(255, 200, 120, 0)');
+      ctx.fillStyle = moon;
       ctx.fillRect(0, 0, w, h);
 
-      // 波浪层（深海蓝/青）
-      const waveColors = [
-        'rgba(20, 90, 130, 0.55)',
-        'rgba(30, 120, 165, 0.45)',
-        'rgba(60, 170, 200, 0.32)',
-        'rgba(255, 210, 100, 0.10)'
-      ];
-      waves.forEach((wv, idx) => {
+      // 月光垂直水面倒影（细长光柱）
+      const refl = ctx.createLinearGradient(0, h * 0.5, 0, h);
+      refl.addColorStop(0, 'rgba(255, 230, 150, 0.32)');
+      refl.addColorStop(1, 'rgba(255, 230, 150, 0)');
+      ctx.fillStyle = refl;
+      const reflW = 60 + Math.sin(t * 0.04) * 8;
+      ctx.fillRect(moonX - reflW / 2, h * 0.5, reflW, h * 0.5);
+
+      // 多层水波
+      waves.forEach(wv => {
         ctx.beginPath();
         ctx.moveTo(0, h);
         const offset = (mx - 0.5) * 60;
-        for (let x = 0; x <= w; x += 6) {
-          const y = h * wv.y + Math.sin((x + t * (1000 * wv.speed)) / wv.len * Math.PI * 2 + offset / 100) * wv.amp;
+        for (let x = 0; x <= w; x += 5) {
+          const y = h * wv.y
+            + Math.sin((x + t * (1000 * wv.speed)) / wv.len * Math.PI * 2 + offset / 100) * wv.amp
+            + Math.sin((x + t * (1000 * wv.speed * 0.7)) / (wv.len * 0.6) * Math.PI * 2) * wv.amp * 0.35;
           ctx.lineTo(x, y);
         }
         ctx.lineTo(w, h);
         ctx.closePath();
-        ctx.fillStyle = waveColors[idx] || wv.color;
+        ctx.fillStyle = wv.color;
         ctx.fill();
       });
 
-      // 鼠标光晕 - 月亮反射
-      const sun = ctx.createRadialGradient(w * mx, h * (my * 0.3 + 0.15), 4, w * mx, h * (my * 0.3 + 0.15), 220);
-      sun.addColorStop(0, 'rgba(255, 230, 130, 0.25)');
-      sun.addColorStop(1, 'rgba(255, 230, 130, 0)');
-      ctx.fillStyle = sun;
-      ctx.fillRect(0, 0, w, h);
+      // 海面闪光高光（随机点状）
+      ctx.fillStyle = 'rgba(255, 255, 230, 0.8)';
+      for (let i = 0; i < 6; i++) {
+        const px = (t * 0.7 + i * 137) % w;
+        const py = h * (0.55 + (i % 3) * 0.08) + Math.sin(t * 0.04 + i) * 6;
+        const sz = (Math.sin(t * 0.06 + i * 1.3) + 1) * 0.8 + 0.3;
+        if (sz > 0.8) {
+          ctx.globalAlpha = (sz - 0.8) * 1.5;
+          ctx.beginPath();
+          ctx.arc(px, py, sz, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      ctx.globalAlpha = 1;
 
       t += 1;
       requestAnimationFrame(draw);
