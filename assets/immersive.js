@@ -1,0 +1,409 @@
+/* 68海里·两面 — Immersive Layer v1
+ * 沉浸式视觉与交互增强
+ * 模块：
+ *   1) BGM 控制器（自动播放 + 用户友好的静音按钮 + 循环 + 浏览器 autoplay 兼容）
+ *   2) 首屏 Hero WebGL/Canvas 海浪着色器（不依赖第三方库）
+ *   3) 蓝眼泪粒子层（自动渲染到 #bluetears 节内 canvas）
+ *   4) 滚动驱动的数字计数器
+ *   5) 视差 + 进入视口的渐显动画
+ *   6) iOS 毛玻璃 + 微交互（CSS 注入）
+ */
+(function () {
+  'use strict';
+
+  // ============ 0. 注入全局 CSS（毛玻璃 / 微交互 / 动画） ============
+  const css = `
+  :root{
+    --aqua:#0e5267; --aqua-glow:#56b8d6; --pearl:#56e2e8;
+    --tear:#7c5fff; --tear-glow:#b794ff;
+  }
+  /* 全站滚动平滑 */
+  html{scroll-behavior:smooth}
+  /* iOS 毛玻璃 utility */
+  .glass{
+    background:rgba(255,255,255,.62);
+    -webkit-backdrop-filter:saturate(180%) blur(18px);
+    backdrop-filter:saturate(180%) blur(18px);
+    border:1px solid rgba(255,255,255,.5);
+    box-shadow:0 12px 40px -8px rgba(20,30,50,.18);
+  }
+  .glass-dark{
+    background:rgba(20,25,35,.55);
+    -webkit-backdrop-filter:saturate(180%) blur(20px);
+    backdrop-filter:saturate(180%) blur(20px);
+    border:1px solid rgba(255,255,255,.12);
+  }
+
+  /* 视口进场动画 */
+  .reveal{opacity:0;transform:translateY(28px);transition:opacity 1s cubic-bezier(.2,.8,.2,1), transform 1s cubic-bezier(.2,.8,.2,1)}
+  .reveal.in{opacity:1;transform:translateY(0)}
+
+  /* 卡片悬浮 */
+  .role-card,.pkg,.b-block,.ai-cell,.num-it,.merch-card{transition:transform .55s cubic-bezier(.2,.8,.2,1), box-shadow .55s, background .3s}
+  .role-card:hover,.pkg:hover,.ai-cell:hover,.merch-card:hover{transform:translateY(-6px);box-shadow:0 28px 60px -20px rgba(14,82,103,.35)}
+
+  /* 按钮水波纹 */
+  .cta,.primary,.solid,.line,.ghost,a.btn{position:relative;overflow:hidden;isolation:isolate}
+  .cta::after,.primary::after,.solid::after,.line::after,.ghost::after,a.btn::after{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,.45) 0%, transparent 45%);
+    opacity:0;transition:opacity .4s
+  }
+  .cta:hover::after,.primary:hover::after,.solid:hover::after,.line:hover::after,.ghost:hover::after,a.btn:hover::after{opacity:1}
+
+  /* CTA 主按钮发光脉冲 */
+  .primary,a[class*='primary']{box-shadow:0 0 0 0 rgba(255,204,0,.0); animation:pulseY 3.6s ease-in-out infinite}
+  @keyframes pulseY{
+    0%,100%{box-shadow:0 6px 28px -10px rgba(255,204,0,.5)}
+    50%{box-shadow:0 12px 50px -10px rgba(255,204,0,.85)}
+  }
+
+  /* hero 标题轻微浮动 */
+  .hero h1{animation:floatY 6.5s ease-in-out infinite}
+  @keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+  /* 海浪 canvas 全屏 */
+  #wave-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+  .hero{position:relative;isolation:isolate}
+  .hero .frame, .hero .inner, .hero .scroll-tip{position:relative;z-index:2}
+
+  /* 蓝眼泪粒子 */
+  .tears-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:auto;cursor:crosshair}
+
+  /* 滚动条美化 */
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-track{background:rgba(0,0,0,.04)}
+  ::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1a1612,#7a5a3a);border-radius:6px}
+
+  /* BGM 浮窗 */
+  .bgm-fab{position:fixed;right:18px;bottom:18px;width:48px;height:48px;border-radius:50%;
+    background:rgba(20,25,35,.78);color:#ffcc00;border:1.5px solid rgba(255,204,0,.5);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:9999;
+    -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+    box-shadow:0 8px 24px rgba(0,0,0,.25);transition:transform .3s, box-shadow .3s}
+  .bgm-fab:hover{transform:scale(1.06);box-shadow:0 12px 30px rgba(0,0,0,.35)}
+  .bgm-fab svg{width:22px;height:22px;fill:currentColor}
+  .bgm-fab .bars{display:flex;gap:2px;align-items:flex-end;height:18px}
+  .bgm-fab .bars i{display:block;width:3px;height:6px;background:#ffcc00;border-radius:2px;animation:bar 1.1s ease-in-out infinite}
+  .bgm-fab .bars i:nth-child(2){animation-delay:.18s;height:14px}
+  .bgm-fab .bars i:nth-child(3){animation-delay:.34s;height:9px}
+  .bgm-fab .bars i:nth-child(4){animation-delay:.52s;height:16px}
+  .bgm-fab.muted .bars i{animation:none;height:6px;opacity:.45}
+  @keyframes bar{0%,100%{transform:scaleY(.4)}50%{transform:scaleY(1.1)}}
+  .bgm-tip{position:fixed;right:78px;bottom:24px;background:rgba(20,25,35,.92);color:#fff;
+    padding:8px 14px;font-size:12px;letter-spacing:1px;border-radius:24px;
+    -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);z-index:9998;
+    pointer-events:none;opacity:0;transform:translateX(8px);transition:opacity .35s,transform .35s}
+  .bgm-tip.show{opacity:1;transform:translateX(0)}
+
+  /* 数字计数器在视口内放大动效 */
+  .num-it{transition:transform .8s cubic-bezier(.2,.8,.2,1)}
+  .num-it.in .v{display:inline-block;animation:popN .8s cubic-bezier(.34,1.56,.64,1)}
+  @keyframes popN{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
+
+  /* 减少动画偏好 */
+  @media (prefers-reduced-motion: reduce){
+    .hero h1{animation:none}
+    .reveal{transition:none}
+    .primary{animation:none}
+  }
+  `;
+  const style = document.createElement('style');
+  style.id = 'immersive-css';
+  style.textContent = css;
+  document.head.appendChild(style);
+
+  // ============ 1. BGM 控制器 ============
+  function initBGM() {
+    const audio = document.createElement('audio');
+    audio.id = 'site-bgm';
+    audio.src = 'assets/bgm/site_bgm.mp3';
+    audio.loop = true;
+    audio.volume = 0.32;        // 适中音量
+    audio.preload = 'auto';
+    document.body.appendChild(audio);
+
+    // 浮动按钮
+    const fab = document.createElement('button');
+    fab.className = 'bgm-fab';
+    fab.setAttribute('aria-label', '背景音乐开关');
+    fab.innerHTML = '<div class="bars"><i></i><i></i><i></i><i></i></div>';
+    document.body.appendChild(fab);
+
+    // 提示气泡
+    const tip = document.createElement('div');
+    tip.className = 'bgm-tip';
+    tip.textContent = '点击右下角可静音 ♫';
+    document.body.appendChild(tip);
+
+    // 状态读取
+    const KEY = 'bgm_muted';
+    const muted = localStorage.getItem(KEY) === '1';
+
+    function applyMute(m) {
+      audio.muted = m;
+      fab.classList.toggle('muted', m);
+      localStorage.setItem(KEY, m ? '1' : '0');
+    }
+    applyMute(muted);
+
+    // 浏览器 autoplay 限制：先尝试静音播放，第一次用户交互时再恢复音量
+    audio.muted = true;
+    audio.play().catch(() => { /* 忽略 */ });
+
+    let unlocked = false;
+    function unlock() {
+      if (unlocked) return;
+      unlocked = true;
+      const m = localStorage.getItem(KEY) === '1';
+      audio.muted = m;
+      audio.play().catch(() => {});
+      // 提示
+      setTimeout(() => { tip.classList.add('show'); }, 600);
+      setTimeout(() => { tip.classList.remove('show'); }, 4400);
+      ['click','touchstart','keydown','scroll'].forEach(ev =>
+        document.removeEventListener(ev, unlock, true));
+    }
+    ['click','touchstart','keydown','scroll'].forEach(ev =>
+      document.addEventListener(ev, unlock, true));
+
+    fab.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const next = !audio.muted;
+      applyMute(next);
+      if (!next) audio.play().catch(() => {});
+    });
+  }
+
+  // ============ 2. 首屏海浪 Canvas（轻量级，纯 2D） ============
+  function initWave() {
+    const hero = document.querySelector('.hero');
+    if (!hero) return;
+    const canvas = document.createElement('canvas');
+    canvas.id = 'wave-canvas';
+    hero.insertBefore(canvas, hero.firstChild);
+
+    const ctx = canvas.getContext('2d');
+    let w = 0, h = 0, dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    function resize() {
+      const r = hero.getBoundingClientRect();
+      w = r.width; h = r.height;
+      canvas.width = w * dpr; canvas.height = h * dpr;
+      canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+      ctx.scale(dpr, dpr);
+    }
+    resize();
+    window.addEventListener('resize', () => { dpr = Math.min(window.devicePixelRatio || 1, 2); resize(); });
+
+    let mx = 0.5, my = 0.5;
+    hero.addEventListener('mousemove', (e) => {
+      const r = hero.getBoundingClientRect();
+      mx = (e.clientX - r.left) / r.width;
+      my = (e.clientY - r.top) / r.height;
+    });
+
+    // 多层正弦波，模拟海面深度
+    const waves = [
+      { amp: 18, len: 320, speed: 0.020, color: 'rgba(14, 82, 103, 0.35)', y: 0.62 },
+      { amp: 24, len: 260, speed: 0.014, color: 'rgba(36, 130, 160, 0.28)', y: 0.71 },
+      { amp: 30, len: 200, speed: 0.010, color: 'rgba(80, 180, 200, 0.22)', y: 0.80 },
+      { amp: 22, len: 460, speed: 0.006, color: 'rgba(255, 204, 0, 0.10)', y: 0.86 }
+    ];
+
+    let t = 0;
+    function draw() {
+      ctx.clearRect(0, 0, w, h);
+
+      // 背景渐变（沙色 → 海雾蓝）
+      const g = ctx.createLinearGradient(0, 0, 0, h);
+      g.addColorStop(0, '#f8f3e6');
+      g.addColorStop(0.55, '#ebe2c9');
+      g.addColorStop(1.0, '#9bb8c5');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, w, h);
+
+      // 海平面
+      ctx.fillStyle = 'rgba(14, 82, 103, 0.18)';
+      ctx.fillRect(0, h * 0.6, w, h * 0.4);
+
+      // 波浪层
+      waves.forEach((wv) => {
+        ctx.beginPath();
+        ctx.moveTo(0, h);
+        const offset = (mx - 0.5) * 60;
+        for (let x = 0; x <= w; x += 6) {
+          const y = h * wv.y + Math.sin((x + t * (1000 * wv.speed)) / wv.len * Math.PI * 2 + offset / 100) * wv.amp;
+          ctx.lineTo(x, y);
+        }
+        ctx.lineTo(w, h);
+        ctx.closePath();
+        ctx.fillStyle = wv.color;
+        ctx.fill();
+      });
+
+      // 鼠标光晕 - 太阳/月亮反射
+      const sun = ctx.createRadialGradient(w * mx, h * (my * 0.3 + 0.15), 4, w * mx, h * (my * 0.3 + 0.15), 220);
+      sun.addColorStop(0, 'rgba(255, 230, 130, 0.55)');
+      sun.addColorStop(1, 'rgba(255, 230, 130, 0)');
+      ctx.fillStyle = sun;
+      ctx.fillRect(0, 0, w, h);
+
+      t += 1;
+      requestAnimationFrame(draw);
+    }
+    draw();
+  }
+
+  // ============ 3. 蓝眼泪粒子层 ============
+  function initTears() {
+    const section = document.querySelector('#bluetears');
+    if (!section) return;
+    section.style.position = section.style.position || 'relative';
+    const canvas = document.createElement('canvas');
+    canvas.className = 'tears-canvas';
+    section.insertBefore(canvas, section.firstChild);
+
+    const ctx = canvas.getContext('2d');
+    let w = 0, h = 0, dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    function resize() {
+      const r = section.getBoundingClientRect();
+      w = r.width; h = r.height;
+      canvas.width = w * dpr; canvas.height = h * dpr;
+      canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    const stars = [];
+    function spawn(n, x, y, burst) {
+      for (let i = 0; i < n; i++) {
+        stars.push({
+          x: x ?? Math.random() * w,
+          y: y ?? Math.random() * h,
+          vx: (Math.random() - 0.5) * (burst ? 3.5 : 0.4),
+          vy: (Math.random() - 0.5) * (burst ? 3.5 : 0.4),
+          r: Math.random() * 2 + 0.6,
+          life: 1,
+          color: Math.random() > 0.3
+            ? `rgba(124,95,255,${0.6 + Math.random() * 0.4})`
+            : `rgba(86,226,232,${0.6 + Math.random() * 0.4})`
+        });
+      }
+    }
+    spawn(120);
+
+    canvas.addEventListener('click', (e) => {
+      const r = canvas.getBoundingClientRect();
+      spawn(28, e.clientX - r.left, e.clientY - r.top, true);
+    });
+
+    function step() {
+      ctx.clearRect(0, 0, w, h);
+      // 微弱底色
+      ctx.fillStyle = 'rgba(0,0,0,0)';
+      for (let i = stars.length - 1; i >= 0; i--) {
+        const s = stars[i];
+        s.x += s.vx; s.y += s.vy;
+        s.vx *= 0.985; s.vy *= 0.985;
+        s.life -= 0.0006;
+        if (s.life <= 0 || s.x < -10 || s.x > w + 10 || s.y < -10 || s.y > h + 10) {
+          if (stars.length < 200) { stars[i] = makeBg(); } else { stars.splice(i, 1); }
+          continue;
+        }
+        ctx.beginPath();
+        const grad = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r * 4);
+        grad.addColorStop(0, s.color);
+        grad.addColorStop(1, 'rgba(124,95,255,0)');
+        ctx.fillStyle = grad;
+        ctx.arc(s.x, s.y, s.r * 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.fillStyle = '#ffffff';
+        ctx.globalAlpha = s.life;
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+      requestAnimationFrame(step);
+    }
+    function makeBg() {
+      return {
+        x: Math.random() * w, y: Math.random() * h,
+        vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4,
+        r: Math.random() * 2 + 0.6, life: 1,
+        color: Math.random() > 0.3
+          ? `rgba(124,95,255,${0.6 + Math.random() * 0.4})`
+          : `rgba(86,226,232,${0.6 + Math.random() * 0.4})`
+      };
+    }
+    step();
+  }
+
+  // ============ 4. 滚动驱动数字计数器 + reveal ============
+  function initScrollFx() {
+    const counters = document.querySelectorAll('.num-it .v');
+    const reveals = document.querySelectorAll('.sec-head, .sells, .nums, .pkgs, .pass, .ai-grid, .b-grid, .gallery, .role-card, .merch-card');
+    reveals.forEach(el => el.classList.add('reveal'));
+
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(en => {
+        if (!en.isIntersecting) return;
+        en.target.classList.add('in');
+        // 计数动画
+        if (en.target.matches('.num-it')) {
+          const v = en.target.querySelector('.v');
+          const target = (v.textContent || '').trim();
+          const m = target.match(/^(\d+)([^\d].*)?$/);
+          if (m) {
+            const end = parseInt(m[1], 10);
+            const tail = m[2] || '';
+            let cur = 0;
+            const dur = 1100;
+            const t0 = performance.now();
+            function tick(t) {
+              const k = Math.min(1, (t - t0) / dur);
+              const ease = 1 - Math.pow(1 - k, 3);
+              cur = Math.round(end * ease);
+              v.textContent = cur + tail;
+              if (k < 1) requestAnimationFrame(tick);
+              else v.textContent = target;
+            }
+            requestAnimationFrame(tick);
+          }
+        }
+        io.unobserve(en.target);
+      });
+    }, { threshold: 0.18 });
+
+    document.querySelectorAll('.num-it').forEach(el => { el.classList.add('reveal'); io.observe(el); });
+    reveals.forEach(el => io.observe(el));
+  }
+
+  // ============ 5. 按钮水波纹定位 ============
+  function initRipple() {
+    document.addEventListener('mousemove', (e) => {
+      const t = e.target.closest('.cta,.primary,.solid,.line,.ghost');
+      if (!t) return;
+      const r = t.getBoundingClientRect();
+      t.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
+      t.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
+    });
+  }
+
+  // ============ DOM Ready 启动 ============
+  function boot() {
+    initBGM();
+    initWave();
+    initTears();
+    initScrollFx();
+    initRipple();
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();

@@ -174,6 +174,36 @@
 
   .lang-switcher button.active{background:var(--ink)!important;color:var(--ng-yellow)!important}
   .lang-switcher button:hover:not(.active){background:var(--paper-d)}
+
+  /* === 海岛剧场感 · 图片统一滤镜 === */
+  .sells .img img,.gallery .g img,.merch-card img,#story img{
+    filter:saturate(.85) contrast(1.06) brightness(.97) sepia(.04);
+    transition:filter .6s, transform .8s
+  }
+  .sells .img:hover img,.gallery .g:hover img,.merch-card:hover img{
+    filter:saturate(1.08) contrast(1.1) brightness(1.0) sepia(0)
+  }
+  /* 颗粒感 noise 叠加（极轻） */
+  .hero::after,#story::after{
+    content:'';position:absolute;inset:0;pointer-events:none;z-index:1;opacity:.04;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='5'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .8 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+  #story{position:relative}
+
+  /* nav 毛玻璃 */
+  .nav{
+    background:rgba(248,243,230,.72)!important;
+    -webkit-backdrop-filter:saturate(180%) blur(14px);
+    backdrop-filter:saturate(180%) blur(14px);
+    border-bottom:1px solid rgba(0,0,0,.06);
+  }
+
+  /* role-card 玻璃版 */
+  .role-card.glass{
+    background:rgba(255,255,255,.7)!important;
+    -webkit-backdrop-filter:saturate(180%) blur(20px);
+    backdrop-filter:saturate(180%) blur(20px);
+  }
 </style>
 </head>
 <body>
@@ -208,13 +238,13 @@
     <div class="vol">PINGTAN · 2026 · VOL.01</div>
     <h1>68海里<br>的<em>两面</em></h1>
     <div class="lead">A Cross-Strait Cultural Translation Project</div>
-    <p class="desc">面向国内市场以"跨文化情绪解码"为核心的数字人文文旅产品。<br>用 AI 与方言连续体，重新翻译这段 68 海里的海上距离。</p>
+    <p class="desc">这是一段被海风翻译过的距离。<br>在方言连续体与 AI 之间，重新听懂那座离台湾最近的中国岛屿。</p>
     <div class="ctas">
-      <a href="#packages" class="primary">立即预订 · BOOK NOW</a>
+      <a href="#packages" class="primary">出发 · DEPART</a>
       <a href="#yutu" class="ghost">体验 AI · TRY YUTU·68</a>
     </div>
   </div>
-  <div class="scroll-tip">SCROLL TO DISCOVER</div>
+  <div class="scroll-tip">SCROLL · 让海浪带你下沉</div>
 </section>
 
 <!-- 双角色入口 -->
@@ -228,30 +258,30 @@
       <div class="right">FOR TRAVELERS &amp; OPERATORS<br>VOL.01 · MAY 2026</div>
     </div>
     <div class="roles">
-      <div class="role-card">
+      <div class="role-card glass">
         <div class="tag">FOR TRAVELERS</div>
-        <h3>我是<em>游客</em><br>我想买这趟旅行</h3>
-        <p class="lead">3 档套餐 · 含 AI 翻译手账 · 含蓝眼泪盲盒保险</p>
+        <h3>我想<em>去一次</em><br>真正听得懂的海岛</h3>
+        <p class="lead">三档套餐 · AI 翻译手账 · 蓝眼泪盲盒保险</p>
         <ul>
-          <li>3 天 2 夜深度漫游 ¥1,380 起 · 含 PASS 卡</li>
-          <li>蓝眼泪未现自动补偿券</li>
-          <li>漫游护照（实体+数字双载体）</li>
-          <li>AI 方言翻译器陪你听懂渔港</li>
+          <li>3 天 2 夜 · ¥1,380 起 · PASS 卡随行</li>
+          <li>没看到蓝眼泪？系统自动给你补一次</li>
+          <li>实体 + 数字双载体的漫游护照</li>
+          <li>AI 方言翻译器，让渔港说人话</li>
         </ul>
         <div class="cta-row">
           <a href="#packages" class="solid">查看套餐</a>
           <a href="wxapp.html" class="line" target="_blank">小程序预览</a>
         </div>
       </div>
-      <div class="role-card b">
+      <div class="role-card b glass">
         <div class="tag">FOR OPERATORS &amp; PARTNERS</div>
-        <h3>我是<em>运营/文旅局/媒体</em><br>我想了解这套产品</h3>
-        <p class="lead">完整产品方案 · 商业模型 · AI 引擎 · 三方分润机制</p>
+        <h3>我想把它<em>运营起来</em><br>当成一份长线生意</h3>
+        <p class="lead">完整方案 · 商业模型 · AI 引擎 · 三方自动分润</p>
         <ul>
-          <li>首年保守 ¥9,200 万 · 第二年 ¥1.5 亿</li>
-          <li>异业商户 5—10% 自动分润</li>
-          <li>"语途·68" AI 引擎 · 3 个可演原型</li>
-          <li>海西经济圈协同 · 福州·泉州·厦门联动</li>
+          <li>首年保守 ¥9,200 万 · 次年潜力 ¥1.5 亿</li>
+          <li>异业商户 5—10% 自动分润 · 月度对账</li>
+          <li>「语途·68」AI 引擎 · 3 个现场可演原型</li>
+          <li>海西经济圈协同 · 福·泉·厦联动</li>
         </ul>
         <div class="cta-row">
           <a href="ppt.html" class="solid">完整方案 PPT</a>
@@ -450,6 +480,7 @@
       <div class="right" style="color:var(--sand)">REFERENCE · OFFICIAL "蓝眼泪实况" MINI-PROGRAM<br>6M+ ACTIVE USERS</div>
     </div>
     <p style="font-size:18px;line-height:1.8;color:var(--sand);margin-bottom:30px;max-width:780px">市场上已有官方"蓝眼泪实况"小程序——<strong style="color:var(--ng-yellow)">600 万+ 用户</strong>。我做的是它的"专业升级版"，把分散的 4 大功能整合，用 AI 把"看不到蓝眼泪"的旅行遗憾自动转化为二次消费。</p>
+    <div style="margin-bottom:24px;padding:10px 18px;background:rgba(124,95,255,.12);border-left:3px solid #b794ff;font-size:13px;color:#cdbfff;letter-spacing:1px;display:inline-block">✨ 试试在这片夜海上点击 — 你会看到蓝眼泪发光</div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px">
       <div style="padding:24px;background:rgba(255,204,0,.06);border-top:4px solid var(--ng-yellow)">
         <div style="font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:700;color:var(--ng-yellow);line-height:1">01</div>
@@ -719,6 +750,7 @@
 
 <script src="assets/translations.js"></script>
 <script src="assets/i18n.js"></script>
+<script src="assets/immersive.js" defer></script>
 <script>
 I18N.register({
   'nav.story': { 'zh-CN':'缘起', 'en':'Story', 'zh-TW':'緣起' },
