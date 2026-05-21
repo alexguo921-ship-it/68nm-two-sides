@@ -1,7 +1,7 @@
 /* ================================================================
    视图路由器 - 把 nav 锚点跳转改为 Tab 切换式视图
-   - 同 URL 不同视觉：每次只显示与当前 view 相关的 section 组
-   - 保留 hero 在每个 view 顶部（缩略版），让用户始终能看到品牌
+   - 同 URL 不同视觉：每次只显示当前 view 的 section 组
+   - home 只保留首屏与入口，不再把所有内容堆成长条页
    - 回顶部按钮：滚动 > 400px 显示
    ================================================================ */
 (function () {
@@ -70,16 +70,10 @@
 
     document.body.setAttribute('data-view', view);
 
-    // home view = 显示所有 section（保留首页长滚动总览体验）
-    // 其它 view = 仅显示 home 组（hero + entry 起到品牌+入口的作用）+ 该 view 组
+    // Apple-like 分页面体验：home 只显示首屏+入口；其它 view 只显示对应内容。
     document.querySelectorAll('[data-view-group]').forEach(s => {
       const g = s.getAttribute('data-view-group');
-      let visible;
-      if (view === 'home') {
-        visible = true;       // 全部显示，长滚动
-      } else {
-        visible = (g === 'home' && options.includeHero !== false) || (g === view);
-      }
+      const visible = (g === view);
       s.classList.toggle('match-view', visible);
     });
 
@@ -118,15 +112,7 @@
       // hero CTAs / 角色卡 CTAs 等也可能用锚点 → 走 view 切换 + 滚到该 section
       if (view) {
         e.preventDefault();
-        setView(view, { includeHero: false, smooth: true });
-        // 滚到该 section
-        setTimeout(() => {
-          const target = document.querySelector(href);
-          if (target) {
-            const top = target.getBoundingClientRect().top + window.pageYOffset - 80;
-            window.scrollTo({ top, behavior: 'smooth' });
-          }
-        }, 100);
+        setView(view, { smooth: true });
         return;
       }
 
@@ -171,8 +157,9 @@
     tagSections();
     bindNav();
     setupBackTop();
-    // 默认 home view（不滚动到顶，保留进入位置）
-    setView('home', { scrollTop: false, smooth: false });
+    // 支持从 #hash 直接进入对应分页面，否则默认 home。
+    const initialView = NAV_TO_VIEW[window.location.hash] || 'home';
+    setView(initialView, { scrollTop: false, smooth: false });
   }
 
   if (document.readyState === 'loading') {

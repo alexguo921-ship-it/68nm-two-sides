@@ -168,9 +168,11 @@
 
   /* 平板 / 中屏 */
   @media (max-width:980px){
-    .nav{padding:14px 20px}
+    .nav{padding:12px 18px;flex-wrap:wrap;gap:8px}
     .nav .brand{font-size:16px}
-    .nav .links{display:none}
+    .nav .links{order:3;display:flex!important;width:100%;gap:8px;overflow-x:auto;padding:6px 0 2px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+    .nav .links::-webkit-scrollbar{display:none}
+    .nav .links a{white-space:nowrap;font-size:11px;letter-spacing:.5px;padding:6px 10px;border:1px solid rgba(26,22,18,.16);background:rgba(255,255,255,.36);border-radius:999px}
     .lang-switcher button{padding:5px 8px!important;font-size:10px!important}
     .cta{padding:8px 16px!important;font-size:11px!important}
 
@@ -239,8 +241,10 @@
 
   /* 手机 */
   @media (max-width:640px){
-    .nav{padding:10px 14px}
-    .nav .brand{font-size:14px}
+    .nav{padding:9px 12px;gap:7px}
+    .nav .brand{font-size:14px;max-width:38vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .nav .links{padding-top:5px;gap:7px}
+    .nav .links a{font-size:10px;padding:5px 9px;letter-spacing:.3px}
     .nav .lang-switcher button{padding:4px 7px!important;font-size:9px!important}
     .cta{padding:6px 12px!important;font-size:10px!important;letter-spacing:1px!important}
 
@@ -256,7 +260,7 @@
     /* 内联 style 标题强制覆盖 */
     h1[style], h2[style], h3[style]{font-size:inherit}
 
-    .hero{padding:78px 14px 64px;min-height:84vh}
+    .hero{padding:128px 14px 64px;min-height:86vh}
     .hero .frame{inset:60px 8px 8px;border-width:2px}
     .hero .inner{padding:20px 16px;border-left-width:3px}
     .hero h1{font-size:38px;letter-spacing:-1px;margin-bottom:14px;line-height:1.05}
@@ -455,20 +459,7 @@
     0%{opacity:0;transform:translateY(20px)}
     100%{opacity:1;transform:none}
   }
-  /* 非 home view 时，hero 缩小一点（视觉提示这是子页） */
-  body[data-view]:not([data-view="home"]) .hero{
-    min-height:50vh!important;
-  }
-  body[data-view]:not([data-view="home"]) .hero h1{
-    font-size:72px;
-  }
-  @media (max-width:980px){
-    body[data-view]:not([data-view="home"]) .hero h1{font-size:48px}
-  }
-  @media (max-width:640px){
-    body[data-view]:not([data-view="home"]) .hero h1{font-size:36px}
-    body[data-view]:not([data-view="home"]) .hero{min-height:42vh!important}
-  }
+  /* 分页面模式：非当前视图完全隐藏，不再用 hero 反复占位 */
   /* nav 当前 active 视觉 */
   .nav .links a.view-active{
     color:var(--terracotta)!important;
@@ -614,6 +605,10 @@
   @media (max-width:640px){
     html[lang="en"] body{overflow-x:hidden}
     html[lang="en"] .container{max-width:100%;overflow:hidden}
+    html[lang="en"] .hero .lead,
+    html[lang="en"] .hero .vol,
+    html[lang="en"] .hero .scroll-tip{display:none!important}
+    html[lang="en"] .hero h1{font-size:34px!important;line-height:1.05!important;letter-spacing:-1px!important}
     html[lang="en"] .sells .text h3{
       font-size:30px!important;
       line-height:1.18!important;
@@ -682,7 +677,7 @@
     <div class="vol">PINGTAN · 2026 · VOL.01</div>
     <h1>68海里<br>的<em>两面</em></h1>
     <div class="lead">A Cross-Strait Cultural Translation Project</div>
-    <p class="desc">这是一段被海风翻译过的距离。<br>在方言连续体与 AI 之间，重新听懂那座离台湾最近的中国岛屿。</p>
+    <p class="desc">这是一段被海风翻译过的距离。<br>在方言连续体与 AI 之间，重新听懂那座离台湾最近的大陆岛屿。</p>
     <div class="ctas">
       <a href="#packages" class="primary">出发 · DEPART</a>
       <a href="#yutu" class="ghost">体验 AI · TRY YUTU·68</a>
@@ -1192,11 +1187,11 @@
 </footer>
 
 
-<script src="assets/translations.js?v=20260521-2233"></script>
-<script src="assets/i18n.js?v=20260521-2233"></script>
-<script src="assets/immersive.js?v=20260521-2233" defer></script>
-<script src="assets/glyph_dialect.js?v=20260521-2233" defer></script>
-<script src="assets/view_router.js?v=20260521-2233" defer></script>
+<script src="assets/translations.js?v=20260521-2307"></script>
+<script src="assets/i18n.js?v=20260521-2307"></script>
+<script src="assets/immersive.js?v=20260521-2307" defer></script>
+<script src="assets/glyph_dialect.js?v=20260521-2307" defer></script>
+<script src="assets/view_router.js?v=20260521-2307" defer></script>
 <script>
 I18N.register({
   'nav.story': { 'zh-CN':'缘起', 'en':'Story', 'zh-TW':'緣起' },
