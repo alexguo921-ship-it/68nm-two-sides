@@ -362,6 +362,83 @@
     -webkit-backdrop-filter:saturate(180%) blur(20px);
     backdrop-filter:saturate(180%) blur(20px);
   }
+
+  /* ============== 特殊汉字 .glyph 字符特效 ============== */
+  .glyph{
+    position:relative;display:inline-block;
+    font-family:'Noto Serif SC','STKaiti','KaiTi',serif;
+    font-weight:700;
+    background:linear-gradient(180deg,#c46a1a 0%,#7a2d10 100%);
+    -webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;color:transparent;
+    text-shadow:0 1px 0 rgba(255,255,255,.15);
+    transition:transform .35s ease,filter .35s ease,letter-spacing .35s ease;
+    cursor:default;
+    padding:0 .03em;
+  }
+  .glyph:hover{
+    transform:translateY(-2px) scale(1.08);
+    filter:drop-shadow(0 4px 10px rgba(196,106,26,.45));
+    letter-spacing:.04em;
+  }
+  /* 各字主题色 */
+  .glyph[data-char="厝"]{background:linear-gradient(180deg,#7a5a3a 0%,#3a2a18 100%);-webkit-background-clip:text;background-clip:text}
+  .glyph[data-char="鼎"]{background:linear-gradient(180deg,#a8651b 0%,#5a2c0e 100%);-webkit-background-clip:text;background-clip:text}
+  .glyph[data-char="箸"]{background:linear-gradient(180deg,#6b8e4e 0%,#2f4a26 100%);-webkit-background-clip:text;background-clip:text}
+  .glyph[data-char="听"]{background:linear-gradient(180deg,#b06ad8 0%,#5a2d80 100%);-webkit-background-clip:text;background-clip:text}
+  .glyph[data-char="听"]:hover{filter:drop-shadow(0 4px 10px rgba(176,106,216,.55))}
+  /* 「泪」字：基色蓝 + 悬停三点水滴落 */
+  .glyph[data-char="泪"]{
+    background:linear-gradient(180deg,#7cb8ff 0%,#1f4ea0 100%);
+    -webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;color:transparent;
+  }
+  .glyph[data-char="泪"]:hover{filter:drop-shadow(0 0 12px rgba(124,184,255,.85)) drop-shadow(0 0 4px rgba(180,148,255,.6))}
+  .glyph-drops{
+    position:absolute;left:6%;bottom:-2px;
+    width:.45em;height:.6em;
+    pointer-events:none;
+  }
+  .glyph-drops .d{
+    position:absolute;width:5px;height:5px;border-radius:50% 50% 50% 0;
+    background:radial-gradient(circle at 30% 30%,#bfe2ff 0%,#7cb8ff 50%,#1f4ea0 100%);
+    box-shadow:0 0 8px rgba(124,184,255,.85),0 0 2px rgba(255,255,255,.9);
+    opacity:0;
+    transform:rotate(-45deg) translate(0,0);
+  }
+  .glyph-drops .d1{left:0;animation-delay:0s}
+  .glyph-drops .d2{left:7px;animation-delay:.18s}
+  .glyph-drops .d3{left:14px;animation-delay:.36s}
+  .glyph[data-char="泪"]:hover .glyph-drops .d{
+    animation:glyphTear 1.4s ease-in infinite;
+  }
+  @keyframes glyphTear{
+    0%   {opacity:0;transform:rotate(-45deg) translate(0,-4px) scale(.6)}
+    20%  {opacity:1;transform:rotate(-45deg) translate(0,0) scale(1)}
+    70%  {opacity:.85;transform:rotate(-45deg) translate(0,18px) scale(1)}
+    100% {opacity:0;transform:rotate(-45deg) translate(0,28px) scale(.4)}
+  }
+
+  /* ============== 方言连续体音频波形背景 ============== */
+  #dialect{position:relative;overflow:hidden}
+  #dialect .dialect-wave{
+    position:absolute;inset:0;width:100%;height:100%;
+    z-index:0;pointer-events:none;
+  }
+  #dialect .container{position:relative;z-index:2}
+  /* 方言区文字稍作背景透感 */
+  #dialect .sells .text{
+    position:relative;
+    background:rgba(255,250,243,.55);
+    backdrop-filter:saturate(150%) blur(6px);
+    -webkit-backdrop-filter:saturate(150%) blur(6px);
+    padding:24px 26px;
+    border-left:4px solid #b06ad8;
+    border-radius:0 4px 4px 0;
+  }
+  @media (max-width:640px){
+    #dialect .sells .text{padding:18px}
+  }
 </style>
 </head>
 <body>
@@ -495,7 +572,7 @@
 </section>
 
 <!-- 卖点1：方言连续体 -->
-<section class="sect" style="background:var(--paper-d)">
+<section class="sect" id="dialect" style="background:var(--paper-d)">
   <div class="container">
     <div class="sells">
       <div class="img">
@@ -909,6 +986,7 @@
 <script src="assets/translations.js"></script>
 <script src="assets/i18n.js"></script>
 <script src="assets/immersive.js" defer></script>
+<script src="assets/glyph_dialect.js" defer></script>
 <script>
 I18N.register({
   'nav.story': { 'zh-CN':'缘起', 'en':'Story', 'zh-TW':'緣起' },
