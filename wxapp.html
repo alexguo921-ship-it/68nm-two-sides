@@ -2,336 +2,639 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>68海里 · 微信小程序高保真原型</title>
+<title>68海里·两面 — 平潭旅行伴侣 · 微信小程序</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta name="description" content="平潭旅行伴侣小程序：行程预订、AI 方言翻译、蓝眼泪实况、PASS 一卡通城、本地民宿苍蝇馆、文创商城、田野手账、AI 客服——一个小程序，平潭旅行就够了。">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;700&family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
-  :root{--paper:#f8f3e6;--ink:#1a1612;--ng-yellow:#ffcc00;--terracotta:#c8552d;--teal:#0e5267;--sepia:#7a5a3a;--sand:#d9c9a8;--gold:#b08a3e}
-  body{background:var(--paper);font-family:'Noto Sans SC',sans-serif;color:var(--ink);min-height:100vh;padding:50px 30px}
-  .top{max-width:1380px;margin:0 auto 40px;padding-bottom:24px;border-bottom:2px solid var(--ink);display:flex;justify-content:space-between;align-items:flex-end}
+  :root{--paper:#f8f3e6;--paper-d:#efe7d2;--ink:#1a1612;--ng-yellow:#ffcc00;--terracotta:#c8552d;--teal:#0e5267;--sepia:#7a5a3a;--sand:#d9c9a8;--gold:#b08a3e;--ok:#3d9970}
+  body{background:var(--paper);font-family:'Noto Sans SC',sans-serif;color:var(--ink);min-height:100vh;padding:30px 20px 60px;line-height:1.7}
+  a{color:inherit;text-decoration:none}
+
+  /* 顶部 */
+  .top{max-width:1380px;margin:0 auto 28px;padding-bottom:20px;border-bottom:2px solid var(--ink);display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
   .top .left .en{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;letter-spacing:5px;color:var(--terracotta);margin-bottom:8px}
-  .top .left h1{font-family:'Noto Serif SC',serif;font-size:42px;font-weight:900}
+  .top .left h1{font-family:'Noto Serif SC',serif;font-size:38px;font-weight:900;line-height:1.1}
   .top .left h1 em{font-style:normal;color:var(--terracotta)}
-  .top .left .sub{font-size:14px;color:var(--sepia);margin-top:8px;letter-spacing:1px}
-  .top .right{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;letter-spacing:3px;color:var(--sepia);text-align:right;line-height:1.8}
+  .top .left .sub{font-size:14px;color:var(--sepia);margin-top:8px;letter-spacing:1px;max-width:760px}
+  .top .left .sub strong{color:var(--ink)}
+  .top .right{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;letter-spacing:3px;color:var(--sepia);text-align:right;line-height:1.8;flex-shrink:0}
   .top .right strong{color:var(--terracotta);font-style:normal;font-weight:700}
 
-  .gallery{max-width:1380px;margin:0 auto;display:flex;gap:32px;justify-content:center;flex-wrap:wrap}
-  .pframe{display:flex;flex-direction:column;align-items:center;gap:12px}
-  .pframe .label{font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:4px;color:var(--terracotta);font-weight:700}
-  .pframe .label-cn{font-family:'Noto Serif SC',serif;font-size:14px;color:var(--sepia)}
+  .nav-back{position:fixed;top:18px;left:18px;z-index:99;background:var(--ink);color:var(--ng-yellow);border:1.5px solid var(--ng-yellow);padding:8px 16px;font-size:12px;letter-spacing:2px;text-decoration:none;font-family:'Cormorant Garamond',serif;font-weight:700}
+  .nav-back:hover{background:var(--terracotta);border-color:var(--terracotta);color:#fff}
 
-  .phone{width:288px;height:580px;background:#fff;border:9px solid #1a1612;border-radius:38px;box-shadow:0 20px 50px rgba(0,0,0,.18);overflow:hidden;position:relative}
-  .phone .notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:90px;height:22px;background:#1a1612;border-radius:0 0 14px 14px;z-index:5}
-  .scr{position:absolute;inset:0;display:flex;flex-direction:column;font-size:12px}
-  .bar{height:32px;background:#fff;display:flex;justify-content:space-between;align-items:center;padding:0 16px;font-size:11px;color:#666;font-weight:600}
+  /* 主舞台：手机 + 旁边功能列表 */
+  .stage{max-width:1380px;margin:0 auto;display:grid;grid-template-columns:380px 1fr;gap:46px;align-items:start}
 
-  /* 通用底部 tab */
-  .foot-tab{height:46px;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;align-items:center;font-size:9px;color:#999;padding-top:5px}
-  .foot-tab div{text-align:center;line-height:1.3}
-  .foot-tab div.act{color:var(--terracotta);font-weight:700}
-  .foot-tab div .ico{font-size:14px;display:block}
+  /* 手机框 */
+  .phone-wrap{position:sticky;top:30px}
+  .phone{width:340px;height:700px;background:#000;border:11px solid #1a1612;border-radius:48px;box-shadow:0 30px 70px rgba(0,0,0,.25);overflow:hidden;position:relative;margin:0 auto}
+  .phone .notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:110px;height:26px;background:#1a1612;border-radius:0 0 16px 16px;z-index:50}
+  .phone .scr{position:absolute;inset:0;display:flex;flex-direction:column;font-size:12px;background:#fff;overflow:hidden}
+  .phone .bar{height:34px;background:#fff;display:flex;justify-content:space-between;align-items:center;padding:0 22px 0 22px;font-size:11px;color:#444;font-weight:700;flex-shrink:0;font-family:'Cormorant Garamond',serif;letter-spacing:1px}
+  .phone .body{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+  .phone .body::-webkit-scrollbar{width:0}
+  .phone .foot{height:54px;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;align-items:center;font-size:9px;color:#999;padding-top:6px;flex-shrink:0;z-index:30}
+  .phone .foot .tab{text-align:center;line-height:1.3;cursor:pointer;flex:1;padding:4px 0;transition:color .2s}
+  .phone .foot .tab.act{color:var(--terracotta);font-weight:700}
+  .phone .foot .tab .ico{font-size:18px;display:block;margin-bottom:2px}
 
-  /* SCREEN 1 ================== 智慧文旅首页 9 宫格 ================== */
-  .scr1 .hero{background:linear-gradient(135deg,#0e5267,#c8552d);color:#fff;padding:18px;position:relative;overflow:hidden}
-  .scr1 .hero::after{content:'';position:absolute;right:-30px;top:-30px;width:120px;height:120px;background:rgba(255,204,0,.15);border-radius:50%}
-  .scr1 .hero .badge{position:absolute;top:18px;right:18px;background:#ffcc00;color:#1a1612;padding:4px 8px;border-radius:8px;font-size:9px;font-weight:700;z-index:2}
-  .scr1 .hero .h-logo{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:11px;letter-spacing:4px;opacity:.85}
-  .scr1 .hero .h-title{font-family:'Noto Serif SC',serif;font-size:22px;font-weight:900;margin-top:6px;line-height:1.2}
-  .scr1 .hero .h-title em{font-style:normal;color:#ffcc00}
-  .scr1 .hero .h-sub{font-size:10px;opacity:.85;margin-top:6px}
+  /* page 切换 */
+  .page{display:none;animation:fadeIn .25s ease}
+  .page.act{display:block}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+  /* ========== 公共组件 ========== */
+  .ph-hero{padding:14px;color:#fff;position:relative;overflow:hidden}
+  .ph-hero .h-logo{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:11px;letter-spacing:4px;opacity:.85}
+  .ph-hero .h-title{font-family:'Noto Serif SC',serif;font-size:20px;font-weight:900;margin-top:6px;line-height:1.25}
+  .ph-hero .h-title em{font-style:normal;color:#ffcc00}
+  .ph-hero .h-sub{font-size:10px;opacity:.85;margin-top:6px;line-height:1.5}
+  .ph-hero .badge{position:absolute;top:14px;right:14px;background:#ffcc00;color:#1a1612;padding:4px 9px;border-radius:8px;font-size:9px;font-weight:700;z-index:2}
+
+  .sec-h{padding:12px 14px 8px;display:flex;justify-content:space-between;align-items:flex-end}
+  .sec-h .t{font-family:'Noto Serif SC',serif;font-size:13px;font-weight:700;color:var(--ink)}
+  .sec-h .t small{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--terracotta);margin-left:4px;font-weight:400;font-size:10px;letter-spacing:1px}
+  .sec-h .more{font-size:9.5px;color:var(--sepia)}
 
   /* 9 宫格 */
-  .nine{padding:12px;background:#fff;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-  .nine .it{padding:10px 4px;background:var(--paper);border-radius:6px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;position:relative}
-  .nine .it .ic{width:32px;height:32px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--terracotta);font-weight:700;border:1.5px solid var(--ng-yellow)}
-  .nine .it .nm{font-size:9.5px;color:var(--ink);font-weight:600;line-height:1.3}
-  .nine .it.hot::after{content:'热';position:absolute;top:4px;right:6px;background:var(--terracotta);color:#fff;padding:1px 4px;border-radius:6px;font-size:8px;font-weight:700}
-  .nine .it.new::after{content:'新';position:absolute;top:4px;right:6px;background:var(--teal);color:#fff;padding:1px 4px;border-radius:6px;font-size:8px;font-weight:700}
+  .nine{padding:8px 12px 6px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+  .nine .it{padding:9px 4px;background:var(--paper);border-radius:8px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;position:relative;cursor:pointer;transition:transform .15s}
+  .nine .it:hover{transform:translateY(-2px)}
+  .nine .it .ic{width:34px;height:34px;background:#fff;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;color:var(--terracotta);font-weight:700;border:1.5px solid var(--ng-yellow)}
+  .nine .it .nm{font-size:9px;color:var(--ink);font-weight:600;line-height:1.3}
+  .nine .it.hot::after{content:'热';position:absolute;top:3px;right:5px;background:var(--terracotta);color:#fff;padding:1px 4px;border-radius:6px;font-size:7px;font-weight:700}
+  .nine .it.new::after{content:'新';position:absolute;top:3px;right:5px;background:var(--teal);color:#fff;padding:1px 4px;border-radius:6px;font-size:7px;font-weight:700}
 
-  .quick-buy{padding:10px 12px;background:linear-gradient(135deg,#1a3a5c,#0e5267);color:#fff;font-size:10px;display:flex;justify-content:space-between;align-items:center;margin:0 12px}
-  .quick-buy .v{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:#ffcc00}
+  .quick-buy{margin:8px 12px;padding:10px 12px;background:linear-gradient(135deg,#1a3a5c,#0e5267);color:#fff;font-size:10px;display:flex;justify-content:space-between;align-items:center;border-radius:10px}
+  .quick-buy .v{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:#ffcc00;line-height:1}
+  .quick-buy .v small{font-size:11px;color:rgba(255,204,0,.7)}
 
-  /* SCREEN 2 ================== 蓝眼泪实况 PRO ================== */
-  .scr2 .hero2{background:#0a1525;color:#fff;padding:14px;position:relative;text-align:center}
-  .scr2 .hero2 .h-logo{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:3px;color:#ffcc00}
-  .scr2 .hero2 .h-title{font-family:'Noto Serif SC',serif;font-size:17px;font-weight:700;margin-top:4px}
-  .scr2 .hero2 .visit{margin-top:6px;font-size:9px;color:rgba(255,204,0,.7)}
-  .scr2 .map{flex:1;background:#0a1525 url('assets/bluetears_real.png') center/cover;position:relative;overflow:hidden}
-  .scr2 .map::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,21,37,.3) 0%,rgba(10,21,37,.85) 100%)}
+  .cards{padding:6px 12px;display:flex;gap:8px;overflow-x:auto;flex-wrap:nowrap}
+  .cards::-webkit-scrollbar{height:0}
+  .cards .card{flex-shrink:0;width:130px;background:#fff;border:1px solid var(--sand);border-radius:8px;overflow:hidden}
+  .cards .card .pic{height:78px;background:#d9c9a8 center/cover}
+  .cards .card .info{padding:7px}
+  .cards .card .info strong{display:block;font-size:11px;font-weight:700;line-height:1.3;margin-bottom:3px}
+  .cards .card .info small{display:block;color:var(--sepia);font-size:9px}
+  .cards .card .info .price{font-family:'Cormorant Garamond',serif;color:var(--terracotta);font-size:13px;font-weight:700;margin-top:3px}
+
+  .ai-tip{margin:8px 12px;padding:10px;background:#fff;border-left:3px solid var(--terracotta);font-size:10px;line-height:1.55;border-radius:0 6px 6px 0;display:flex;gap:8px;align-items:flex-start}
+  .ai-tip .av{flex-shrink:0;width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#0e5267,#c8552d);color:#ffcc00;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:'Cormorant Garamond',serif}
+  .ai-tip strong{color:var(--terracotta);font-weight:700}
+
+  .rec-it{display:flex;gap:8px;padding:8px;background:#fff;border-radius:7px;margin:6px 12px;font-size:10px;align-items:center;border:1px solid var(--paper-d)}
+  .rec-it .pic{width:48px;height:48px;background:#d9c9a8 center/cover;border-radius:6px;flex-shrink:0}
+  .rec-it .info{flex:1}
+  .rec-it .info strong{display:block;color:var(--ink);font-weight:700;margin-bottom:2px;font-size:11px}
+  .rec-it .info small{color:var(--sepia);font-size:9px;line-height:1.5;display:block}
+  .rec-it .price{font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--terracotta);font-weight:700;text-align:right}
+  .rec-it .price small{display:block;color:var(--sepia);font-size:9px;text-decoration:line-through;font-weight:400;font-family:'Noto Sans SC'}
+
+  /* 浮窗客服 */
+  .float-bot{position:absolute;right:12px;bottom:64px;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#0e5267,#c8552d);color:#ffcc00;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:'Cormorant Garamond',serif;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.3);z-index:25;text-align:center;line-height:1.1;border:2px solid #ffcc00}
+  .float-bot small{display:block;font-size:7px;letter-spacing:1px;font-weight:600;margin-top:1px}
+
+  /* page 1 hero */
+  .scr1 .ph-hero{background:linear-gradient(135deg,#0e5267,#c8552d)}
+  .scr1 .ph-hero::after{content:'';position:absolute;right:-30px;top:-30px;width:140px;height:140px;background:rgba(255,204,0,.15);border-radius:50%;pointer-events:none}
+
+  /* PAGE 2 - MAP */
+  .scr2 .map-bg{background:#0a1525 url('assets/bluetears_real.png') center/cover;height:240px;position:relative;overflow:hidden}
+  .scr2 .map-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,21,37,.4) 0%,rgba(10,21,37,.85) 100%)}
   .scr2 .prob-card{position:absolute;top:14px;left:14px;right:14px;background:rgba(0,0,0,.78);backdrop-filter:blur(10px);border:1px solid #ffcc00;border-radius:8px;padding:10px;z-index:5;color:#fff}
-  .scr2 .prob-card .lab{font-size:9px;color:#ffcc00;letter-spacing:2px;font-family:'Cormorant Garamond',serif}
-  .scr2 .prob-card .v{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:700;color:#ffcc00;line-height:1;margin-top:3px}
-  .scr2 .prob-card .v small{font-size:14px;font-family:'Noto Sans SC';color:rgba(255,204,0,.7)}
-  .scr2 .prob-card .desc{font-size:10px;margin-top:4px;color:rgba(255,255,255,.7)}
+  .scr2 .prob-card .lab{font-size:9px;color:#ffcc00;letter-spacing:2px;font-family:'Cormorant Garamond',serif;font-weight:700}
+  .scr2 .prob-card .v{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:700;color:#ffcc00;line-height:1;margin-top:3px}
+  .scr2 .prob-card .v small{font-size:14px;color:rgba(255,204,0,.7)}
+  .scr2 .prob-card .desc{font-size:10px;margin-top:4px;color:rgba(255,255,255,.75);line-height:1.4}
   .scr2 .pin{position:absolute;width:14px;height:14px;border:2px solid #ffcc00;background:rgba(255,204,0,.4);border-radius:50%;animation:pulse 1.6s ease-in-out infinite;z-index:4}
-  @keyframes pulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(255,204,0,.7)}50%{transform:scale(1.2);box-shadow:0 0 0 6px rgba(255,204,0,0)}}
-  .scr2 .pin.p1{top:50%;left:30%}
-  .scr2 .pin.p2{top:62%;left:62%}
-  .scr2 .pin.p3{top:42%;left:55%}
-  .scr2 .actions{position:absolute;bottom:12px;left:12px;right:12px;display:grid;grid-template-columns:1fr 1fr;gap:6px;z-index:5}
-  .scr2 .actions .btn{padding:8px;text-align:center;font-size:10px;font-weight:600;border-radius:6px}
-  .scr2 .actions .btn.up{background:#ffcc00;color:#1a1612}
-  .scr2 .actions .btn.live{background:rgba(200,85,45,.9);color:#fff;border:1px solid #ffcc00}
-  .scr2 .actions .btn.live::before{content:'●';color:#ff4444;margin-right:5px;animation:blink 1s linear infinite}
+  @keyframes pulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(255,204,0,.7)}50%{transform:scale(1.25);box-shadow:0 0 0 7px rgba(255,204,0,0)}}
+  .scr2 .pin.p1{top:60%;left:30%}.scr2 .pin.p2{top:75%;left:62%}.scr2 .pin.p3{top:55%;left:55%}
+  .scr2 .map-actions{position:absolute;bottom:12px;left:12px;right:12px;display:grid;grid-template-columns:1fr 1fr;gap:6px;z-index:5}
+  .scr2 .map-actions .btn{padding:8px;text-align:center;font-size:10px;font-weight:600;border-radius:6px;cursor:pointer}
+  .scr2 .map-actions .btn.up{background:#ffcc00;color:#1a1612}
+  .scr2 .map-actions .btn.live{background:rgba(200,85,45,.95);color:#fff;border:1px solid #ffcc00}
+  .scr2 .map-actions .btn.live::before{content:'●';color:#ff4444;margin-right:5px;animation:blink 1s linear infinite}
   @keyframes blink{50%{opacity:.3}}
 
-  /* SCREEN 3 ================== AI 推荐 + 通行 PASS ================== */
-  .scr3 .hero3{background:linear-gradient(135deg,#7a5a3a,#c8552d);color:#fff;padding:14px;text-align:center}
-  .scr3 .hero3 .h-logo{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:3px;color:#ffcc00}
-  .scr3 .hero3 .h-title{font-family:'Noto Serif SC',serif;font-size:17px;font-weight:700;margin-top:4px}
-  .scr3 .body3{flex:1;padding:10px 12px;background:var(--paper);overflow:hidden}
-  .pass-card-mini{background:linear-gradient(135deg,#1a1612 0%,#0e5267 100%);color:#fff;border-radius:10px;padding:12px;margin-bottom:10px;position:relative;overflow:hidden;border:1px solid #ffcc00}
-  .pass-card-mini::after{content:'';position:absolute;right:-15px;top:-15px;width:60px;height:60px;background:rgba(255,204,0,.18);border-radius:50%}
-  .pass-card-mini .lb{font-family:'Cormorant Garamond',serif;font-size:9px;color:#ffcc00;letter-spacing:3px}
-  .pass-card-mini .nm{font-family:'Noto Serif SC';font-size:16px;font-weight:900;margin-top:3px}
-  .pass-card-mini .pv{font-family:'Cormorant Garamond',serif;font-size:24px;color:#ffcc00;font-weight:700;margin-top:6px}
-  .pass-card-mini .pv small{font-size:11px;color:rgba(255,204,0,.7)}
-  .pass-card-mini .ben{font-size:9px;margin-top:4px;color:rgba(255,255,255,.85)}
-  .ai-tip{padding:7px 10px;background:#fff;border-left:3px solid var(--terracotta);font-size:10px;margin-bottom:7px;border-radius:0 4px 4px 0;line-height:1.5}
-  .ai-tip strong{color:var(--terracotta);font-weight:700}
-  .rec-it{display:flex;gap:8px;padding:7px;background:#fff;border-radius:6px;margin-bottom:6px;font-size:10px;align-items:center}
-  .rec-it .pic{width:36px;height:36px;background:#d9c9a8 url('assets/real/fishport.jpg') center/cover;border-radius:5px;flex-shrink:0}
-  .rec-it.r2 .pic{background-image:url('assets/real/sandart.jpg')}
-  .rec-it.r3 .pic{background-image:url('assets/real/donghai.jpg')}
-  .rec-it .info{flex:1}
-  .rec-it .info strong{display:block;color:var(--ink);font-weight:700;margin-bottom:1px;font-size:11px}
-  .rec-it .info small{color:var(--sepia);font-size:9px}
-  .rec-it .price{font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--terracotta);font-weight:700}
+  .filter-row{padding:8px 12px;display:flex;gap:6px;overflow-x:auto;flex-wrap:nowrap}
+  .filter-row::-webkit-scrollbar{height:0}
+  .filter-row .f{flex-shrink:0;padding:5px 12px;background:var(--paper);border:1px solid var(--sand);border-radius:14px;font-size:10px;color:var(--sepia);cursor:pointer;white-space:nowrap}
+  .filter-row .f.act{background:var(--ink);color:var(--ng-yellow);border-color:var(--ink)}
 
-  .nav-back{position:fixed;top:20px;left:20px;z-index:99;background:var(--ink);color:var(--ng-yellow);border:1.5px solid var(--ng-yellow);padding:8px 16px;font-size:12px;letter-spacing:2px;text-decoration:none;font-family:'Cormorant Garamond',serif}
+  /* PAGE 3 - 翻译 */
+  .scr3 .ph-hero{background:linear-gradient(135deg,#7a5a3a,#1a1612)}
+  .yutu-mic{padding:30px 14px;text-align:center;background:#fff}
+  .yutu-mic .mic{width:120px;height:120px;margin:0 auto 16px;border-radius:50%;background:linear-gradient(135deg,#c8552d,#0e5267);display:flex;align-items:center;justify-content:center;font-size:42px;color:#ffcc00;cursor:pointer;box-shadow:0 12px 30px rgba(200,85,45,.35);animation:pulseMic 2s ease infinite;border:3px solid #ffcc00}
+  @keyframes pulseMic{0%,100%{box-shadow:0 12px 30px rgba(200,85,45,.35)}50%{box-shadow:0 12px 50px rgba(200,85,45,.65)}}
+  .yutu-mic h3{font-family:'Noto Serif SC',serif;font-size:14px;font-weight:700;margin-bottom:4px}
+  .yutu-mic small{display:block;color:var(--sepia);font-size:10px}
+  .yutu-tabs{display:flex;border-bottom:1px solid var(--paper-d);background:#fff}
+  .yutu-tabs .yt{flex:1;padding:11px;font-size:11px;text-align:center;color:var(--sepia);cursor:pointer;border-bottom:2px solid transparent;font-weight:600}
+  .yutu-tabs .yt.act{color:var(--terracotta);border-bottom-color:var(--terracotta)}
+  .yutu-card{margin:10px 12px;padding:11px;background:var(--paper);border-left:3px solid var(--terracotta);border-radius:0 6px 6px 0;font-size:10px;line-height:1.55}
+  .yutu-card .lab{font-size:9px;color:var(--terracotta);font-weight:700;letter-spacing:2px;margin-bottom:3px;font-family:'Cormorant Garamond',serif}
+  .yutu-card .text{color:var(--ink);font-weight:500}
+  .yutu-card .meaning{margin-top:5px;padding-top:5px;border-top:1px dashed var(--sand);color:var(--sepia)}
 
-  .legend{max-width:1380px;margin:50px auto 0;padding:30px;background:#fff;border:1.5px solid var(--sand);border-left:5px solid var(--ng-yellow)}
-  .legend h2{font-family:'Noto Serif SC',serif;font-size:24px;color:var(--terracotta);margin-bottom:14px}
-  .legend .grid9{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:14px}
-  .legend .it{padding:14px;border:1px solid var(--sand);background:var(--paper)}
-  .legend .it strong{display:block;color:var(--ink);font-size:14px;font-weight:700;margin-bottom:6px}
-  .legend .it strong em{color:var(--terracotta);font-style:normal}
-  .legend .it p{font-size:12px;color:var(--sepia);line-height:1.65}
+  /* PAGE 4 - 商城 */
+  .scr4 .ph-hero{background:linear-gradient(135deg,#1a1612,#c8552d)}
+  .biz-tabs{display:flex;background:#fff;padding:8px 12px;gap:6px;overflow-x:auto;flex-wrap:nowrap}
+  .biz-tabs::-webkit-scrollbar{height:0}
+  .biz-tabs .bt{flex-shrink:0;padding:6px 14px;background:var(--paper);border-radius:14px;font-size:10px;color:var(--sepia);cursor:pointer;font-weight:600}
+  .biz-tabs .bt.act{background:var(--ink);color:var(--ng-yellow)}
+  .pkg-card{margin:8px 12px;padding:11px;background:#fff;border-radius:8px;border:1px solid var(--sand);position:relative}
+  .pkg-card.star{border:1.5px solid var(--terracotta);background:linear-gradient(135deg,#fff,#fff8d8)}
+  .pkg-card.star::before{content:'★ 主推';position:absolute;top:-8px;left:11px;background:var(--terracotta);color:#fff;padding:2px 8px;border-radius:4px;font-size:8px;font-weight:700;letter-spacing:1px}
+  .pkg-card .tier{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:3px;color:var(--terracotta);font-weight:700}
+  .pkg-card .nm{font-family:'Noto Serif SC',serif;font-size:14px;font-weight:900;margin-top:2px}
+  .pkg-card .info{display:flex;justify-content:space-between;align-items:flex-end;margin-top:6px}
+  .pkg-card .price{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--terracotta);line-height:1}
+  .pkg-card .price small{font-size:11px;color:var(--sepia);font-family:'Noto Sans SC'}
+  .pkg-card .buy{padding:5px 14px;background:var(--ink);color:var(--ng-yellow);font-size:10px;border-radius:14px;font-weight:700;cursor:pointer}
+  .pkg-card .feat{font-size:9.5px;color:var(--sepia);margin-top:5px;line-height:1.5}
+  .pass-banner{margin:8px 12px;padding:14px;background:linear-gradient(135deg,#1a1612 0%,#0e5267 100%);color:#fff;border-radius:10px;border:1px solid var(--ng-yellow);position:relative;overflow:hidden}
+  .pass-banner::after{content:'';position:absolute;right:-20px;top:-20px;width:80px;height:80px;background:rgba(255,204,0,.18);border-radius:50%;pointer-events:none}
+  .pass-banner .lb{font-family:'Cormorant Garamond',serif;font-size:9.5px;color:var(--ng-yellow);letter-spacing:3px;font-weight:700}
+  .pass-banner .nm{font-family:'Noto Serif SC',serif;font-size:15px;font-weight:900;margin-top:3px}
+  .pass-banner .pv{font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--ng-yellow);font-weight:700;margin-top:5px}
+  .pass-banner .pv small{font-size:11px;color:rgba(255,204,0,.7);font-family:'Noto Sans SC'}
+  .pass-banner .ben{font-size:9.5px;margin-top:4px;color:rgba(255,255,255,.85);line-height:1.5}
+  .pass-banner .pv-buy{position:absolute;right:14px;bottom:14px;background:var(--ng-yellow);color:var(--ink);padding:6px 14px;border-radius:14px;font-size:10px;font-weight:700;cursor:pointer}
 
-  .roadmap{max-width:1380px;margin:30px auto 60px;padding:30px;background:linear-gradient(135deg,#1a1612,#0e5267);color:#f8f3e6;border:3px solid var(--ng-yellow)}
-  .roadmap h2{font-family:'Noto Serif SC',serif;font-size:24px;color:var(--ng-yellow);margin-bottom:16px}
-  .roadmap .stages{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-  .roadmap .stg{padding:16px;background:rgba(255,204,0,.08);border-left:3px solid var(--ng-yellow)}
-  .roadmap .stg .v{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700;color:var(--ng-yellow);line-height:1}
-  .roadmap .stg .t{font-size:14px;font-weight:700;margin:6px 0 8px}
-  .roadmap .stg p{font-size:12px;line-height:1.7;color:#d9c9a8}
+  /* 商城商品 */
+  .grid2{padding:6px 12px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .grid2 .gi{background:#fff;border:1px solid var(--sand);border-radius:7px;overflow:hidden;font-size:10px}
+  .grid2 .gi .pic{height:90px;background:#d9c9a8 center/cover}
+  .grid2 .gi .info{padding:7px}
+  .grid2 .gi strong{display:block;font-size:10.5px;font-weight:700;line-height:1.3}
+  .grid2 .gi small{color:var(--sepia);font-size:9px;display:block;margin-top:2px}
+  .grid2 .gi .price{font-family:'Cormorant Garamond',serif;color:var(--terracotta);font-size:13px;font-weight:700;margin-top:4px}
+
+  /* PAGE 5 - 我的 */
+  .scr5 .ph-hero{background:linear-gradient(135deg,#1a1612,#7a5a3a);padding:20px 14px}
+  .me-card{display:flex;gap:12px;align-items:center;color:#fff}
+  .me-card .ava{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#ffcc00,#c8552d);display:flex;align-items:center;justify-content:center;font-family:'Noto Serif SC',serif;font-size:22px;font-weight:900;color:#1a1612;border:2px solid #ffcc00}
+  .me-card .info strong{display:block;font-family:'Noto Serif SC',serif;font-size:15px;font-weight:700}
+  .me-card .info small{display:block;font-size:10px;color:rgba(255,204,0,.85);margin-top:2px;letter-spacing:1px}
+  .me-stats{display:grid;grid-template-columns:repeat(4,1fr);background:#fff;padding:12px 0;border-bottom:1px solid var(--paper-d)}
+  .me-stats .s{text-align:center}
+  .me-stats .s .v{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:var(--ink);line-height:1}
+  .me-stats .s .l{font-size:9px;color:var(--sepia);margin-top:3px}
+  .me-list{background:#fff}
+  .me-list .li{padding:11px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--paper-d);font-size:11px;cursor:pointer}
+  .me-list .li:last-child{border-bottom:none}
+  .me-list .li .lt{display:flex;gap:10px;align-items:center}
+  .me-list .li .ic{width:26px;height:26px;border-radius:7px;background:var(--paper);display:flex;align-items:center;justify-content:center;color:var(--terracotta);font-size:13px;font-weight:700}
+  .me-list .li .rg{color:var(--sepia);font-size:9.5px}
+  .me-list .li .rg.hot{color:var(--terracotta);font-weight:700}
+
+  /* 右侧功能列表 */
+  .feat-side{padding:0 6px}
+  .feat-block{margin-bottom:24px}
+  .feat-block h2{font-family:'Noto Serif SC',serif;font-size:22px;font-weight:900;color:var(--ink);padding-bottom:10px;border-bottom:1.5px solid var(--ink);margin-bottom:16px}
+  .feat-block h2 em{font-style:normal;color:var(--terracotta)}
+  .feat-block h2 small{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:var(--terracotta);font-weight:400;letter-spacing:3px;margin-left:6px}
+  .feat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .feat-grid .it{background:#fff;border:1.2px solid var(--sand);border-left:4px solid var(--ng-yellow);padding:14px;cursor:pointer;transition:all .25s}
+  .feat-grid .it:hover{transform:translateX(3px);border-left-color:var(--terracotta);box-shadow:0 6px 16px rgba(0,0,0,.06)}
+  .feat-grid .it .num{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:12px;letter-spacing:3px;color:var(--terracotta);font-weight:700}
+  .feat-grid .it h3{font-family:'Noto Serif SC',serif;font-size:14px;font-weight:700;margin-top:4px;line-height:1.3}
+  .feat-grid .it p{font-size:11.5px;color:var(--sepia);margin-top:6px;line-height:1.65}
+  .feat-grid .it p strong{color:var(--ink)}
+
+  .one-app{background:linear-gradient(135deg,#1a1612 0%,#0e5267 100%);color:#fff;padding:30px;border-left:5px solid var(--ng-yellow);margin-bottom:30px}
+  .one-app .en{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;letter-spacing:5px;color:var(--ng-yellow);margin-bottom:8px}
+  .one-app h2{font-family:'Noto Serif SC',serif;font-size:26px;font-weight:900;line-height:1.2;color:#fff}
+  .one-app h2 em{font-style:normal;color:var(--ng-yellow)}
+  .one-app p{font-size:13px;color:var(--sand);margin-top:10px;line-height:1.85}
+  .one-app .pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+  .one-app .pills span{padding:4px 10px;background:rgba(255,204,0,.12);border:1px solid rgba(255,204,0,.4);color:var(--ng-yellow);font-size:11px;border-radius:14px;font-weight:600}
+
+  .roadmap{background:var(--paper-d);padding:24px;border-left:5px solid var(--terracotta)}
+  .roadmap h2{font-family:'Noto Serif SC',serif;font-size:20px;color:var(--ink);font-weight:900;margin-bottom:14px}
+  .roadmap h2 em{color:var(--terracotta);font-style:normal}
+  .roadmap .stages{display:grid;grid-template-columns:1fr;gap:12px}
+  .roadmap .stg{padding:14px;background:#fff;border-left:3px solid var(--ng-yellow)}
+  .roadmap .stg .v{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--terracotta);line-height:1;display:inline-block}
+  .roadmap .stg .t{font-size:13px;font-weight:700;display:inline-block;margin-left:10px}
+  .roadmap .stg p{font-size:11.5px;line-height:1.7;color:var(--sepia);margin-top:6px}
+
+  /* 响应式 */
+  @media (max-width:980px){
+    .stage{grid-template-columns:1fr;gap:30px}
+    .phone-wrap{position:static;display:flex;justify-content:center}
+    .top h1{font-size:28px}
+  }
+  @media (max-width:600px){
+    body{padding:24px 14px 50px}
+    .nav-back{position:static;display:inline-block;margin-bottom:14px}
+    .top h1{font-size:24px}
+    .feat-grid{grid-template-columns:1fr}
+    .phone{transform:scale(0.95);margin:0 auto}
+  }
 </style>
 </head>
 <body>
 
-<a class="nav-back" href="javascript:window.location.href='ppt.html#slide-'+(parseInt(localStorage.getItem('ppt_last_slide')||'0',10)+1)">← 返回 PPT</a>
+<a class="nav-back" href="index.html">‹ 返回首页</a>
 
 <div class="top">
   <div class="left">
-    <div class="en">WECHAT MINI-PROGRAM PROTOTYPE V2</div>
-    <h1>「68 海里」 <em>智慧文旅小程序</em> · 高保真原型</h1>
-    <div class="sub">借鉴官方蓝眼泪实况（600 万+ 用户）+ 九寨沟智慧文旅大脑模式 · 一站式承载所有能力</div>
+    <div class="en">WECHAT MINI-PROGRAM · ALL-IN-ONE PINGTAN COMPANION</div>
+    <h1>「68 海里」 <em>平潭旅行伴侣</em> · 综合小程序</h1>
+    <div class="sub">从落地高铁到离岛上船 — <strong>一个小程序，平潭旅行就够了</strong>。蓝眼泪实况、AI 方言翻译、PASS 一卡通城、行程预订、本地民宿苍蝇馆、文创商城、田野手账、AI 客服 — 所有需求一站解决。下方手机框可<strong>点击底部 5 个 Tab</strong>实时切换页面体验。</div>
   </div>
   <div class="right">
-    PRODUCT · <strong>YUTU·68</strong><br>
-    PROTOTYPE · 3 KEY SCREENS<br>
+    PRODUCT · <strong>YUTU·68 PASSPORT</strong><br>
+    PROTOTYPE · 5 TABS · 18+ FEATURES<br>
     DEPLOY · WECHAT NATIVE
   </div>
 </div>
 
-<div class="gallery">
+<div class="stage">
 
-  <!-- Screen 1: 智慧文旅 9 宫格首页 -->
-  <div class="pframe">
+  <!-- 手机舞台 -->
+  <div class="phone-wrap">
     <div class="phone">
       <div class="notch"></div>
-      <div class="scr scr1">
+      <div class="scr">
         <div class="bar"><span>9:24</span><span>●●● 100%</span></div>
-        <div class="hero">
-          <div class="badge">68NM</div>
-          <div class="h-logo">PASSPORT · 智慧文旅</div>
-          <div class="h-title">你好，旅人<br><em>欢迎来到 68 海里</em></div>
-          <div class="h-sub">猴研岛 · 大陆与台湾相近的地理坐标 · 125 km</div>
+        <div class="body" id="appBody">
+
+          <!-- ============ PAGE 1 · 首页 ============ -->
+          <div class="page act scr1" data-page="home">
+            <div class="ph-hero">
+              <div class="badge">68NM</div>
+              <div class="h-logo">PASSPORT · 平潭旅行伴侣</div>
+              <div class="h-title">你好，旅人<br><em>欢迎来到 68 海里</em></div>
+              <div class="h-sub">猴研岛 · 大陆距台湾最近的岛屿坐标 · 125 km</div>
+            </div>
+
+            <div class="quick-buy">
+              <div>蓝眼泪 · 今晚概率<br><span style="opacity:.75;font-size:9px">猴研岛海域 · 22:00–01:00</span></div>
+              <div class="v">72<small>%</small></div>
+            </div>
+
+            <div class="sec-h"><div class="t">快捷入口 <small>QUICK ACCESS</small></div><div class="more">查看全部 ›</div></div>
+            <div class="nine">
+              <div class="it hot" data-go="map"><div class="ic">★</div><div class="nm">蓝眼泪<br>实况</div></div>
+              <div class="it" data-go="map"><div class="ic">⌖</div><div class="nm">追泪<br>地图</div></div>
+              <div class="it new" data-go="translate"><div class="ic">A</div><div class="nm">AI<br>翻译</div></div>
+              <div class="it" data-go="translate"><div class="ic">◎</div><div class="nm">VLM<br>扫物</div></div>
+              <div class="it new" data-go="shop"><div class="ic">¥</div><div class="nm">通行<br>PASS</div></div>
+              <div class="it" data-go="map"><div class="ic">▶</div><div class="nm">直播<br>追泪</div></div>
+              <div class="it" data-go="map"><div class="ic">⌂</div><div class="nm">民宿<br>苍蝇馆</div></div>
+              <div class="it" data-go="shop"><div class="ic">≡</div><div class="nm">套餐<br>预订</div></div>
+              <div class="it" data-go="me"><div class="ic">✦</div><div class="nm">田野<br>手账</div></div>
+              <div class="it" data-go="map"><div class="ic">⌬</div><div class="nm">景点<br>导览</div></div>
+              <div class="it" data-go="shop"><div class="ic">⚑</div><div class="nm">租车<br>包车</div></div>
+              <div class="it" data-go="me"><div class="ic">!</div><div class="nm">蓝泪<br>盲盒</div></div>
+            </div>
+
+            <div class="ai-tip">
+              <div class="av">AI</div>
+              <div><strong>AI 蓝朋友</strong> 已为你筛选 — 基于「方言深度 + 小众路线 + 预算 ¥1,500」<br>推荐 <strong>★ B 档·两面漫游 3 日</strong> ¥1,380（含 PASS 卡）</div>
+            </div>
+
+            <div class="sec-h"><div class="t">今日推荐 <small>FOR YOU TODAY</small></div><div class="more">更多 ›</div></div>
+            <div class="cards">
+              <div class="card"><div class="pic" style="background-image:url('assets/houyan_aerial.png')"></div><div class="info"><strong>猴研岛 · 68 海里</strong><small>大陆距台湾最近</small><div class="price">¥35</div></div></div>
+              <div class="card"><div class="pic" style="background-image:url('assets/real/donghai.jpg')"></div><div class="info"><strong>东海仙境 · 仙人井</strong><small>40m 海蚀竖井</small><div class="price">¥85</div></div></div>
+              <div class="card"><div class="pic" style="background-image:url('assets/real/sandart.jpg')"></div><div class="info"><strong>坛南湾 · 白金海岸</strong><small>10 公里浴场</small><div class="price">免费</div></div></div>
+              <div class="card"><div class="pic" style="background-image:url('assets/real/fishport.jpg')"></div><div class="info"><strong>北港村 · 石厝民宿</strong><small>★ 4.9 · 持卡 9 折</small><div class="price">¥288</div></div></div>
+            </div>
+
+            <div class="sec-h"><div class="t">本地老店推荐 <small>LOCAL EATS</small></div><div class="more">查看全部 ›</div></div>
+            <div class="rec-it"><div class="pic" style="background-image:url('assets/real/fishport.jpg')"></div><div class="info"><strong>金井湾·阿伯海鲜小馆</strong><small>★ 4.8 · 本地老店 · 持卡立减 15%</small></div><div class="price">¥85<small>¥100</small></div></div>
+            <div class="rec-it"><div class="pic" style="background-image:url('assets/real/sandart.jpg')"></div><div class="info"><strong>北港村·阿婆海蛎煎</strong><small>★ 4.9 · 30 年老店 · 持卡 9 折</small></div><div class="price">¥38<small>¥45</small></div></div>
+            <div style="height:18px"></div>
+          </div>
+
+          <!-- ============ PAGE 2 · 地图（蓝眼泪+景点+民宿） ============ -->
+          <div class="page scr2" data-page="map">
+            <div class="ph-hero" style="background:#0a1525;text-align:center">
+              <div class="h-logo">BLUE TEARS · LIVE PRO</div>
+              <div class="h-title" style="color:#fff">蓝眼泪 · <em>实况追踪</em></div>
+              <div class="h-sub">累计访问：9,099,402 · 实时更新</div>
+            </div>
+            <div class="map-bg">
+              <div class="prob-card">
+                <div class="lab">TONIGHT PROBABILITY</div>
+                <div class="v">72<small>%</small></div>
+                <div class="desc">猴研岛海域 · 22:00 起 · 涨潮 + 弱南风<br>已有 23 位旅人上报实况</div>
+              </div>
+              <div class="pin p1"></div>
+              <div class="pin p2"></div>
+              <div class="pin p3"></div>
+              <div class="map-actions">
+                <div class="btn up">📸 上报实况</div>
+                <div class="btn live">直播追泪</div>
+              </div>
+            </div>
+
+            <div class="filter-row">
+              <div class="f act">蓝眼泪 5 大点</div>
+              <div class="f">景点</div>
+              <div class="f">民宿</div>
+              <div class="f">餐馆</div>
+              <div class="f">租车点</div>
+              <div class="f">咖啡馆</div>
+            </div>
+
+            <div class="rec-it"><div class="pic" style="background-image:url('assets/houyan_aerial.png')"></div><div class="info"><strong>猴研岛海域</strong><small>★ 概率 72% · 涨潮配合南风</small></div><div class="price" style="color:var(--ok)">最优</div></div>
+            <div class="rec-it"><div class="pic" style="background-image:url('assets/real/sandart.jpg')"></div><div class="info"><strong>坛南湾</strong><small>★ 概率 58% · 沙滩长 · 适合长曝</small></div><div class="price" style="color:var(--gold)">良好</div></div>
+            <div class="rec-it"><div class="pic" style="background-image:url('assets/real/donghai.jpg')"></div><div class="info"><strong>长江澳</strong><small>★ 概率 41% · 风车背景 · 摄影点</small></div><div class="price" style="color:var(--sepia)">一般</div></div>
+            <div class="rec-it"><div class="pic" style="background-image:url('assets/real/fishport.jpg')"></div><div class="info"><strong>龙王头沙滩</strong><small>★ 概率 35% · 备选地点</small></div><div class="price" style="color:var(--sepia)">一般</div></div>
+
+            <div class="ai-tip">
+              <div class="av">!</div>
+              <div><strong>蓝眼泪盲盒保险（自动）</strong><br>未追到？凭订单自动获得次年同期回访券，无需申请。</div>
+            </div>
+            <div style="height:18px"></div>
+          </div>
+
+          <!-- ============ PAGE 3 · 翻译（语途·68） ============ -->
+          <div class="page scr3" data-page="translate">
+            <div class="ph-hero">
+              <div class="badge">YUTU·68</div>
+              <div class="h-logo">AI DIALECT TRANSLATOR</div>
+              <div class="h-title">语途 · <em>68</em></div>
+              <div class="h-sub">把听不懂的乡音 · 翻译成你听得懂的故事</div>
+            </div>
+
+            <div class="yutu-tabs">
+              <div class="yt act">方言录音</div>
+              <div class="yt">VLM 扫物</div>
+              <div class="yt">文字翻译</div>
+              <div class="yt">田野录音</div>
+            </div>
+
+            <div class="yutu-mic">
+              <div class="mic">🎤</div>
+              <h3>长按录音 · 听懂渔港</h3>
+              <small>支持平潭话 / 闽南语 / 客家话 / 普通话</small>
+            </div>
+
+            <div class="sec-h"><div class="t">最近翻译 <small>RECENT</small></div><div class="more">清空</div></div>
+
+            <div class="yutu-card">
+              <div class="lab">原音 · 平潭话</div>
+              <div class="text">"今旦暝有蓝眼泪，紧来去看噢～"</div>
+              <div class="meaning">
+                <strong style="color:var(--terracotta)">情绪意译：</strong>"今晚有蓝眼泪，赶紧来看吧～"<br>
+                <strong style="color:var(--terracotta)">情境备注：</strong>说话人是 60+ 岁的当地老渔民，"紧来去"是带有催促和欢欣的口吻。
+              </div>
+            </div>
+
+            <div class="yutu-card">
+              <div class="lab">原音 · 闽南语</div>
+              <div class="text">"这粒石头会唱歌呢，你听看觅"</div>
+              <div class="meaning">
+                <strong style="color:var(--terracotta)">情绪意译：</strong>"这块石头会唱歌哦，你来听听看"<br>
+                <strong style="color:var(--terracotta)">情境备注：</strong>北港村「石头会唱歌」聚落主理人介绍敲击花岗岩的玩法。
+              </div>
+            </div>
+
+            <div class="yutu-card">
+              <div class="lab">VLM 扫描结果 · 实物</div>
+              <div class="text">石厝屋顶压顶碎石（北港村 · 1948 建）</div>
+              <div class="meaning">
+                <strong style="color:var(--terracotta)">AR 讲解：</strong>这些看似杂乱的碎石其实是岛民对抗 12 级台风的智慧 — 通过分散重力让屋顶稳固。<br>
+                <span style="color:var(--teal)">→ 一键购买同款"压仓石"文镇 ¥58 起</span>
+              </div>
+            </div>
+            <div style="height:18px"></div>
+          </div>
+
+          <!-- ============ PAGE 4 · 商城（套餐+PASS+文创+包车） ============ -->
+          <div class="page scr4" data-page="shop">
+            <div class="ph-hero">
+              <div class="badge">SHOP</div>
+              <div class="h-logo">68 NM SHOP · ALL TICKETS &amp; GOODS</div>
+              <div class="h-title">68 海里 · <em>商城</em></div>
+              <div class="h-sub">行程套餐 · PASS 卡 · 文创 · 票务 · 包车 · 一站下单</div>
+            </div>
+
+            <div class="biz-tabs">
+              <div class="bt act">行程套餐</div>
+              <div class="bt">PASS 卡</div>
+              <div class="bt">文创衍生</div>
+              <div class="bt">景区票</div>
+              <div class="bt">包车租车</div>
+              <div class="bt">订单</div>
+            </div>
+
+            <div class="pkg-card">
+              <div class="tier">A · 听见</div>
+              <div class="nm">声音地图日</div>
+              <div class="feat">A1 漫游护照 · A2 台青咖啡馆声音特调 · A3 石头会唱歌门票 · A4 AI 数字明信片 · A5 蓝眼泪盲盒保险</div>
+              <div class="info">
+                <div class="price">¥199 <small>/ 1 日</small></div>
+                <div class="buy">立即预订</div>
+              </div>
+            </div>
+
+            <div class="pkg-card star">
+              <div class="tier">B · 听懂</div>
+              <div class="nm">两面漫游 3 日</div>
+              <div class="feat">A 全部 + 北港村石厝民宿 2 晚 · 猴研岛/东海/长江澳专属讲解 · AI 翻译手账 · 海鲜大排档 · 渔港早市</div>
+              <div class="info">
+                <div class="price">¥1,380 <small>/ 3 日 2 夜</small></div>
+                <div class="buy">立即预订</div>
+              </div>
+            </div>
+
+            <div class="pkg-card">
+              <div class="tier">C · 听透</div>
+              <div class="nm">作者带团田野工作坊</div>
+              <div class="feat">B 全部 + 180° 海景民宿 · 5 位深度访谈 · 方言田野工作坊 · 个人播客录制 · 海上夜钓 · 定制出版物</div>
+              <div class="info">
+                <div class="price">¥3,680 <small>/ 5 日 4 夜 · 限 12 人</small></div>
+                <div class="buy">立即预订</div>
+              </div>
+            </div>
+
+            <div class="pass-banner">
+              <div class="lb">68 NM PASS · ALL-IN-ONE</div>
+              <div class="nm">通行 PASS 卡 · 一卡通城</div>
+              <div class="pv">¥99 <small>/ 张</small></div>
+              <div class="ben">民宿 · 苍蝇馆 · 公共出行 · 景区门票 · 租车船 · 限定礼物 — 6 大权益</div>
+              <div class="pv-buy">立即购买</div>
+            </div>
+
+            <div class="sec-h"><div class="t">文创衍生品 <small>MERCHANDISE</small></div><div class="more">查看全部 ›</div></div>
+            <div class="grid2">
+              <div class="gi"><div class="pic" style="background-image:url('assets/merch_vinyl.png')"></div><div class="info"><strong>声音黑胶</strong><small>5 段田野录音</small><div class="price">¥98</div></div></div>
+              <div class="gi"><div class="pic" style="background-image:url('assets/merch_paperweight.png')"></div><div class="info"><strong>压仓石文镇</strong><small>北港村花岗岩</small><div class="price">¥58 — 168</div></div></div>
+              <div class="gi"><div class="pic" style="background-image:url('assets/merch_giftbox.png')"></div><div class="info"><strong>两岸物产礼盒</strong><small>14 件混搭</small><div class="price">¥128</div></div></div>
+              <div class="gi"><div class="pic" style="background-image:url('assets/merch_journal.png')"></div><div class="info"><strong>AI 数字明信片</strong><small>个人定制 · NFT 版</small><div class="price">¥39</div></div></div>
+            </div>
+
+            <div class="sec-h"><div class="t">景区联票 <small>ATTRACTION TICKETS</small></div><div class="more">›</div></div>
+            <div class="grid2">
+              <div class="gi"><div class="pic" style="background-image:url('assets/houyan_aerial.png')"></div><div class="info"><strong>猴研岛 · 68 海里</strong><small>含讲解器</small><div class="price">¥35</div></div></div>
+              <div class="gi"><div class="pic" style="background-image:url('assets/real/donghai.jpg')"></div><div class="info"><strong>东海仙境 · 仙人井</strong><small>含步道导览</small><div class="price">¥85</div></div></div>
+              <div class="gi"><div class="pic" style="background-image:url('assets/real/sandart.jpg')"></div><div class="info"><strong>海坛古城</strong><small>非遗夜场加 ¥30</small><div class="price">¥40</div></div></div>
+              <div class="gi"><div class="pic" style="background-image:url('assets/real/fishport.jpg')"></div><div class="info"><strong>3 景联票</strong><small>持 PASS 卡再 8 折</small><div class="price">¥138</div></div></div>
+            </div>
+
+            <div class="sec-h"><div class="t">包车 / 租车 <small>TRANSPORT</small></div><div class="more">›</div></div>
+            <div class="grid2">
+              <div class="gi"><div class="pic" style="background:linear-gradient(135deg,#0e5267,#7a5a3a);display:flex;align-items:center;justify-content:center;color:#ffcc00;font-size:30px">🚗</div><div class="info"><strong>5 座包车 · 全岛日租</strong><small>含司机 · 8h</small><div class="price">¥480</div></div></div>
+              <div class="gi"><div class="pic" style="background:linear-gradient(135deg,#1a1612,#c8552d);display:flex;align-items:center;justify-content:center;color:#ffcc00;font-size:30px">🛵</div><div class="info"><strong>电动车日租</strong><small>北港村点取</small><div class="price">¥45</div></div></div>
+            </div>
+            <div style="height:18px"></div>
+          </div>
+
+          <!-- ============ PAGE 5 · 我的（漫游护照+订单+客服） ============ -->
+          <div class="page scr5" data-page="me">
+            <div class="ph-hero">
+              <div class="me-card">
+                <div class="ava">郭</div>
+                <div class="info">
+                  <strong>郭嘉 · Jack</strong>
+                  <small>PASSPORT NO. <em style="font-style:normal;color:#ffcc00">68NM-2025-0001</em> · 已认证</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="me-stats">
+              <div class="s"><div class="v">3</div><div class="l">已订套餐</div></div>
+              <div class="s"><div class="v">12</div><div class="l">采集声音</div></div>
+              <div class="s"><div class="v">5</div><div class="l">蓝泪打卡</div></div>
+              <div class="s"><div class="v">¥99</div><div class="l">PASS 余额</div></div>
+            </div>
+
+            <div class="sec-h" style="background:#fff"><div class="t">我的资产 <small>ASSETS</small></div></div>
+            <div class="me-list">
+              <div class="li"><div class="lt"><div class="ic">≡</div><div>我的订单 · 进行中 ★ B 档</div></div><div class="rg hot">查看 ›</div></div>
+              <div class="li"><div class="lt"><div class="ic">¥</div><div>PASS 卡 · 已激活</div></div><div class="rg">¥99 · 全岛通行</div></div>
+              <div class="li"><div class="lt"><div class="ic">★</div><div>漫游护照（实体 + 数字）</div></div><div class="rg">已盖 7 章</div></div>
+              <div class="li"><div class="lt"><div class="ic">!</div><div>蓝眼泪盲盒保险</div></div><div class="rg hot">已激活 · 自动赔付</div></div>
+              <div class="li"><div class="lt"><div class="ic">✦</div><div>田野手账（AI 自动生成）</div></div><div class="rg">5 篇 · 可分享</div></div>
+            </div>
+
+            <div class="sec-h" style="background:#fff;margin-top:8px"><div class="t">服务与设置 <small>SERVICE</small></div></div>
+            <div class="me-list">
+              <div class="li"><div class="lt"><div class="ic">A</div><div>AI 蓝朋友 · 24h 客服</div></div><div class="rg">在线 ›</div></div>
+              <div class="li"><div class="lt"><div class="ic">⌖</div><div>紧急救援 · 报警</div></div><div class="rg">SOS</div></div>
+              <div class="li"><div class="lt"><div class="ic">✿</div><div>分享给朋友 · 拉新返券</div></div><div class="rg">最高 ¥30</div></div>
+              <div class="li"><div class="lt"><div class="ic">⚙</div><div>语言 / 通知 / 隐私</div></div><div class="rg">CN · EN · TC</div></div>
+              <div class="li"><div class="lt"><div class="ic">i</div><div>关于「68 海里·两面」</div></div><div class="rg">v 2.6</div></div>
+            </div>
+
+            <div class="ai-tip" style="margin-top:14px">
+              <div class="av">AI</div>
+              <div><strong>AI 蓝朋友</strong> 提醒：你的 B 档行程将于 4 月 18 日开始，今晚 22:00 蓝眼泪概率 72%，已为你预留猴研岛海域观测位 ›</div>
+            </div>
+            <div style="height:18px"></div>
+          </div>
+
         </div>
-        <div class="nine">
-          <div class="it hot">
-            <div class="ic">★</div><div class="nm">蓝眼泪<br>实况</div>
-          </div>
-          <div class="it">
-            <div class="ic">⌖</div><div class="nm">追泪<br>地图</div>
-          </div>
-          <div class="it new">
-            <div class="ic">A</div><div class="nm">AI<br>翻译</div>
-          </div>
-          <div class="it">
-            <div class="ic">◎</div><div class="nm">VLM<br>扫描</div>
-          </div>
-          <div class="it new">
-            <div class="ic">¥</div><div class="nm">通行<br>PASS</div>
-          </div>
-          <div class="it">
-            <div class="ic">▶</div><div class="nm">直播<br>追泪</div>
-          </div>
-          <div class="it">
-            <div class="ic">⌂</div><div class="nm">民宿<br>苍蝇馆</div>
-          </div>
-          <div class="it">
-            <div class="ic">≡</div><div class="nm">套餐<br>预订</div>
-          </div>
-          <div class="it">
-            <div class="ic">✦</div><div class="nm">田野<br>手账</div>
-          </div>
+
+        <!-- 浮窗 AI 客服 -->
+        <div class="float-bot" id="botFab" title="AI 蓝朋友 · 24h 在线">AI<small>蓝朋友</small></div>
+
+        <!-- Tab Bar -->
+        <div class="foot">
+          <div class="tab act" data-go="home"><span class="ico">⌂</span>首页</div>
+          <div class="tab" data-go="map"><span class="ico">◌</span>地图</div>
+          <div class="tab" data-go="translate"><span class="ico">⊙</span>翻译</div>
+          <div class="tab" data-go="shop"><span class="ico">¥</span>商城</div>
+          <div class="tab" data-go="me"><span class="ico">☰</span>我的</div>
         </div>
-        <div class="quick-buy">
-          <div>蓝眼泪 · 今晚概率<br><span style="opacity:.75;font-size:9px">猴研岛海域 · 22:00-01:00</span></div>
-          <div class="v">72%</div>
-        </div>
-        <div style="padding:10px 12px;background:#fff;flex:1;display:flex;flex-direction:column;justify-content:flex-end">
-          <div style="padding:9px;background:linear-gradient(135deg,#fff8d8,#fff);border-left:3px solid var(--terracotta);font-size:10px;line-height:1.5">
-            <strong style="color:var(--terracotta)">★ B 档·两面漫游 3 日</strong> ¥1,380<br>
-            <span style="color:var(--sepia);font-size:9px">含 PASS 卡 · 价值 ¥99</span>
-          </div>
-        </div>
-        <div class="foot-tab">
-          <div class="act"><span class="ico">⌂</span>首页</div>
-          <div><span class="ico">◌</span>地图</div>
-          <div><span class="ico">⊙</span>翻译</div>
-          <div><span class="ico">☰</span>我的</div>
-        </div>
+
       </div>
     </div>
-    <div class="label">SCREEN · 01</div>
-    <div class="label-cn">智慧文旅 9 宫格首页</div>
   </div>
 
-  <!-- Screen 2: 蓝眼泪实况 PRO -->
-  <div class="pframe">
-    <div class="phone">
-      <div class="notch"></div>
-      <div class="scr scr2">
-        <div class="bar"><span>9:24</span><span>●●● 100%</span></div>
-        <div class="hero2">
-          <div class="h-logo">BLUE TEARS · LIVE PRO</div>
-          <div class="h-title">蓝眼泪 · 实况追踪</div>
-          <div class="visit">累计访问：9,099,402</div>
-        </div>
-        <div class="map">
-          <div class="prob-card">
-            <div class="lab">TONIGHT PROBABILITY</div>
-            <div class="v">72<small>%</small></div>
-            <div class="desc">猴研岛海域 · 22:00 起 · 涨潮 + 弱南风<br>已有 23 位旅人上报实况</div>
-          </div>
-          <div class="pin p1"></div>
-          <div class="pin p2"></div>
-          <div class="pin p3"></div>
-          <div class="actions">
-            <div class="btn up">📸 上报实况</div>
-            <div class="btn live">直播追泪</div>
-          </div>
-        </div>
-        <div class="foot-tab" style="background:#0a1525;color:rgba(255,255,255,.6);border-color:#1a3a5c">
-          <div><span class="ico">⌂</span>首页</div>
-          <div class="act" style="color:#ffcc00"><span class="ico">◌</span>实况</div>
-          <div><span class="ico">⊙</span>翻译</div>
-          <div><span class="ico">☰</span>我的</div>
-        </div>
+  <!-- 右侧：18+ 功能列表 + slogan -->
+  <div class="feat-side">
+
+    <div class="one-app">
+      <div class="en">ONE APP · ALL OF PINGTAN</div>
+      <h2>来到平潭旅游<br><em>"一个小程序就够了"</em></h2>
+      <p>从落地高铁那一刻起，这个小程序就是你在平潭的<strong style="color:var(--ng-yellow)">完整伴侣</strong> — 它替代你需要打开的所有 App：地图、翻译、订房、订餐、租车、客服、社区、支付、保险、纪念。</p>
+      <div class="pills">
+        <span>一站预订</span><span>一卡通城</span><span>AI 翻译</span><span>蓝眼泪实况</span><span>本地化推荐</span><span>智能客服</span><span>路线导航</span><span>文创商城</span><span>田野手账</span><span>盲盒保险</span><span>社区分享</span><span>多语言</span>
       </div>
     </div>
-    <div class="label">SCREEN · 02</div>
-    <div class="label-cn">蓝眼泪实况 PRO（预测+上报+直播+保险）</div>
-  </div>
 
-  <!-- Screen 3: AI 推荐 + 通行 PASS -->
-  <div class="pframe">
-    <div class="phone">
-      <div class="notch"></div>
-      <div class="scr scr3">
-        <div class="bar"><span>9:24</span><span>●●● 100%</span></div>
-        <div class="hero3">
-          <div class="h-logo">68 NM PASS · AI RECOMMEND</div>
-          <div class="h-title">通行 PASS 卡 + AI 推荐</div>
-        </div>
-        <div class="body3">
-          <div class="pass-card-mini">
-            <div class="lb">68 NM PASS · ALL-IN-ONE</div>
-            <div class="nm">通行卡 · 全城联通</div>
-            <div class="pv">¥99 <small>/ 张</small></div>
-            <div class="ben">民宿/苍蝇馆/打车/景区/租车 6 大权益 + 限定礼物</div>
-          </div>
-          <div class="ai-tip">
-            <strong>AI 蓝朋友 · 已为你筛选</strong><br>
-            基于你的偏好「方言深度+小众路线+预算 ¥1500」，推荐：
-          </div>
-          <div class="rec-it">
-            <div class="pic"></div>
-            <div class="info">
-              <strong>北港村·石厝海景民宿</strong>
-              <small>★ 4.9 · 距渔港 200m · 持卡 9 折</small>
-            </div>
-            <div class="price">¥288</div>
-          </div>
-          <div class="rec-it r2">
-            <div class="pic"></div>
-            <div class="info">
-              <strong>金井湾·阿伯海鲜小馆</strong>
-              <small>★ 4.8 · 本地老店 · 持卡立减</small>
-            </div>
-            <div class="price">¥85</div>
-          </div>
-          <div class="rec-it r3">
-            <div class="pic"></div>
-            <div class="info">
-              <strong>东海仙境·黄昏摄影点</strong>
-              <small>少有人知 · 适合长曝光</small>
-            </div>
-            <div class="price" style="color:var(--teal)">免费</div>
-          </div>
-        </div>
-        <div class="foot-tab">
-          <div><span class="ico">⌂</span>首页</div>
-          <div><span class="ico">◌</span>地图</div>
-          <div><span class="ico">⊙</span>翻译</div>
-          <div class="act"><span class="ico">★</span>推荐</div>
-        </div>
+    <div class="feat-block">
+      <h2>核心功能 · <em>5 个 Tab</em><small>5 TABS</small></h2>
+      <div class="feat-grid">
+        <div class="it" data-go="home"><div class="num">TAB 01</div><h3>⌂ 首页 · 智能聚合</h3><p>9 宫格快捷入口 · 今晚蓝眼泪概率 · AI 推荐套餐 · 今日景点 · 本地老店推荐 · <strong>AI 蓝朋友</strong>主动提醒</p></div>
+        <div class="it" data-go="map"><div class="num">TAB 02</div><h3>◌ 地图 · 蓝泪+导览</h3><p>5 大蓝眼泪点实时概率 · UGC 上报 · 24h 直播 · 景点 / 民宿 / 餐馆 / 租车点全岛 POI · <strong>盲盒保险</strong></p></div>
+        <div class="it" data-go="translate"><div class="num">TAB 03</div><h3>⊙ 翻译 · 语途 68</h3><p>方言录音 → AI 情绪意译 · VLM 扫物 → AR 讲解 · 文字翻译 · 田野录音云端归档 · <strong>4 种工作模式</strong></p></div>
+        <div class="it" data-go="shop"><div class="num">TAB 04</div><h3>¥ 商城 · 一站下单</h3><p>3 档行程套餐 · PASS 卡 · 文创衍生 · 景区联票 · 包车租车 · 我的订单 — <strong>6 大类</strong></p></div>
+        <div class="it" data-go="me"><div class="num">TAB 05</div><h3>☰ 我的 · 漫游护照</h3><p>数字 + 实体护照 · 订单 · PASS 卡余额 · 田野手账 · AI 客服 · 紧急 SOS · 多语言设置</p></div>
       </div>
     </div>
-    <div class="label">SCREEN · 03</div>
-    <div class="label-cn">AI 蓝朋友 · 通行 PASS + 民宿小馆推荐</div>
+
+    <div class="feat-block">
+      <h2>子功能矩阵 · <em>18+ 项能力</em><small>FEATURE MATRIX</small></h2>
+      <div class="feat-grid">
+        <div class="it"><div class="num">F · 01</div><h3>蓝眼泪概率预测</h3><p>气象 + 潮汐 + 风向 + 历史 UGC 多因子建模，每 30 分钟刷新一次，准确率 78%。</p></div>
+        <div class="it"><div class="num">F · 02</div><h3>UGC 上报与热力</h3><p>旅人随手上传，1 分钟内更新到全岛热力图，已沉淀 9M+ 用户。</p></div>
+        <div class="it"><div class="num">F · 03</div><h3>5 点 24h 直播</h3><p>猴研岛 / 坛南湾 / 长江澳 / 龙王头 / 北港村五个机位，离岛也能"云追泪"。</p></div>
+        <div class="it"><div class="num">F · 04</div><h3>AI 方言翻译器</h3><p>不止"翻译字面"，更解读情绪、语气、文化层 — 是文化阅读器，不是字典。</p></div>
+        <div class="it"><div class="num">F · 05</div><h3>VLM 视觉扫描</h3><p>对准石头 / 老门 / 海产品扫一扫，AR 讲解叠加 + 一键购买同款衍生品。</p></div>
+        <div class="it"><div class="num">F · 06</div><h3>PASS 一卡通城</h3><p>¥99 一张 · 民宿 / 餐馆 / 公交 / 门票 / 租车 / 礼物 6 大权益，可叠加套餐使用。</p></div>
+        <div class="it"><div class="num">F · 07</div><h3>3 档套餐预订</h3><p>A · 声音地图日 ¥199 / B · 两面漫游 3 日 ¥1,380 / C · 作者带团 ¥3,680。</p></div>
+        <div class="it"><div class="num">F · 08</div><h3>本地民宿 + 苍蝇馆</h3><p>AI 排序，<strong>不付费推荐</strong> — 把传统旅行社不会推的非网红老店推给你。</p></div>
+        <div class="it"><div class="num">F · 09</div><h3>包车 / 租车</h3><p>5 座包车 ¥480/日 · 电动车 ¥45/日 · 夜钓船优先排队，全岛通点取还。</p></div>
+        <div class="it"><div class="num">F · 10</div><h3>景区联票</h3><p>东海 + 猴研 + 海坛 三景联票 ¥138（持 PASS 再 8 折），含讲解。</p></div>
+        <div class="it"><div class="num">F · 11</div><h3>文创衍生商城</h3><p>声音黑胶 ¥98 / 压仓石文镇 ¥58 / 两岸物产礼盒 ¥128 / AI 数字明信片 ¥39。</p></div>
+        <div class="it"><div class="num">F · 12</div><h3>蓝眼泪盲盒保险</h3><p>未追到自动获得次年回访券，无须申请；保险也可选包含天气延误。</p></div>
+        <div class="it"><div class="num">F · 13</div><h3>AI 蓝朋友 24h 客服</h3><p>语义级问答 + 主动提醒（"今晚 72% 概率"）+ 转人工接力。</p></div>
+        <div class="it"><div class="num">F · 14</div><h3>田野手账 H5</h3><p>离岛后 AI 自动用你的录音 / 照片生成可分享的图文游记，一键发朋友圈。</p></div>
+        <div class="it"><div class="num">F · 15</div><h3>漫游护照（实体 + 数字）</h3><p>每个采样点可加盖印章；数字端记录全部声音地图与翻译记录。</p></div>
+        <div class="it"><div class="num">F · 16</div><h3>紧急 SOS</h3><p>一键定位 + 报警 / 救援电话 · 海上 / 礁石 / 夜间观测全场景适配。</p></div>
+        <div class="it"><div class="num">F · 17</div><h3>邀请返券</h3><p>分享给朋友每注册 + 下单，最高拿 ¥30 抵扣券，叠加 PASS 使用。</p></div>
+        <div class="it"><div class="num">F · 18</div><h3>多语言切换</h3><p>简体中文 / 繁体中文 / 英语三语全站联动，匹配两岸跨海与海外华人受众。</p></div>
+      </div>
+    </div>
+
+    <div class="roadmap">
+      <h2>迭代路线 · <em>12 个月可上线 · 可持续</em></h2>
+      <div class="stages">
+        <div class="stg"><div class="v">V1</div><div class="t">3 个月 · MVP 上线</div><p>5 Tab + 9 宫格 + 套餐订单 + AI 翻译器 + PASS 卡 + 本地推荐。完成商标 / 专利 / 备案。</p></div>
+        <div class="stg"><div class="v">V2</div><div class="t">6 个月 · 能力扩张</div><p>VLM 扫描器 + 蓝眼泪 PRO 直播 + 异业商户接入 + 海西联动版（福州 / 泉州 / 厦门）。</p></div>
+        <div class="stg"><div class="v">V3</div><div class="t">12 个月 · 平台化</div><p>B 端运营大屏开放 + AI 数字人客服 + IP 衍生品出版 + 跨境台青服务模块。对接平潭综合实验区智慧文旅大脑。</p></div>
+      </div>
+    </div>
+
   </div>
+
 </div>
 
-<div class="legend">
-  <h2>9 大功能模块 · 一站式智慧文旅</h2>
-  <div class="grid9">
-    <div class="it"><strong><em>01</em> 蓝眼泪实况</strong><p>AI 概率预测 + 游客 UGC 上报 + 实时热力地图。</p></div>
-    <div class="it"><strong><em>02</em> 追泪地图</strong><p>5 大观测点轨迹 + 潮汐 + 风向叠加。</p></div>
-    <div class="it"><strong><em>03</em> AI 方言翻译器</strong><p>录音→情绪意译→明信片生成。</p></div>
-    <div class="it"><strong><em>04</em> VLM 扫描器</strong><p>扫物→AR 讲解→一键购物。</p></div>
-    <div class="it"><strong><em>05</em> 通行 PASS 卡</strong><p>¥99 一卡通城 · 6 大权益 + 限定礼物。</p></div>
-    <div class="it"><strong><em>06</em> 直播追泪</strong><p>5 个观测点 24 小时夜间直播。</p></div>
-    <div class="it"><strong><em>07</em> 民宿+苍蝇小馆</strong><p>AI 排序 · 不付费推荐 · 反差评机制。</p></div>
-    <div class="it"><strong><em>08</em> 套餐预订</strong><p>3 档 SKU + 漫游护照下单。</p></div>
-    <div class="it"><strong><em>09</em> 田野手账</strong><p>离岛后 AI 自动生成 H5 可分享游记。</p></div>
-  </div>
-</div>
+<script>
+// Tab 切换
+(function(){
+  function go(name){
+    if (!name) return;
+    document.querySelectorAll('.page').forEach(function(p){ p.classList.toggle('act', p.getAttribute('data-page')===name); });
+    document.querySelectorAll('.foot .tab').forEach(function(t){ t.classList.toggle('act', t.getAttribute('data-go')===name); });
+    var body = document.getElementById('appBody'); if (body) body.scrollTop = 0;
+  }
+  document.addEventListener('click', function(e){
+    var t = e.target.closest('[data-go]');
+    if (!t) return;
+    e.preventDefault();
+    go(t.getAttribute('data-go'));
+  });
+  // 客服浮窗：弹一个简易气泡
+  var bot = document.getElementById('botFab');
+  if (bot) bot.addEventListener('click', function(){
+    alert('🤖 AI 蓝朋友：你好旅人～\n\n今晚 22:00 蓝眼泪概率 72%（猴研岛海域）。\n• 想出发？回复"导航"\n• 想升级？回复"套餐"\n• 想直播？回复"直播"');
+  });
+})();
+</script>
 
-<div class="roadmap">
-  <h2>迭代路线 · 12 个月可上线 · 可持续可发展</h2>
-  <div class="stages">
-    <div class="stg">
-      <div class="v">V1</div>
-      <div class="t">3 个月 · MVP 上线</div>
-      <p>智慧首页 9 宫格 + 套餐订单 + AI 翻译器 + PASS 卡。完成商标、专利、备案。</p>
-    </div>
-    <div class="stg">
-      <div class="v">V2</div>
-      <div class="t">6 个月 · 能力扩张</div>
-      <p>VLM 扫描器 + 蓝眼泪实况 PRO + 异业商户接入 + 海西联动版（福州/泉州/厦门）。</p>
-    </div>
-    <div class="stg">
-      <div class="v">V3</div>
-      <div class="t">12 个月 · 平台化</div>
-      <p>B 端运营大屏开放 + AI 数字人客服 + IP 衍生品出版 + 跨境台青服务模块。对接平潭综合实验区智慧文旅大脑。</p>
-    </div>
-  </div>
-</div>
-
+<script src="assets/immersive.js?v=20260522-0318" defer></script>
 </body>
 </html>
