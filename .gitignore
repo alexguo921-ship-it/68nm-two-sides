@@ -21,3 +21,7 @@
 # 构建输出（暂时无）
 /dist/
 /build/
+
+# 部署平台本地状态
+.vercel/
+.wrangler/
