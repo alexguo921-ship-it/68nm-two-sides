@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>语途·68 · AI 方言情绪翻译器</title>
+<link rel="stylesheet" href="assets/theme.css">
+<style>
+body { background: var(--paper); padding-top: 80px; padding-bottom: 40px; min-height: 100vh; }
+.app { max-width: 1400px; margin: 0 auto; padding: 0 40px; }
+.demo-header { border-bottom: 3px solid var(--ink); padding-bottom: 16px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end; }
+.demo-title h1 { font-size: 38px; font-weight: 800; color: var(--ink); margin-bottom: 6px; line-height: 1.1; }
+.demo-title .en { font-family: var(--serif-en); font-style: italic; color: var(--terracotta); font-size: 17px; }
+.back-link { font-family: var(--sans-en); font-size: 11px; letter-spacing: 3px; color: var(--sepia); text-decoration: none; padding: 8px 16px; border: 1px solid var(--ink); }
+.back-link:hover { background: var(--ink); color: var(--ng-yellow); }
+
+.disclaimer {
+  margin-bottom: 18px; padding: 12px 18px;
+  background: rgba(255,210,0,.12); border-left: 3px solid var(--ng-yellow);
+  font-size: 13px; line-height: 1.65; color: var(--ink-soft);
+}
+.disclaimer strong { color: var(--ink); }
+
+.main-grid { display: grid; grid-template-columns: 1.1fr 1.2fr; gap: 30px; }
+.panel { background: var(--cream); padding: 26px; position: relative; }
+.panel::before { content:""; position:absolute; top:0; left:0; width:60px; height:4px; background:var(--ng-yellow); }
+.panel h2 { font-family: var(--serif-cn); font-size: 22px; color: var(--ink); margin-bottom: 6px; font-weight: 700; }
+.panel .panel-en { font-family: var(--serif-en); font-style: italic; color: var(--terracotta); font-size: 14px; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid rgba(74,56,37,.15); }
+
+.recorder { display: flex; flex-direction: column; align-items: center; padding: 20px 0 10px; }
+.mic-btn {
+  width: 110px; height: 110px;
+  background: var(--ink); color: var(--ng-yellow);
+  border: 3px solid var(--ng-yellow); cursor: pointer;
+  font-size: 42px; display: flex; align-items: center; justify-content: center;
+  transition: all .2s; border-radius: 50%; outline: none;
+}
+.mic-btn:hover { transform: scale(1.05); background: var(--terracotta); color: var(--paper); }
+.mic-btn.recording { background: var(--terracotta); color: var(--paper); animation: pulseRec 1.2s infinite; }
+@keyframes pulseRec { 0%,100% { box-shadow: 0 0 0 0 rgba(194,86,42,.5); } 50% { box-shadow: 0 0 0 18px rgba(194,86,42,0); } }
+.mic-status { margin-top: 14px; font-family: var(--serif-en); font-style: italic; font-size: 15px; color: var(--terracotta); }
+.mic-tip { margin-top: 4px; font-size: 11px; color: var(--sepia); }
+
+.samples-title { font-family: var(--sans-en); font-size: 11px; letter-spacing: 3px; color: var(--sepia); text-transform: uppercase; margin: 24px 0 12px; }
+.sample {
+  padding: 14px 16px; background: var(--paper);
+  border-left: 3px solid var(--sepia-light);
+  margin-bottom: 8px; cursor: pointer; transition: all .25s;
+  display: flex; gap: 12px; justify-content: space-between; align-items: center;
+}
+.sample:hover { border-left-color: var(--terracotta); transform: translateX(4px); background: rgba(255,210,0,.1); }
+.sample.active { border-left-color: var(--terracotta); background: rgba(194,86,42,.08); }
+.sample .text-cn { font-family: var(--serif-cn); font-size: 15px; color: var(--ink); margin-bottom: 4px; font-weight: 600; }
+.sample .text-rom { font-family: var(--serif-en); font-style: italic; font-size: 12px; color: var(--terracotta); margin-bottom: 3px; }
+.sample .text-mp { font-size: 11px; color: var(--sepia-light); }
+.sample .meta { font-family: var(--sans-en); font-size: 9px; color: var(--terracotta); letter-spacing: 1px; text-transform: uppercase; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
+
+.academic { margin-top: 18px; padding: 12px 16px; background: rgba(74,56,37,.05); border-left: 3px solid var(--moss); font-size: 12px; line-height: 1.7; color: var(--ink-soft); }
+.academic .label-ac { font-family: var(--sans-en); font-size: 10px; letter-spacing: 2px; color: var(--moss); margin-bottom: 4px; text-transform: uppercase; font-weight: 700; }
+.academic strong { color: var(--moss); }
+.academic a { color: var(--terracotta); }
+
+.output { min-height: 700px; }
+.placeholder { text-align: center; padding: 80px 20px; color: var(--sepia-light); font-family: var(--serif-en); font-style: italic; }
+.placeholder .icon-ph { font-size: 70px; margin-bottom: 12px; opacity: .35; }
+
+.result { display: none; }
+.result.show { display: block; animation: fadeIn .6s; }
+@keyframes fadeIn { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+
+.stage-tag { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--ink); color: var(--ng-yellow); font-family: var(--sans-en); font-size: 10px; letter-spacing: 2px; margin-bottom: 16px; }
+.stage-tag::before { content:""; width:6px; height:6px; background: var(--ng-yellow); animation: blink 1s infinite; }
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:.3;} }
+
+.lang-block { padding: 14px 16px; margin-bottom: 12px; }
+.lang-block .label { font-family: var(--sans-en); font-size: 10px; letter-spacing: 2px; margin-bottom: 6px; text-transform: uppercase; }
+.lang-block .content { font-size: 14px; line-height: 1.6; }
+
+.original { background: var(--paper); border-left: 3px solid var(--sepia-light); }
+.original .label { color: var(--sepia); }
+.original .src-text { font-family: var(--serif-cn); font-size: 18px; color: var(--ink); font-weight: 700; margin-bottom: 6px; }
+.original .src-rom { font-family: var(--serif-en); font-style: italic; font-size: 14px; color: var(--terracotta); margin-bottom: 4px; }
+.original .src-mp { font-size: 12px; color: var(--sepia); }
+
+.audio-row { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+.audio-btn {
+  display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px;
+  background: var(--ink); color: var(--ng-yellow); border: none; cursor: pointer;
+  font-family: var(--sans-en); font-size: 10px; letter-spacing: 1.5px; font-weight: 700;
+  transition: all .2s; text-transform: uppercase; text-decoration: none;
+}
+.audio-btn:hover { background: var(--terracotta); color: var(--paper); }
+.audio-btn.outline { background: transparent; border: 1.5px solid var(--ink); color: var(--ink); }
+.audio-btn.outline:hover { background: var(--ink); color: var(--ng-yellow); }
+
+.translation { padding: 22px; background: var(--ink); color: var(--paper); margin-bottom: 16px; border-left: 6px solid var(--ng-yellow); }
+.translation .label { font-family: var(--sans-en); font-size: 10px; letter-spacing: 3px; color: var(--ng-yellow); margin-bottom: 12px; }
+.translation .core { font-family: var(--serif-cn); font-size: 20px; font-weight: 700; color: var(--paper); line-height: 1.5; margin-bottom: 12px; }
+.translation .emotion { font-size: 13px; color: rgba(247,241,227,.85); line-height: 1.85; font-style: italic; }
+
+.tags-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.tag-chip { padding: 4px 12px; background: var(--paper); color: var(--terracotta); border: 1px solid var(--terracotta); font-family: var(--sans-en); font-size: 11px; letter-spacing: 1px; font-weight: 700; }
+
+.postcard { margin-top: 14px; aspect-ratio: 4/2.6; position: relative; overflow: hidden; background: linear-gradient(135deg, #2c4a5c 0%, #4a6680 50%, #c97444 100%); border: 2px solid var(--ink); box-shadow: 4px 4px 0 var(--ng-yellow); }
+.postcard svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.postcard-content { position: absolute; inset: 0; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; z-index: 2; }
+.postcard .pc-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.postcard .pc-brand { font-family: var(--sans-en); font-size: 9px; letter-spacing: 3px; color: var(--ng-yellow); }
+.postcard .pc-brand strong { display: block; font-size: 13px; margin-bottom: 4px; color: var(--paper); }
+.postcard .pc-stamp { width: 46px; height: 46px; border: 1.5px dashed rgba(247,241,227,.6); display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: var(--serif-en); color: var(--paper); font-size: 8px; line-height: 1.3; }
+.postcard .pc-stamp strong { font-size: 13px; }
+.postcard .pc-mid h3 { font-family: var(--serif-cn); font-size: 20px; color: var(--paper); text-shadow: 0 2px 8px rgba(0,0,0,.5); line-height: 1.3; margin-bottom: 6px; }
+.postcard .pc-mid .quote { font-family: var(--serif-en); font-style: italic; font-size: 11px; color: rgba(247,241,227,.9); line-height: 1.5; text-shadow: 0 1px 3px rgba(0,0,0,.5); }
+.postcard .pc-bottom { display: flex; justify-content: space-between; align-items: flex-end; font-family: var(--sans-en); font-size: 9px; color: rgba(247,241,227,.7); letter-spacing: 1px; }
+
+.conversion { margin-top: 12px; padding: 12px 16px; background: var(--paper); border: 2px dashed var(--terracotta); display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--ink-soft); }
+.conversion strong { color: var(--terracotta); }
+
+.actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px; }
+.act { padding: 11px 8px; border: 2px solid var(--ink); background: var(--paper); color: var(--ink); cursor: pointer; font-family: var(--sans-en); font-size: 11px; letter-spacing: 2px; font-weight: 700; text-transform: uppercase; transition: all .2s; }
+.act:hover { background: var(--ink); color: var(--ng-yellow); }
+.act.primary { background: var(--ink); color: var(--ng-yellow); }
+.act.primary:hover { background: var(--terracotta); }
+
+.lang-switcher { top: 32px !important; right: 32px !important; }
+</style>
+</head>
+<body>
+<div style="position:fixed;top:18px;left:18px;z-index:999;display:flex;gap:8px">
+  <a href="javascript:window.location.href='ppt.html#slide-'+(parseInt(localStorage.getItem('ppt_last_slide')||'0',10)+1)" style="background:#1a1612;color:#ffcc00;border:1.5px solid #ffcc00;padding:7px 14px;font-size:11px;letter-spacing:2px;text-decoration:none;font-family:'Cormorant Garamond',serif;font-weight:700;border-radius:2px">← BACK</a>
+  <a href="index.html" style="background:rgba(248,243,230,.95);color:#1a1612;border:1.5px solid #1a1612;padding:7px 14px;font-size:11px;letter-spacing:2px;text-decoration:none;font-family:'Cormorant Garamond',serif;font-weight:700;border-radius:2px">⌂ HOME</a>
+</div>
+
+<div class="ng-frame"></div>
+<div class="app">
+  <div class="demo-header">
+    <div class="demo-title">
+      <h1 data-i18n="dt.title">AI 方言情绪翻译器</h1>
+      <div class="en">YUTU·68 · Speak a phrase. Hear an island. See a postcard.</div>
+    </div>
+    <a href="index.html" class="back-link" data-i18n="dt.back">← 返回</a>
+  </div>
+
+  <div class="disclaimer" data-i18n-html="dt.disclaimer">
+    <strong>真实性声明：</strong>本 Demo 中的平潭方言语料源自《平潭方言》《福清方言研究》（冯爱珍）及福州话词典 SeeDict 等公开学术资料，平潭话属<strong>闽东语·福州语系</strong>（非闽南语），保留古汉语「厝/鼎/箸」等词汇。<strong>由于浏览器内置 TTS 引擎暂不支持平潭方言/福州话语音合成</strong>，下方"普通话朗读"按钮播放的是普通话直译；如需聆听原汁原味的平潭话/福州话发音，请点击对应样本中的 <strong>"福州话词典"</strong>外链。
+  </div>
+
+  <div class="main-grid">
+    <div class="panel">
+      <h2 data-i18n="dt.input.h">语音输入 · 选择平潭方言样本</h2>
+      <div class="panel-en">Click any sample to instantly run the demo</div>
+
+      <div class="recorder">
+        <button class="mic-btn" id="micBtn" type="button">🎙️</button>
+        <div class="mic-status" id="micStatus" data-i18n="dt.mic.status">点击模拟录音 · 或选下方样本</div>
+        <div class="mic-tip" data-i18n="dt.mic.tip">现场建议直接选样本——更稳定更易演示</div>
+      </div>
+
+      <div class="samples-title" data-i18n="dt.samples.title">▌ 平潭方言真实语料（闽东语·福州语系）</div>
+      <div class="sample-list" id="sampleList"></div>
+
+      <div class="academic">
+        <div class="label-ac">ACADEMIC NOTE · 学术说明</div>
+        <span data-i18n-html="dt.academic">平潭话属<strong>闽东语·福州语系</strong>，与福州话同源、可对话。本 Demo 罗马拼音采用<strong>平话字（Bàng-uâ-cê / BUC）</strong>方案，普通话直译参照<strong>《平潭方言》</strong>词条注解。如需学习真人发音可访问 <a href="https://seedict.com/" target="_blank">SeeDict 福州话词典</a> 与 <a href="https://zh.forvo.com/languages/fzho/" target="_blank">Forvo 福州话发音库</a>。</span>
+      </div>
+    </div>
+
+    <div class="panel output">
+      <div class="placeholder" id="placeholder">
+        <div class="icon-ph">🌊</div>
+        <p data-i18n="dt.placeholder">等待输入 · 选择左侧样本开始演示</p>
+      </div>
+
+      <div class="result" id="result">
+        <div class="stage-tag" id="stageTag">PROCESSING…</div>
+
+        <div class="lang-block original">
+          <div class="label">▌ <span data-i18n="dt.r.original">原始方言 · 平潭话</span></div>
+          <div class="src-text" id="origText">—</div>
+          <div class="src-rom" id="origRom">—</div>
+          <div class="src-mp" id="origMp">—</div>
+          <div class="audio-row">
+            <button class="audio-btn" id="playMp" type="button">🔊 <span data-i18n="dt.play.mp">普通话朗读</span></button>
+            <a class="audio-btn outline" id="playReal" target="_blank" data-i18n="dt.play.real">🌐 真人发音 →</a>
+          </div>
+        </div>
+
+        <div class="translation">
+          <div class="label">▌ <span data-i18n="dt.r.translation">情绪化意译 · 由 语途·68 输出</span></div>
+          <div class="core" id="coreTrans">—</div>
+          <div class="emotion" id="emotionTrans">—</div>
+        </div>
+
+        <div class="tags-row" id="tagsRow"></div>
+
+        <div class="postcard" id="postcard">
+          <svg viewBox="0 0 400 260" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="wv" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#ffd200" stop-opacity=".9"/>
+                <stop offset="100%" stop-color="#c2562a" stop-opacity=".7"/>
+              </linearGradient>
+            </defs>
+            <path d="M0 170 Q100 160 200 170 T400 170 L400 260 L0 260 Z" fill="rgba(20,52,66,.6)"/>
+            <g id="pcBars" stroke="url(#wv)" stroke-width="2" stroke-linecap="round"></g>
+            <path d="M0 195 L60 175 L110 190 L180 170 L250 185 L320 173 L400 190 L400 260 L0 260 Z" fill="rgba(0,0,0,.35)"/>
+          </svg>
+          <div class="postcard-content">
+            <div class="pc-top">
+              <div class="pc-brand"><strong>68 NAUTICAL MILES</strong>EMOTIONAL JOURNAL · 翻译手账</div>
+              <div class="pc-stamp"><strong>23</strong>MAY<strong>2026</strong></div>
+            </div>
+            <div class="pc-mid">
+              <h3 id="pcTitle">—</h3>
+              <p class="quote" id="pcQuote">—</p>
+            </div>
+            <div class="pc-bottom">
+              <div>#TranslateAnIsland · #翻译一座岛</div>
+              <div>YUTU·68</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="conversion" id="conv">
+          💡 <span data-i18n-html="dt.conv">检测到您正在 <strong id="convLoc">北港村</strong> 附近 · 推荐：<strong id="convItem">两面特调咖啡 ¥45</strong> · 持护照立减¥10</span>
+        </div>
+
+        <div class="actions">
+          <button class="act primary" type="button" onclick="alert('已生成专属情绪明信片，扫码即可保存到手机相册并分享至 #翻译一座岛')" data-i18n="dt.act.save">📥 保存明信片</button>
+          <button class="act" type="button" onclick="alert('已添加至《68海里·翻译手账》专辑')" data-i18n="dt.act.journal">📓 加入手账</button>
+          <button class="act" type="button" onclick="alert('正在跳转至漫游护照消费券核销页…')" data-i18n="dt.act.redeem">💳 立即核销</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/i18n.js"></script>
+<script>
+// 注册 i18n
+I18N.register({
+  'dt.title': { 'zh-CN': 'AI 方言情绪翻译器', 'en': 'AI Dialect Emotion Translator', 'zh-TW': 'AI 方言情緒翻譯器' },
+  'dt.back': { 'zh-CN': '← 返回', 'en': '← BACK', 'zh-TW': '← 返回' },
+  'dt.disclaimer': {
+    'zh-CN': '<strong>真实性声明：</strong>本 Demo 中的平潭方言语料源自《平潭方言》《福清方言研究》（冯爱珍）及福州话词典 SeeDict 等公开学术资料，平潭话属<strong>闽东语·福州语系</strong>（非闽南语），保留古汉语「厝/鼎/箸」等词汇。<strong>由于浏览器内置 TTS 引擎暂不支持平潭方言/福州话语音合成</strong>，下方"普通话朗读"按钮播放的是普通话直译；如需聆听原汁原味的平潭话/福州话发音，请点击对应样本中的 <strong>"真人发音 →"</strong> 外链跳转 Forvo 福州话词典。',
+    'en': '<strong>Authenticity Note:</strong> Pingtan dialect samples in this demo are sourced from <em>Pingtan Dialect</em>, <em>Fuqing Dialect Study</em> (Feng Aizhen), and the SeeDict Fuzhou dictionary. Pingtan dialect belongs to the <strong>Min-dong (Eastern Min) family — not Hokkien</strong>, preserving classical Chinese words like 厝/鼎/箸. <strong>Browsers do not yet support Pingtan/Fuzhou TTS</strong>, so the "Mandarin Audio" button plays the Mandarin gloss; for authentic Fuzhou pronunciation, please click the "Native Audio →" link to Forvo.',
+    'zh-TW': '<strong>真實性聲明：</strong>本 Demo 中的平潭方言語料源自《平潭方言》《福清方言研究》及福州話詞典 SeeDict 等公開學術資料，平潭話屬<strong>閩東語·福州語系</strong>（非閩南語）。<strong>由於瀏覽器內置 TTS 引擎暫不支持平潭方言語音合成</strong>，下方"普通話朗讀"按鈕播放的是普通話直譯；如需聆聽原汁原味的平潭話發音，請點擊對應樣本中的 <strong>"真人發音 →"</strong> 外鏈跳轉 Forvo 福州話詞典。'
+  },
+  'dt.input.h': { 'zh-CN': '语音输入 · 选择平潭方言样本', 'en': 'Voice Input · Pingtan Dialect Samples', 'zh-TW': '語音輸入 · 選擇平潭方言樣本' },
+  'dt.mic.status': { 'zh-CN': '点击模拟录音 · 或选下方样本', 'en': 'Click to simulate · or pick a sample', 'zh-TW': '點擊模擬錄音 · 或選下方樣本' },
+  'dt.mic.tip': { 'zh-CN': '现场建议直接选样本——更稳定更易演示', 'en': 'Tip: pick a preset for the most reliable demo', 'zh-TW': '現場建議直接選樣本' },
+  'dt.samples.title': { 'zh-CN': '▌ 平潭方言真实语料（闽东语·福州语系）', 'en': '▌ Authentic Pingtan Samples (Min-dong)', 'zh-TW': '▌ 平潭方言真實語料（閩東語·福州語系）' },
+  'dt.academic': { 'zh-CN': '平潭话属<strong>闽东语·福州语系</strong>，与福州话同源、可对话。本 Demo 罗马拼音采用<strong>平话字（Bàng-uâ-cê / BUC）</strong>方案，普通话直译参照<strong>《平潭方言》</strong>词条注解。如需学习真人发音可访问 <a href="https://seedict.com/" target="_blank">SeeDict 福州话词典</a> 与 <a href="https://zh.forvo.com/languages/fzho/" target="_blank">Forvo 福州话发音库</a>。', 'en': 'Pingtan dialect belongs to the <strong>Min-dong / Fuzhou family</strong>. The romanization here uses <strong>Bàng-uâ-cê (BUC)</strong>. Mandarin glosses follow <em>Pingtan Dialect</em>. Real audio: <a href="https://seedict.com/" target="_blank">SeeDict</a> · <a href="https://zh.forvo.com/languages/fzho/" target="_blank">Forvo</a>.', 'zh-TW': '平潭話屬<strong>閩東語·福州語系</strong>。本 Demo 羅馬拼音採用<strong>平話字（BUC）</strong>方案。真人發音：<a href="https://seedict.com/" target="_blank">SeeDict</a> · <a href="https://zh.forvo.com/languages/fzho/" target="_blank">Forvo</a>。' },
+  'dt.placeholder': { 'zh-CN': '等待输入 · 选择左侧样本开始演示', 'en': 'Awaiting input · Pick a sample on the left', 'zh-TW': '等待輸入 · 選擇左側樣本開始演示' },
+  'dt.r.original': { 'zh-CN': '原始方言 · 平潭话', 'en': 'ORIGINAL · Pingtan Dialect', 'zh-TW': '原始方言 · 平潭話' },
+  'dt.r.translation': { 'zh-CN': '情绪化意译 · 由 语途·68 输出', 'en': 'EMOTIONAL RENDERING · BY YUTU·68', 'zh-TW': '情緒化意譯 · 由 語途·68 輸出' },
+  'dt.play.mp': { 'zh-CN': '普通话朗读', 'en': 'Mandarin Audio', 'zh-TW': '普通話朗讀' },
+  'dt.play.real': { 'zh-CN': '🌐 真人发音 →', 'en': '🌐 Native Audio →', 'zh-TW': '🌐 真人發音 →' },
+  'dt.conv': { 'zh-CN': '检测到您正在 <strong id="convLoc">北港村</strong> 附近 · 推荐：<strong id="convItem">两面特调咖啡 ¥45</strong> · 持护照立减¥10', 'en': 'You are near <strong id="convLoc">Beigang</strong> · Recommended: <strong id="convItem">"Two Sides" Coffee ¥45</strong> · ¥10 off with passport', 'zh-TW': '檢測到您正在 <strong id="convLoc">北港村</strong> 附近 · 推薦：<strong id="convItem">兩面特調咖啡 ¥45</strong>' },
+  'dt.act.save': { 'zh-CN': '📥 保存明信片', 'en': '📥 SAVE', 'zh-TW': '📥 保存明信片' },
+  'dt.act.journal': { 'zh-CN': '📓 加入手账', 'en': '📓 JOURNAL', 'zh-TW': '📓 加入手賬' },
+  'dt.act.redeem': { 'zh-CN': '💳 立即核销', 'en': '💳 REDEEM', 'zh-TW': '💳 立即核銷' }
+});
+
+// 平潭方言真实语料（基于《平潭方言》百度百科 + 搜狐《平潭话》文 + 福清方言研究）
+// 罗马拼音采用平话字 BUC 简化注音
+const SAMPLES = [
+  {
+    id: 1,
+    src: '我厝厝边，鼎里有鱼丸汤。',
+    rom: 'Nguāi cuó cuó-bièng, diāng-nē̤ ô ngṳ̀-uòng tŏng.',
+    mp: '我家屋檐边，锅里有鱼丸汤。',
+    region: '平潭·北港村', region_en: 'Beigang Village',
+    forvo: 'https://zh.forvo.com/word/%E5%8E%9D/#fzho',
+    speak: '我家屋檐边，锅里有鱼丸汤。',
+    core_zh: '"\'厝\'是房，\'鼎\'是锅——平潭话里活着千年前的唐宋。"',
+    core_en: '"\'Cuò\' means house, \'Dǐng\' means pot — Tang-Song China is still alive in Pingtan dialect."',
+    core_tw: '"「厝」是房，「鼎」是鍋——平潭話裡活著千年前的唐宋。"',
+    emo_zh: '一句寻常的招呼，里头藏着两个唐宋古词——"厝"（房屋）与"鼎"（锅）。在普通话里，它们早已退入古籍；可在这座岛上，它们仍在炊烟里翻滚。当游客踏进石厝民宿，他们走进的不是民宿——是一本活着的古汉语词典。',
+    emo_en: 'An ordinary phrase carrying two Tang-Song-era words — "厝" (house) and "鼎" (pot). In modern Mandarin, they\'ve retreated to old texts. But on this island, they still simmer in kitchen steam. To enter a stone-house inn here is to enter a living dictionary of classical Chinese.',
+    emo_tw: '一句尋常的招呼，裡頭藏著兩個唐宋古詞——「厝」與「鼎」。在普通話裡，它們早已退入古籍；可在這座島上，它們仍在炊煙裡翻滾。',
+    tags_zh: ['#古汉语活化石', '#方言考古', '#千年厝鼎', '#石厝民宿'],
+    tags_en: ['#LivingFossil', '#DialectArchaeology', '#MillennialPot', '#StoneHouse'],
+    pcTitle_zh: '走进一座厝，是走进一本古汉语词典',
+    pcTitle_en: 'To Enter a "Cuò" Is to Enter a Living Dictionary',
+    pcTitle_tw: '走進一座厝，是走進一本古漢語詞典',
+    pcQuote: '"This island simmers in Tang-Song words."',
+    convLoc_zh: '北港村·石厝民宿', convLoc_en: 'Beigang · Stone-House Inn',
+    convItem_zh: '石厝鱼丸汤套餐 ¥38', convItem_en: 'Stone-House Fishball Set ¥38'
+  },
+  {
+    id: 2,
+    src: '虾倒未？',
+    rom: 'Hà-dó̤ muôi?',
+    mp: '吃午饭了吗？',
+    region: '平潭·渔港', region_en: 'Pingtan Harbor',
+    forvo: 'https://seedict.com/',
+    speak: '吃午饭了吗？',
+    core_zh: '"在这座岛上，问你的胃就是问你这个人。"',
+    core_en: '"On this island, asking about your stomach is asking about you."',
+    core_tw: '"在這座島上，問你的胃就是問你這個人。"',
+    emo_zh: '"虾倒未"——这是平潭最家常的一句问候。"虾"读作"哈"，是"吃"；"倒"是"到"；"未"是"了吗"。三个音节里没有一个跟字面对应——这正是闽东语保留古汉语的活态痕迹。它不是语言，是这座岛为陌生人备好的一杯热水。',
+    emo_en: 'The most everyday Pingtan greeting. "虾" (hà) means "eat", "倒" means "to", "未" means "yet" — none of the three syllables match their written form, a living trace of how Min-dong preserves classical Chinese. This is not language — it is a cup of warm water this island offers to every stranger.',
+    emo_tw: '"虾倒未"是平潭最家常的問候。"虾"讀作"哈"是"吃"，"倒"是"到"，"未"是"了嗎"——三個音節裡沒有一個跟字面對應，正是閩東語保留古漢語的活態痕跡。',
+    tags_zh: ['#日常关怀', '#古字活用', '#闽东语', '#胃的温度'],
+    tags_en: ['#DailyCare', '#ClassicalUsage', '#MinDong', '#WarmthOfStomach'],
+    pcTitle_zh: '在海风里听懂"虾倒未"',
+    pcTitle_en: 'Hearing "Have You Eaten" in the Sea Wind',
+    pcTitle_tw: '在海風裡聽懂「蝦倒未」',
+    pcQuote: '"A greeting that needs no translation, only ears."',
+    convLoc_zh: '北港村·台青咖啡馆', convLoc_en: 'Beigang · Cafe',
+    convItem_zh: '两面特调咖啡 ¥45', convItem_en: '"Two Sides" Coffee ¥45'
+  },
+  {
+    id: 3,
+    src: '猪一嘎重腕，魔带野。',
+    rom: 'Cṳ̆-ék-gă dṳ̀ng-uâng, mò̤-dái-iā.',
+    mp: '就是这样，没事的。',
+    region: '平潭·街市', region_en: 'Pingtan Streets',
+    forvo: 'https://seedict.com/',
+    speak: '就是这样，没事的。',
+    core_zh: '"\'魔带野\'——平潭人面对台风、面对蓝眼泪空手而归时，递出的同一句话。"',
+    core_en: '"\'Mò̤-dái-iā\' — what Pingtan people say facing typhoons, and what they say when Blue Tears refuse to appear."',
+    core_tw: '"「魔帶野」——平潭人面對颱風、面對藍眼淚空手而歸時，遞出的同一句話。"',
+    emo_zh: '"魔带野"是平潭人挂在嘴边的口头禅，对应普通话的"没事的"。这份在 12 级台风下养出的豁达，恰好回应了我们路线的核心哲学："接受不确定性"。蓝眼泪没追到？魔带野——明天还有海风。这是一种比"算了"更有重量的释然。',
+    emo_en: 'A Pingtan signature phrase meaning "no worries" — composure forged under Force-12 typhoons. It echoes our route\'s core philosophy: embrace uncertainty. Missed the Blue Tears tonight? "Mò̤-dái-iā" — tomorrow there is still the sea wind. A release heavier than mere "let it be".',
+    emo_tw: '"魔帶野"是平潭人掛在嘴邊的口頭禪，對應"沒事的"。這份在 12 級颱風下養出的豁達，恰好回應了我們路線的核心哲學：「接受不確定性」。',
+    tags_zh: ['#岛民豁达', '#不可控美学', '#台风哲学', '#蓝眼泪盲盒'],
+    tags_en: ['#IslandComposure', '#UncontrollableBeauty', '#TyphoonPhilosophy', '#BlueTearsBox'],
+    pcTitle_zh: '海风为什么这样平静？因为它"魔带野"',
+    pcTitle_en: 'Why Is the Sea Wind So Calm? "Mò̤-dái-iā."',
+    pcTitle_tw: '海風為什麼這樣平靜？因為它「魔帶野」',
+    pcQuote: '"Even typhoons cannot rewrite this island\'s grammar of calm."',
+    convLoc_zh: '坛南湾', convLoc_en: 'Tannan Bay',
+    convItem_zh: '蓝眼泪盲盒补偿券（待激活）', convItem_en: 'Blue Tears Voucher (pending)'
+  },
+  {
+    id: 4,
+    src: '哇矮女。',
+    rom: 'Nguāi ái nṳ̄.',
+    mp: '我爱你。',
+    region: '猴研岛·标志碑', region_en: 'Houyan Monument',
+    forvo: 'https://zh.forvo.com/word/%E6%84%9B/#fzho',
+    speak: '我爱你。',
+    core_zh: '"哇矮女——平潭话里的\'我爱你\'，是被海风吹了一千年的低声告白。"',
+    core_en: '"\'Nguāi ái nṳ̄\' — \'I love you\' in Pingtan dialect, a confession the sea wind has whispered for a thousand years."',
+    core_tw: '"哇矮女——平潭話裡的『我愛你』，是被海風吹了一千年的低聲告白。"',
+    emo_zh: '平潭话的"我爱你"读作"哇矮女"——"哇"是"我"，"矮"是"爱"，"女"是"你"。这个发音与对岸台湾闽南语圈的"我爱汝"几乎同源（虽然分属不同语系）。当游客站在猴研岛标志碑前向东望，125 公里之外的台湾岛在视线尽头若隐若现——AI 把这句方言告白翻译给两岸的风听。',
+    emo_en: '"I love you" in Pingtan reads "Nguāi ái nṳ̄" — almost cognate with Hokkien "Wa ai lu" across the strait (though from different language families). Standing before the Houyan Monument facing east, Taiwan flickers 125 km away. The AI translates this confession for the wind on both sides.',
+    emo_tw: '平潭話的「我愛你」讀作「哇矮女」——與對岸台灣閩南語圈的「我愛汝」幾乎同源（雖分屬不同語系）。',
+    tags_zh: ['#两岸同源', '#方言告白', '#猴研岛碑', '#相近的距离'],
+    tags_en: ['#CrossStraitRoots', '#DialectConfession', '#HouyanMonument', '#ClosestDistance'],
+    pcTitle_zh: '哇矮女 · 一句方言走过 68 海里',
+    pcTitle_en: '"Nguāi ái nṳ̄" · A Dialect Crossing 68 NM',
+    pcTitle_tw: '哇矮女 · 一句方言走過 68 海里',
+    pcQuote: '"The wind has whispered \'I love you\' across this strait for a thousand years."',
+    convLoc_zh: '猴研岛·标志碑邮戳点', convLoc_en: 'Houyan · Stamp Point',
+    convItem_zh: '"68海里"邮戳明信片 ¥39', convItem_en: '"68NM" Stamp Postcard ¥39'
+  },
+  {
+    id: 5,
+    src: '依把会算勿会除䩩。',
+    rom: 'Ĭ-bă â suáng mâ̤ dṳ̀ chuāng.',
+    mp: '老大爷会算账，但算不过这桩道理。',
+    region: '北港村·茶馆', region_en: 'Beigang Tea House',
+    forvo: 'https://seedict.com/',
+    speak: '老大爷会算账，但算不过这桩道理。',
+    core_zh: '"\'会算勿会除\'——平潭俗语里的"贪小失大"，比普通话多一份海风的钝感。"',
+    core_en: '"\'Â suáng, mâ̤ dṳ̀\' — the Pingtan idiom for \'penny-wise, pound-foolish\', carrying the bluntness of sea wind."',
+    core_tw: '"「會算勿會除」——平潭俗語裡的「貪小失大」，比普通話多一份海風的鈍感。"',
+    emo_zh: '"依把"是老大爷，"勿会"读作"卖"，是平潭话表示否定的标志词。这句俗语展示了闽东语独特的语法结构——用"会"和"勿会"（mâ̤）成对表达肯定与否定。它不是一句格言，是岛民在风浪中用几代人时间沉淀下来的处世逻辑。',
+    emo_en: '"依把" is the elder, "勿会" (mâ̤) is the unique Min-dong negation marker. This idiom shows the dialect\'s signature grammar — pairing 会 and 勿会 (mâ̤) for affirmation and negation. It is not a maxim, but island wisdom distilled over generations under wind and wave.',
+    emo_tw: '"依把"是老大爺，"勿會"讀作"賣"，是平潭話表示否定的標誌詞。這句俗語展示了閩東語獨特的語法結構。',
+    tags_zh: ['#闽东语法', '#活态俗语', '#代际智慧', '#勿会同卖'],
+    tags_en: ['#MinDongGrammar', '#LivingIdiom', '#GenerationalWisdom', '#WiseNegation'],
+    pcTitle_zh: '会算的不一定会除——一座岛的钝感力',
+    pcTitle_en: 'Pingtan\'s Bluntness: A Wisdom Beyond Calculation',
+    pcTitle_tw: '會算的不一定會除——一座島的鈍感力',
+    pcQuote: '"This island counts in tides, not numbers."',
+    convLoc_zh: '北港村·茶馆访谈', convLoc_en: 'Beigang · Tea House Talk',
+    convItem_zh: '老者口述访谈¥80（含转录稿）', convItem_en: 'Elder Interview ¥80 (transcript)'
+  },
+  {
+    id: 6,
+    src: '蓝眼泪今晡日来勿会？魔带野，海风来。',
+    rom: 'Lăng-ngāng-luôi gĭng-bŭ-nĭk lì mâ̤? Mò̤-dái-iā, hāi-hŭng lì.',
+    mp: '蓝眼泪今天晚上来不来？没关系，海风会来。',
+    region: '坛南湾·夜·22:00', region_en: 'Tannan Bay · Night',
+    forvo: 'https://seedict.com/',
+    speak: '蓝眼泪今天晚上来不来？没关系，海风会来。',
+    core_zh: '"蓝眼泪不能预约——但海风一定到达。这是平潭对算法时代富有诗意的回答。"',
+    core_en: '"Blue Tears can\'t be booked — but the sea wind always arrives. Pingtan\'s sharpest reply to the age of algorithms."',
+    core_tw: '"藍眼淚不能預約——但海風一定到達。這是平潭對演算法時代最高級的回答。"',
+    emo_zh: '"今晡日"读作"今布日"，是平潭话对"今天"的特有说法（保留中古汉语"晡"字）。在被算法、攻略、预约统治的旅游时代，蓝眼泪保持着高傲的不可控——它需要水温、洋流、月相、风向同时巧合。我们把"看不到"变成了一种到达：今晚条件不达标？AI 已自动激活盲盒补偿券。',
+    emo_en: '"今晡日" (gĭng-bŭ-nĭk) is Pingtan\'s unique word for "today" (preserving the Middle Chinese 晡). In an era of algorithms and bookings, Blue Tears keep their arrogance of uncontrollability. We turn "not seeing" into a form of arrival: tonight\'s conditions fall short? The AI auto-activates a mystery-box voucher.',
+    emo_tw: '"今晡日"讀作"今布日"，是平潭話對「今天」的特有說法（保留中古漢語「晡」字）。在被演算法統治的旅遊時代，藍眼淚保持著高傲的不可控。',
+    tags_zh: ['#不可控美学', '#古汉语活化石', '#盲盒触发', '#海风必至'],
+    tags_en: ['#UncontrollableBeauty', '#LivingClassical', '#MysteryBoxTriggered', '#WindAlwaysArrives'],
+    pcTitle_zh: '蓝眼泪未必到来，海风一定到来',
+    pcTitle_en: 'Blue Tears Might Not Come. The Wind Always Will.',
+    pcTitle_tw: '藍眼淚未必到來，海風一定到來',
+    pcQuote: '"Algorithms cannot predict romance. Only waiting can."',
+    convLoc_zh: '坛南湾·盲盒服务点', convLoc_en: 'Tannan Bay · Service',
+    convItem_zh: '蓝眼泪盲盒补偿券（已激活）', convItem_en: 'Blue Tears Voucher (activated)'
+  }
+];
+
+// 渲染样本
+function renderSamples() {
+  const lang = I18N.getLang();
+  const list = document.getElementById('sampleList');
+  list.innerHTML = SAMPLES.map(s => {
+    const region = lang === 'en' ? s.region_en : s.region;
+    return '<div class="sample" data-id="' + s.id + '">' +
+      '<div style="flex:1;">' +
+        '<div class="text-cn">「' + s.src + '」</div>' +
+        '<div class="text-rom">' + s.rom + '</div>' +
+        '<div class="text-mp">→ ' + s.mp + '</div>' +
+      '</div>' +
+      '<div class="meta">' + region + '</div>' +
+    '</div>';
+  }).join('');
+  list.querySelectorAll('.sample').forEach(el => {
+    el.addEventListener('click', () => runDemo(parseInt(el.dataset.id)));
+  });
+}
+renderSamples();
+document.addEventListener('langchange', renderSamples);
+
+// 明信片波形
+const pcBars = document.getElementById('pcBars');
+for (let i = 0; i < 70; i++) {
+  const x = 10 + i * 5.4;
+  const h = 18 + Math.random() * 50;
+  const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  line.setAttribute('x1', x); line.setAttribute('x2', x);
+  line.setAttribute('y1', 110 - h/2); line.setAttribute('y2', 110 + h/2);
+  line.setAttribute('opacity', .55 + Math.random()*.35);
+  pcBars.appendChild(line);
+}
+
+// 录音模拟
+const micBtn = document.getElementById('micBtn');
+const micStatus = document.getElementById('micStatus');
+let recording = false;
+micBtn.addEventListener('click', () => {
+  recording = !recording;
+  if (recording) {
+    micBtn.classList.add('recording');
+    micStatus.textContent = I18N.getLang()==='en' ? 'Simulating… auto demo in 3s' : '录音模拟中… 3秒后自动演示';
+    setTimeout(() => {
+      if (recording) {
+        recording = false;
+        micBtn.classList.remove('recording');
+        renderSamples();
+        runDemo(2);
+      }
+    }, 2500);
+  } else {
+    micBtn.classList.remove('recording');
+  }
+});
+
+// 当前样本
+let curSample = null;
+
+// 主演示
+function runDemo(id) {
+  const s = SAMPLES.find(x => x.id === id);
+  if (!s) return;
+  curSample = s;
+  const lang = I18N.getLang();
+
+  document.querySelectorAll('.sample').forEach(el => {
+    el.classList.toggle('active', parseInt(el.dataset.id) === id);
+  });
+
+  document.getElementById('placeholder').style.display = 'none';
+  document.getElementById('result').classList.add('show');
+
+  const stage = document.getElementById('stageTag');
+  stage.textContent = lang === 'en' ? '🧠 AI UNDERSTANDING CONTEXT…' : (lang === 'zh-TW' ? '🧠 AI 正在理解語境…' : '🧠 AI 正在理解语境…');
+
+  // 原文区
+  document.getElementById('origText').textContent = '「' + s.src + '」';
+  document.getElementById('origRom').textContent = s.rom + '（平话字 BUC 注音）';
+  document.getElementById('origMp').textContent = '→ ' + (lang === 'en' ? s.mp : s.mp);
+  document.getElementById('playReal').href = s.forvo;
+
+  // 重置后面字段
+  document.getElementById('coreTrans').textContent = '—';
+  document.getElementById('emotionTrans').textContent = '—';
+  document.getElementById('tagsRow').innerHTML = '';
+  document.getElementById('pcTitle').textContent = '—';
+  document.getElementById('pcQuote').textContent = '—';
+
+  setTimeout(() => {
+    stage.textContent = lang === 'en' ? '✨ EMOTIONAL RENDERING DELIVERED' : '✨ 大模型完成情绪化意译';
+    typeWriter('coreTrans', lang === 'en' ? s.core_en : (lang === 'zh-TW' ? s.core_tw : s.core_zh), 28);
+  }, 700);
+
+  setTimeout(() => {
+    typeWriter('emotionTrans', lang === 'en' ? s.emo_en : (lang === 'zh-TW' ? s.emo_tw : s.emo_zh), 16);
+  }, 2200);
+
+  setTimeout(() => {
+    const tagList = lang === 'en' ? s.tags_en : s.tags_zh;
+    const row = document.getElementById('tagsRow');
+    tagList.forEach((t, i) => {
+      setTimeout(() => {
+        const c = document.createElement('div');
+        c.className = 'tag-chip';
+        c.textContent = t;
+        row.appendChild(c);
+      }, i * 130);
+    });
+  }, 5000);
+
+  setTimeout(() => {
+    document.getElementById('pcTitle').textContent = lang === 'en' ? s.pcTitle_en : (lang === 'zh-TW' ? s.pcTitle_tw : s.pcTitle_zh);
+    document.getElementById('pcQuote').textContent = s.pcQuote;
+    // 转化提示
+    const convLoc = document.getElementById('convLoc');
+    const convItem = document.getElementById('convItem');
+    if (convLoc && convItem) {
+      convLoc.textContent = lang === 'en' ? s.convLoc_en : s.convLoc_zh;
+      convItem.textContent = lang === 'en' ? s.convItem_en : s.convItem_zh;
+    }
+    stage.textContent = lang === 'en' ? '✅ POSTCARD GENERATED · READY TO SHARE' : '✅ 已生成情绪明信片 · 可分享 / 可消费';
+  }, 5800);
+}
+
+function typeWriter(id, text, speed) {
+  const el = document.getElementById(id);
+  let i = 0;
+  el.textContent = '';
+  if (!text) return;
+  const t = setInterval(() => {
+    el.textContent += text[i++];
+    if (i >= text.length) clearInterval(t);
+  }, speed);
+}
+
+// 普通话朗读（明确标注是普通话直译）
+document.getElementById('playMp').addEventListener('click', () => {
+  if (!curSample) return;
+  if (!window.speechSynthesis) {
+    alert('您的浏览器不支持语音合成。请使用 Chrome / Edge / Safari。');
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(curSample.speak);
+  u.lang = 'zh-CN';
+  u.rate = 0.92;
+  u.pitch = 1.0;
+  window.speechSynthesis.speak(u);
+});
+
+if (window.speechSynthesis) {
+  speechSynthesis.onvoiceschanged = () => {};
+  speechSynthesis.getVoices();
+}
+</script>
+</body>
+</html>

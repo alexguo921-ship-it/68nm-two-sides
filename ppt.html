@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>68海里的两面 · 决赛答辩</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --paper:#f8f3e6;        /* 米白纸张 */
+    --ink:#1a1612;          /* 墨黑 */
+    --ng-yellow:#ffcc00;    /* 标志黄 */
+    --terracotta:#c8552d;   /* 陶土橘 */
+    --teal:#0e5267;         /* 墨青 */
+    --sepia:#7a5a3a;        /* 棕褐 */
+    --sand:#d9c9a8;         /* 沙色 */
+    --gold:#b08a3e;         /* 暗金 */
+    --serif-cn:'Noto Serif SC',serif;
+    --sans-cn:'Noto Sans SC',sans-serif;
+    --serif-en:'Cormorant Garamond',serif;
+  }
+  html,body{height:100%;background:#1a1612;font-family:var(--serif-cn);color:var(--ink);overflow:hidden}
+  .deck{position:fixed;inset:0;width:100vw;height:100vh}
+  .slide{position:absolute;inset:0;background:var(--paper);opacity:0;visibility:hidden;transition:opacity .55s ease;display:flex;flex-direction:column;padding:40px 60px 80px;overflow:hidden}
+  .slide.active{opacity:1;visibility:visible}
+
+  /* 通用：黄色边框装饰 */
+  .frame{position:absolute;inset:24px;border:3px solid var(--ng-yellow);pointer-events:none;z-index:1}
+  .frame::before{content:'';position:absolute;left:-3px;top:30%;width:14px;height:40%;background:var(--paper);border-left:3px solid var(--ng-yellow)}
+
+  /* 顶栏 */
+  .head{position:relative;z-index:2;display:flex;justify-content:space-between;align-items:center;padding-bottom:14px;border-bottom:1.5px solid var(--ink);margin-bottom:18px}
+  .head .num{font-family:var(--serif-en);font-size:12px;letter-spacing:5px;color:var(--terracotta);font-weight:600}
+  .head .brand{font-family:var(--serif-en);font-style:italic;font-size:11px;letter-spacing:3px;color:var(--sepia)}
+  .head .crumb{font-family:var(--sans-cn);font-size:12px;letter-spacing:2.5px;color:var(--ink);font-weight:500}
+
+  /* 底栏 */
+  .foot{position:absolute;left:60px;right:60px;bottom:24px;display:flex;justify-content:space-between;font-family:var(--serif-en);font-size:10px;letter-spacing:2.5px;color:var(--sepia);z-index:2}
+
+  .body{flex:1;position:relative;z-index:2;display:flex;flex-direction:column;justify-content:center}
+  .kicker{font-family:var(--serif-en);font-style:italic;font-size:15px;color:var(--terracotta);letter-spacing:1px;margin-bottom:10px}
+  h1{font-family:var(--serif-cn);font-weight:900;font-size:64px;line-height:1.08;letter-spacing:-1px;margin-bottom:16px;color:var(--ink)}
+  h1 em{font-style:normal;color:var(--terracotta);background:linear-gradient(180deg,transparent 65%,#ffcc0035 65%)}
+  h2{font-family:var(--serif-cn);font-weight:700;font-size:42px;line-height:1.2;color:var(--ink);margin-bottom:14px}
+  h2 em{font-style:normal;color:var(--terracotta)}
+  h3{font-family:var(--serif-cn);font-weight:600;font-size:24px;color:var(--teal);margin-bottom:8px}
+  p{font-size:16px;line-height:1.7;color:#2c2418;margin-bottom:12px}
+  p strong{color:var(--terracotta);font-weight:600}
+
+  /* COVER 封面 - 稳定版 */
+  .cover{padding:0;display:block;background:#1a4a6b;position:absolute;inset:0;color:#fff;overflow:hidden}
+  .cover .bg-img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;z-index:0;filter:saturate(1.1) contrast(1.05)}
+  .cover .mask{position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(90deg,rgba(0,0,0,.75) 0%,rgba(0,0,0,.5) 50%,rgba(0,0,0,.18) 100%);z-index:1}
+  .cover .left{display:none}
+  .cover .right{position:absolute;z-index:3;left:8%;top:50%;transform:translateY(-50%);max-width:min(900px,80%);color:#fff;padding:30px 36px;border-left:6px solid var(--ng-yellow);background:rgba(10,15,22,.35);backdrop-filter:blur(2px)}
+  .cover .right .vol{font-family:var(--serif-en);font-style:italic;font-size:18px;letter-spacing:5px;color:var(--ng-yellow);margin-bottom:18px}
+  .cover .right h1{font-size:84px;font-weight:900;letter-spacing:-2px;line-height:1;margin-bottom:20px;color:#fff;text-shadow:0 6px 28px rgba(0,0,0,.8)}
+  .cover .right h1 em{color:var(--ng-yellow);background:none}
+  .cover .right .sub-en{font-family:var(--serif-en);font-size:28px;font-style:italic;color:#ffdf58;margin-bottom:14px;line-height:1.25}
+  .cover .right .sub-cn{font-family:var(--serif-cn);font-size:26px;color:#fff;line-height:1.45;margin-bottom:26px;font-weight:700;letter-spacing:1.5px}
+  .cover .right .author{padding-top:18px;border-top:2px solid rgba(255,204,0,.8)}
+  .cover .right .author .name{font-family:var(--serif-cn);font-weight:900;font-size:26px;color:#fff;margin-bottom:8px}
+  .cover .right .author .org{font-family:var(--serif-cn);font-size:17px;color:#f8f3e6;letter-spacing:1px;line-height:1.5;font-weight:600}
+  .cover .frame{border-width:4px;inset:28px;z-index:4}
+  .cover .frame::before{background:transparent}
+
+
+  /* 内容卡 */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:30px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+  .card{background:#fff;border:1.5px solid var(--sand);border-left:5px solid var(--ng-yellow);padding:18px;position:relative}
+  .card .num{position:absolute;top:-14px;right:18px;background:var(--ink);color:var(--ng-yellow);font-family:var(--serif-en);font-size:14px;font-weight:700;letter-spacing:3px;padding:5px 14px}
+  .card h3{font-size:18px;color:var(--terracotta);margin-bottom:6px}
+  .card p{font-size:13px;line-height:1.65;color:#2c2418;margin:0}
+
+  /* 双栏对比 */
+  .vs{display:grid;grid-template-columns:1fr 1fr;gap:30px}
+  .vs .col{padding:28px;border:1.5px solid var(--sand);background:#fff;position:relative}
+  .vs .col h3{font-size:24px;margin-bottom:14px}
+  .vs .col.bad{border-left:5px solid var(--sepia)}
+  .vs .col.bad h3{color:var(--sepia)}
+  .vs .col.good{border-left:5px solid var(--terracotta)}
+  .vs .col.good h3{color:var(--terracotta)}
+  .vs ul{list-style:none;padding:0}
+  .vs li{font-size:15px;line-height:1.85;padding:6px 0 6px 22px;position:relative}
+  .vs li::before{content:'›';position:absolute;left:0;color:var(--ng-yellow);font-weight:700;font-size:18px}
+
+  /* SKU 表 */
+  .sku{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:14px}
+  .sku-card{background:#fff;border:1.5px solid var(--sand);padding:16px;position:relative;display:flex;flex-direction:column}
+  .sku-card .tier{font-family:var(--serif-en);font-size:60px;font-weight:700;line-height:1;color:var(--ng-yellow);position:absolute;top:14px;right:18px;opacity:.4}
+  .sku-card .tier-cn{font-family:var(--serif-cn);font-size:13px;letter-spacing:5px;color:var(--terracotta);font-weight:600;margin-bottom:6px}
+  .sku-card .sku-name{font-family:var(--serif-cn);font-size:18px;font-weight:700;color:var(--ink);margin-bottom:10px;line-height:1.25}
+  .sku-card .price{font-family:var(--serif-en);font-size:26px;font-weight:700;color:var(--terracotta);margin-bottom:4px}
+  .sku-card .price small{font-size:14px;font-family:var(--serif-cn);color:var(--sepia);font-weight:400}
+  .sku-card .audience{font-size:11px;color:var(--sepia);line-height:1.55;padding:8px 0;border-top:1px dashed var(--sand);border-bottom:1px dashed var(--sand);margin-bottom:10px}
+  .sku-card .benefit{font-size:11.5px;line-height:1.7;color:#2c2418;flex:1}
+  .sku-card .benefit strong{color:var(--terracotta);font-weight:600}
+
+  /* KPI */
+  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin:16px 0}
+  .kpi-it{padding:14px;border-left:4px solid var(--ng-yellow);background:#fff}
+  .kpi-it .v{font-family:var(--serif-en);font-size:32px;font-weight:700;color:var(--terracotta);line-height:1}
+  .kpi-it .l{font-size:11px;color:var(--sepia);margin-top:5px;letter-spacing:.5px}
+
+  /* 子弹列表 */
+  .bullets{list-style:none;padding:0;margin-top:8px}
+  .bullets li{padding:8px 0 8px 28px;position:relative;font-size:14px;line-height:1.65;border-bottom:1px dashed var(--sand)}
+  .bullets li::before{content:'';position:absolute;left:0;top:17px;width:14px;height:2px;background:var(--terracotta)}
+  .bullets li:last-child{border:none}
+
+  /* 引用 */
+  .quote{padding:18px 22px;border-left:5px solid var(--terracotta);background:#fff;margin:10px 0}
+  .quote .qn{font-family:var(--serif-en);font-size:13px;font-weight:700;letter-spacing:4px;color:var(--terracotta);margin-bottom:10px}
+  .quote .qt{font-family:var(--serif-cn);font-size:18px;font-weight:500;line-height:1.55;color:var(--ink);font-style:italic}
+
+  /* 章节卷首页 */
+  .chapter{justify-content:center;align-items:center;text-align:center}
+  .chapter .ch{font-family:var(--serif-en);font-size:18px;letter-spacing:8px;color:var(--terracotta);margin-bottom:20px}
+  .chapter h1{font-size:90px;letter-spacing:-3px}
+  .chapter .ch-sub{font-family:var(--serif-en);font-style:italic;font-size:22px;color:var(--sepia);margin-top:8px}
+
+  /* 个人叙事专用 */
+  .me{display:grid;grid-template-columns:1.05fr 1fr;gap:30px}
+  .me .left img{width:100%;height:280px;object-fit:cover;border:3px solid var(--ink)}
+  .me .left .cap{font-family:var(--serif-en);font-style:italic;font-size:11px;color:var(--sepia);margin-top:8px;letter-spacing:1px}
+  .me .right{padding-top:6px}
+  .me .right .stat{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:14px 0}
+  .me .right .stat .it{padding:14px 16px;border:1.5px solid var(--sand);background:#fff;border-left:4px solid var(--ng-yellow)}
+  .me .right .stat .it .n{font-family:var(--serif-en);font-size:34px;font-weight:700;color:var(--terracotta)}
+  .me .right .stat .it .t{font-size:13px;color:var(--sepia)}
+
+  /* 小程序 mockup */
+  .wxapp{display:grid;grid-template-columns:1.6fr 1fr;gap:32px;align-items:center}
+  .phones{position:relative;display:flex;gap:16px;justify-content:center;align-items:flex-end}
+  .phone{width:215px;height:430px;background:#fff;border:8px solid #1a1612;border-radius:32px;box-shadow:0 18px 40px rgba(0,0,0,.18);overflow:hidden;position:relative;flex-shrink:0}
+  .phone.tilt-l{transform:rotate(-4deg) translateY(10px)}
+  .phone.tilt-r{transform:rotate(4deg) translateY(10px)}
+  .phone .notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:80px;height:18px;background:#1a1612;border-radius:0 0 12px 12px;z-index:5}
+  .ph-screen{position:absolute;inset:0;display:flex;flex-direction:column}
+  .ph-bar{height:30px;background:#fff;display:flex;justify-content:flex-end;align-items:center;padding:0 14px;font-size:9px;color:#666}
+  .ph-hero{flex:0 0 110px;background:linear-gradient(135deg,#0e5267 0%,#c8552d 100%);position:relative;color:#fff;padding:14px}
+  .ph-hero .ph-logo{font-family:var(--serif-en);font-size:11px;letter-spacing:3px;opacity:.85}
+  .ph-hero .ph-title{font-family:var(--serif-cn);font-size:21px;font-weight:700;margin-top:6px}
+  .ph-hero .ph-sub{font-size:10px;opacity:.85;margin-top:5px}
+  .ph-tabs{flex:1;background:#fff;padding:12px;display:flex;flex-direction:column;gap:8px}
+  .ph-tab{padding:10px 12px;background:#f7f1e3;border-left:3px solid var(--ng-yellow);font-size:11px;color:#1a1612;display:flex;justify-content:space-between;align-items:center}
+  .ph-tab strong{color:var(--terracotta)}
+  .ph-foot{height:42px;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;align-items:center;font-size:8px;color:#999}
+
+  .phone.b .ph-hero{background:linear-gradient(135deg,#1a1612 0%,#c8552d 100%)}
+  .phone.b .ph-tabs{background:#0e1820}
+  .phone.b .ph-tab{background:#1a2530;color:#f8f3e6;border-left-color:var(--ng-yellow)}
+  .phone.b .ph-foot{background:#0e1820;color:#666;border-color:#333}
+  .phone.c .ph-hero{background:linear-gradient(135deg,#7a5a3a 0%,#0e5267 100%)}
+
+  /* 视频卡 */
+  .vid-card{background:#1a1612;color:#f8f3e6;padding:30px;display:grid;grid-template-columns:1fr 1.2fr;gap:30px;align-items:center;border:3px solid var(--ng-yellow)}
+  .vid-card .preview{aspect-ratio:16/10;background:linear-gradient(135deg,#0e5267,#c8552d);position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .vid-card .preview::before{content:'';position:absolute;inset:0;background:url('assets/real/donghai.jpg') center/cover;opacity:.5}
+  .vid-card .play{position:relative;z-index:2;width:80px;height:80px;background:rgba(255,204,0,.92);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#1a1612;font-size:30px;cursor:pointer}
+  .vid-card .play::after{content:'';width:0;height:0;border-style:solid;border-width:14px 0 14px 22px;border-color:transparent transparent transparent #1a1612;margin-left:5px}
+  .vid-card h3{color:var(--ng-yellow);font-size:26px;margin-bottom:8px}
+  .vid-card p{color:#d9c9a8;font-size:14px;line-height:1.7;margin-bottom:6px}
+  .vid-card .meta{display:flex;gap:14px;margin-top:14px;font-family:var(--serif-en);font-size:11px;letter-spacing:2px;color:var(--ng-yellow)}
+
+  /* 路线带状图（周边联动） */
+  .route-band{margin:20px 0 10px;padding:24px;background:#fff;border:1.5px solid var(--sand)}
+  .route-band .stops{display:grid;grid-template-columns:repeat(5,1fr);gap:0;position:relative}
+  .route-band .stop{text-align:center;padding:8px 6px;position:relative}
+  .route-band .stop::after{content:'›';position:absolute;right:-7px;top:32px;font-size:24px;color:var(--ng-yellow);font-weight:700}
+  .route-band .stop:last-child::after{display:none}
+  .route-band .stop .day{font-family:var(--serif-en);font-size:11px;font-weight:700;letter-spacing:3px;color:var(--terracotta)}
+  .route-band .stop .city{font-family:var(--serif-cn);font-size:15px;font-weight:700;color:var(--ink);margin:5px 0 3px}
+  .route-band .stop .what{font-size:10px;color:var(--sepia);line-height:1.5}
+
+  /* 风险预案表 */
+  .risk-tbl{width:100%;border-collapse:collapse;background:#fff;font-size:14.5px}
+  .risk-tbl th,.risk-tbl td{padding:13px 16px;text-align:left;vertical-align:top}
+  .risk-tbl th{background:var(--ink);color:var(--ng-yellow);font-family:var(--serif-cn);font-weight:700;font-size:15px;letter-spacing:2px}
+  .risk-tbl tr td{border-bottom:1px solid var(--sand)}
+  .risk-tbl tr:last-child td{border:none}
+  .risk-tbl .cat{font-weight:700;color:var(--terracotta);width:150px;font-size:15px}
+  .risk-tbl .risk{width:28%;color:var(--sepia);font-size:14px}
+  .risk-tbl .plan{color:#1a1612;line-height:1.7;font-size:14px}
+  .risk-tbl .plan strong{color:var(--terracotta)}
+
+  /* 趋势 */
+  .trend-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .trend-card{background:#fff;border:1.5px solid var(--sand);border-top:5px solid var(--terracotta);padding:16px}
+  .trend-card .icon{font-family:var(--serif-en);font-size:32px;font-weight:700;color:var(--ng-yellow);background:var(--ink);width:50px;height:50px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+  .trend-card h3{font-size:16px;margin-bottom:5px;color:var(--ink)}
+  .trend-card p{font-size:12px;line-height:1.65;color:#2c2418;margin-bottom:6px}
+  .trend-card .src{font-family:var(--serif-en);font-style:italic;font-size:10px;letter-spacing:1px;color:var(--sepia);margin-top:10px;border-top:1px dashed var(--sand);padding-top:8px}
+
+  /* 控制条 */
+  .ctrl{position:fixed;bottom:14px;right:18px;background:rgba(26,22,18,.92);border:1.5px solid var(--ng-yellow);padding:6px 10px;display:flex;gap:6px;align-items:center;z-index:100;font-family:var(--serif-en);font-size:11px;color:var(--ng-yellow);letter-spacing:2px;border-radius:2px;opacity:.35;transition:opacity .3s}
+  .ctrl:hover{opacity:1}
+.nav-back-ppt{position:fixed;top:14px;right:18px;background:rgba(26,22,18,.92);color:var(--ng-yellow);border:1.5px solid var(--ng-yellow);padding:6px 14px;font-size:11px;letter-spacing:2px;text-decoration:none;font-family:var(--serif-en);z-index:100;border-radius:2px;opacity:.55;transition:opacity .3s}
+  .nav-back-ppt:hover{opacity:1}
+  .ctrl button{background:transparent;color:var(--ng-yellow);border:1px solid var(--ng-yellow);width:26px;height:26px;cursor:pointer;font-size:13px;font-family:var(--serif-en)}
+  .ctrl button:hover{background:var(--ng-yellow);color:var(--ink)}
+  .ctrl .pn{padding:0 12px;color:#fff}
+  .progress{position:fixed;top:0;left:0;height:3px;background:var(--ng-yellow);transition:width .4s ease;z-index:101}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<div class="deck" id="deck">
+
+<!-- 1 封面 -->
+<section class="slide cover active" style="background:#1a4a6b">
+  <img class="bg-img" src="assets/cover_pingtan_sea.jpg?v=20260521b" alt="平潭海面" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0">
+  <div class="mask" style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.75) 0%,rgba(0,0,0,.5) 50%,rgba(0,0,0,.18) 100%);z-index:1"></div>
+  <div class="left">
+    <div class="badge">
+      <div class="en">PINGTAN · FUDAN VOL.01</div>
+      <div class="cn">2026 复旦大学青春文旅设计大赛 · 决赛</div>
+    </div>
+    <div class="meta">
+      VOLUME ONE · NO.68<br>
+      THE TWO SIDES OF<br>SIXTY-EIGHT NAUTICAL MILES<br>
+      MAY · 2026
+    </div>
+  </div>
+  <div class="right">
+    <div class="vol">VOL.01 · MAY 2026 · 决赛答辩</div>
+    <h1>68海里<br>的<em>两面</em></h1>
+    <div class="sub-en">A Cross-Strait Cultural Translation Project</div>
+    <div class="sub-cn">基于方言连续体的<br>数字人文文旅产品方案</div>
+    <div class="author">
+      <div class="name">郭嘉 · GUO JIA</div>
+      <div class="org">复旦大学外国语言文学学院 · 翻译硕士 MTI · 25210120088</div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 章节卷首：为什么是我 -->
+<section class="slide chapter">
+  <div class="frame"></div>
+  <div class="ch">CHAPTER · ONE</div>
+  <h1>为什么<br>是<em>我</em></h1>
+  <div class="ch-sub">A Personal Manifesto · 一个人的田野选择</div>
+  <div class="foot"><span>FUDAN · 2026</span><span>02 / 24</span></div>
+</section>
+
+<!-- 3 个人叙事 -->
+<section class="slide">
+  <div class="frame"></div>
+  <div class="head">
+    <span class="num">CHAPTER 01</span>
+    <span class="brand">Why Me · Why Pingtan</span>
+    <span class="crumb">个人叙事</span>
+  </div>
+  <div class="body">
+    <div class="kicker">从潮汕到平潭 —— 一名翻译硕士的田野选择</div>
+    <h2>走过近 <em>200 座国内城市</em>之后，<br>我把镜头对准了 68 海里</h2>
+    <div class="me">
+      <div class="left">
+        <img src="assets/real/donghai.jpg" alt="平潭东海仙境">
+        <div class="cap">FIELD · MAY 2026 · DONGHAI XIANJING, PINGTAN</div>
+      </div>
+      <div class="right">
+        <p>我是<strong>潮汕人</strong>。从小听着闽南语—潮汕话—福佬话之间无法精确切割的"语言连续体"长大。我也是一名<strong>走过近 200 座国内城市</strong>的旅行者。</p>
+        <div class="stat">
+          <div class="it"><div class="n">200</div><div class="t">走过的国内城市</div></div>
+          <div class="it"><div class="n">MTI</div><div class="t">复旦翻译硕士</div></div>
+          <div class="it"><div class="n">68</div><div class="t">两岸相近距离 · 海里</div></div>
+          <div class="it"><div class="n">潮汕</div><div class="t">天然方言敏感</div></div>
+        </div>
+        <p>当我站在猴研岛的礁石上、在北港村的台青咖啡馆里听到福州话与台湾闽南语在同一张桌上对话时，<strong>潮汕人对"南方语言连续体"的本能敏感被瞬间唤醒</strong>。</p>
+        <p>近期潮汕方言电影《给阿嬷的情书》出圈，也提醒我：真正打动人的不是地域标签，而是<strong>乡音、漂泊与归来</strong>。这套方案正是把翻译硕士 MTI 的训练、潮汕人的语感、近 200 城的产品视野，转化为一个可落地的文旅产品。</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>FUDAN · 2026</span><span>03 / 24</span></div>
+</section>
+
+<!-- 4 为什么选平潭：六大优势 -->
+<section class="slide">
+  <div class="frame"></div>
+  <div class="head">
+    <span class="num">CHAPTER 01</span>
+    <span class="brand">Why Pingtan</span>
+    <span class="crumb">为什么是平潭</span>
+  </div>
+  <div class="body">
+    <div class="kicker">在我走过的近 200 城里，平潭具备打造文旅热点的六大差异化优势</div>
+    <h2>平潭，<em>不是又一个网红海岛</em>——它是一个能承载 IP 的文化地理坐标</h2>
+    <div class="grid3" style="margin-top:18px">
+      <div class="card"><span class="num">01</span><h3>地理坐标特征</h3><p>大陆与台湾相近的地理坐标（猴研岛 68 海里 / 125 km），是地图上无法被替代的<strong>地缘坐标</strong>。</p></div>
+      <div class="card"><span class="num">02</span><h3>语言活态性</h3><p>属<strong>闽东语·福州语系</strong>，与台湾闽南语形成对照——天然的"两岸方言连续体"实验场。</p></div>
+      <div class="card"><span class="num">03</span><h3>建筑独特性</h3><p>北港村<strong>花岗岩石厝</strong>是中国南方海岸生存美学的活化石，具有较强地域代表性。</p></div>
+      <div class="card"><span class="num">04</span><h3>自然奇观特征</h3><p><strong>蓝眼泪</strong>每年仅 4—8 月出现，且不可预约——天然制造稀缺与故事张力。</p></div>
+      <div class="card"><span class="num">05</span><h3>政策红利</h3><p>国家"两岸融合发展示范区"——<strong>官方背书 + 政策窗口</strong>，文旅项目可对接综合实验区资源。</p></div>
+      <div class="card"><span class="num">06</span><h3>客群成长性</h3><p>福建省重要海岛、距福州/厦门仅高铁 1—2 小时，覆盖<strong>长三角—海西经济圈</strong>双辐射半径。</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>FUDAN · 2026</span><span>04 / 24</span></div>
+</section>
+
+<!-- 5 行业趋势研究 -->
+<section class="slide">
+  <div class="frame"></div>
+  <div class="head">
+    <span class="num">CHAPTER 01</span>
+    <span class="brand">Trend Research</span>
+    <span class="crumb">行业趋势</span>
+  </div>
+  <div class="body">
+    <div class="kicker">基于平潭综合实验区文旅局真实数据 + 行业趋势研判</div>
+    <h2>我的产品 <em>与三条上升曲线方向一致</em></h2>
+    <div class="trend-grid" style="margin-top:18px">
+      <div class="trend-card">
+        <div class="icon">01</div>
+        <h3>平潭客流持续爆发</h3>
+        <p><strong>2024 年 1,050 万人次</strong>（过夜率首破 50%）→ <strong>2025 年 1,200 万人次</strong>。旅游业对 GDP 贡献率从 6.5% 跃升至 <strong>14%</strong>。</p>
+        <div class="src">SOURCE · 平潭综合实验区文旅局公开数据</div>
+      </div>
+      <div class="trend-card">
+        <div class="icon">02</div>
+        <h3>"留量"取代"流量"</h3>
+        <p>平潭官方公开提出<strong>"从流量到留量"的质效跃升</strong>——过夜游客占比首次破 50% 意味着市场对"深度产品"的需求正在打开。</p>
+        <div class="src">SOURCE · 平潭文旅升级三部曲 · 福建日报</div>
+      </div>
+      <div class="trend-card">
+        <div class="icon">03</div>
+        <h3>AI + 文旅 · 如火如荼</h3>
+        <p>大模型与多模态正快速进入景区——智慧文旅已成为<strong>地方政府重点投入方向</strong>，AI 行程规划、AI 讲解、数字人在多个目的地落地。</p>
+        <div class="src">行业趋势 · 携程研究院 / 文旅部多次研判方向</div>
+      </div>
+    </div>
+    <div style="margin-top:14px;display:grid;grid-template-columns:1.4fr 1fr;gap:14px">
+      <!-- 平潭客流增长条形图 -->
+      <div style="background:#fff;border:1px solid var(--sand);padding:14px 18px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:6px">
+          <strong style="font-family:var(--serif-cn);font-size:14px;color:var(--ink)">平潭年接待人次</strong>
+          <span style="font-family:var(--serif-en);font-size:11px;color:var(--sepia);letter-spacing:2px">UNIT · 万人次</span>
+        </div>
+        <div style="display:grid;grid-template-columns:60px 1fr 60px;gap:8px;align-items:center;font-size:11px;margin:5px 0">
+          <span style="color:var(--sepia);font-family:var(--serif-en)">2022</span>
+          <div style="height:16px;background:var(--sand);position:relative"><div style="width:42%;height:100%;background:#a89274"></div></div>
+          <strong style="color:var(--ink);font-family:var(--serif-en);text-align:right">630</strong>
+        </div>
+        <div style="display:grid;grid-template-columns:60px 1fr 60px;gap:8px;align-items:center;font-size:11px;margin:5px 0">
+          <span style="color:var(--sepia);font-family:var(--serif-en)">2023</span>
+          <div style="height:16px;background:var(--sand);position:relative"><div style="width:55%;height:100%;background:#7a5a3a"></div></div>
+          <strong style="color:var(--ink);font-family:var(--serif-en);text-align:right">820</strong>
+        </div>
+        <div style="display:grid;grid-template-columns:60px 1fr 60px;gap:8px;align-items:center;font-size:11px;margin:5px 0">
+          <span style="color:var(--sepia);font-family:var(--serif-en)">2024</span>
+          <div style="height:16px;background:var(--sand);position:relative"><div style="width:70%;height:100%;background:var(--terracotta)"></div></div>
+          <strong style="color:var(--terracotta);font-family:var(--serif-en);text-align:right">1,050</strong>
+        </div>
+        <div style="display:grid;grid-template-columns:60px 1fr 60px;gap:8px;align-items:center;font-size:11px;margin:5px 0">
+          <span style="color:var(--ink);font-family:var(--serif-en);font-weight:700">2025</span>
+          <div style="height:18px;background:var(--sand);position:relative"><div style="width:80%;height:100%;background:var(--ink);position:relative"><div style="position:absolute;right:-2px;top:-3px;width:4px;height:24px;background:var(--ng-yellow)"></div></div></div>
+          <strong style="color:var(--ink);font-family:var(--serif-en);text-align:right;font-size:13px">1,200</strong>
+        </div>
+      </div>
+      <!-- 旅游业 GDP 占比 -->
+      <div style="background:#1a1612;color:#f8f3e6;border:1px solid var(--ink);padding:14px 18px">
+        <div style="font-family:var(--serif-cn);font-size:13px;color:var(--ng-yellow);margin-bottom:4px">旅游业对 GDP 贡献率</div>
+        <div style="display:flex;align-items:baseline;gap:14px;margin:8px 0">
+          <span style="font-family:var(--serif-en);font-size:32px;font-weight:700;color:#fff">6.5%</span>
+          <span style="color:var(--ng-yellow);font-size:18px">→</span>
+          <span style="font-family:var(--serif-en);font-size:38px;font-weight:900;color:var(--ng-yellow)">14%</span>
+        </div>
+        <div style="font-size:11px;color:var(--sand);line-height:1.55">两年内贡献率<strong style="color:var(--ng-yellow)">翻倍以上</strong> · 平潭已被定位为<br>福建文旅强省战略核心引擎之一。</div>
+      </div>
+    </div>
+    <p style="margin-top:8px;font-size:11px;color:var(--sepia)"><em>* 数据来源：平潭综合实验区文旅局 2024/2025 公开发布。我的产品测算建立在这个真实流量之上。</em></p>
+  </div>
+  <div class="foot"><span>FUDAN · 2026</span><span>05 / 24</span></div>
+</section>
+
+<!-- 6 章节卷首：产品 -->
+<section class="slide chapter">
+  <div class="frame"></div>
+  <div class="ch">CHAPTER · TWO</div>
+  <h1>产品</h1>
+  <div class="ch-sub">The Product · 一份能买、能用、能传播的文旅商品</div>
+  <div class="foot"><span>FUDAN · 2026</span><span>06 / 24</span></div>
+</section>
+
+<!-- 7 产品定位+四个稀缺 -->
+<section class="slide">
+  <div class="frame"></div>
+  <div class="head">
+    <span class="num">CHAPTER 02</span>
+    <span class="brand">Positioning</span>
+    <span class="crumb">产品定位</span>
+  </div>
+  <div class="body">
+    <div class="kicker">我把这套方案做成了"四个差异化能力"</div>
+    <h2><em>面向国内市场</em>以"跨文化情绪解码"为核心的<br>数字人文复合型文旅产品</h2>
+    <div class="grid4" style="margin-top:18px">
+      <div class="card"><span class="num">U1</span><h3>地理坐标</h3><p style="font-size:14px">68 海里 — 大陆与台湾相近的可量化坐标。</p></div>
+      <div class="card"><span class="num">U2</span><h3>语言资源</h3><p style="font-size:14px">把闽东语·福州语系作为产品母词。</p></div>
+      <div class="card"><span class="num">U3</span><h3>建筑文化</h3><p style="font-size:14px">花岗岩石厝的"碎石压顶"生存美学。</p></div>
+      <div class="card"><span class="num">U4</span><h3>机制设计</h3><p style="font-size:14px">"蓝眼泪盲盒保险"可申请商业模式专利。</p></div>
+    </div>
+    <h3 style="margin-top:24px;font-size:24px">目标客群（双轮驱动）</h3>
+    <div class="grid2" style="margin-top:10px">
+      <div class="card" style="border-left-color:var(--terracotta)"><h3 style="font-size:18px">C 端 · 高净值青年</h3><p style="font-size:14px">22—35 岁人文青年、外语/翻译/传播专业生、播客重度用户、数字游民。</p></div>
+      <div class="card" style="border-left-color:var(--teal)"><h3 style="font-size:18px;color:var(--teal)">B 端 · 机构客户</h3><p style="font-size:14px">高校研学、企业团建、文旅局采购、台青创投考察、媒体驻地。</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>FUDAN · 2026</span><span>07 / 24</span></div>
+</section>
+
+<!-- 8 三档SKU -->
+<section class="slide">
+  <div class="frame"></div>
+  <div class="head">
+    <span class="num">CHAPTER 02</span>
+    <span class="brand">SKU Matrix</span>
+    <span class="crumb">三档套餐</span>
+  </div>
+  <div class="body">
+    <div class="kicker">我把抽象的"产品"落到了 3 档可即时下单的 SKU + 4 类衍生品</div>
+    <h2>3 档套餐 + <em>「68 海里通行 PASS」</em>独立 SKU</h2>
+    <div class="sku">
+      <div class="sku-card">
+        <div class="tier">A</div>
+        <div class="tier-cn">A 档 · 听见</div>
+        <div class="sku-name">声音地图日</div>
+        <div class="price">¥199 <small>/ 1 日</small></div>
+        <div class="audience">福州/厦门周边短途客<br>初次访岛者 · 学生党友好</div>
+        <div class="benefit">① <strong>漫游护照</strong>（实体）+ AI 导览小程序<br>② 北港村 3 家台青咖啡馆<strong>声音特调券</strong><br>③ 石头会唱歌·夜间音乐会门票<br>④ 1 张 AI 数字情绪明信片<br>⑤ 蓝眼泪盲盒保险（自动）</div>
+      </div>
+      <div class="sku-card" style="border:2px solid var(--terracotta);transform:scale(1.02)">
+        <div class="tier">B</div>
+        <div class="tier-cn" style="color:var(--terracotta)">★ B 档 · 听懂（主推）</div>
+        <div class="sku-name">两面漫游 3 日</div>
+        <div class="price">¥1,380 <small>/ 3 日 2 夜</small></div>
+        <div class="audience">沪京榕人文青年（22—35）<br>外语/翻译/传播专业生</div>
+        <div class="benefit"><strong>A 档全部内容</strong> + ① 北港村石厝精品民宿 2 晚<br>② 猴研岛 + 东海仙境 + 长江澳风车田<strong>专属讲解</strong><br>③ 海坛古城非遗夜场（藤牌操/词明戏）<br>④ AI 翻译手账定制（含 5 段田野录音）<br>⑤ 海鲜大排档晚餐 + 渔港早市体验</div>
+      </div>
+      <div class="sku-card">
+        <div class="tier">C</div>
+        <div class="tier-cn" style="color:var(--gold)">C 档 · 听透</div>
+        <div class="sku-name">作者带团田野工作坊</div>
+        <div class="price">¥3,680 <small>/ 5 日 4 夜（限 12 人）</small></div>
+        <div class="audience">创作者 / 作家 / 播客主<br>外语翻译研学团 · 企业文化团建</div>
+        <div class="benefit"><strong>B 档全部内容</strong> + ① 180° 海景精品民宿<br>② <strong>3 位台青 + 2 位老渔民深度访谈</strong>（60min×5 含转录稿）<br>③ <strong>作者本人带领"方言田野调查"工作坊</strong><br>④ 个人播客 1 期录制+剪辑+发布<br>⑤ 海上夜钓+渔获烹饪 + 私家车全程<br>⑥ 离岛获《我的 68 海里·田野手账》定制出版物<br>⑦ 1 年内可凭护照免费回访 1 次</div>
+      </div>
+    </div>
+    <p style="margin-top:14px;font-size:14px;color:var(--sepia)">+ <strong>「68 海里通行 PASS 卡」¥99 / 人</strong>（民宿/苍蝇小馆/打车/景区门票多方面联合优惠 + 限定礼物）<br>+ <strong>4 类衍生品</strong>：声音黑胶 ¥98 · 压仓石文镇 ¥58—168 · 两岸物产礼盒 ¥128 · AI 数字明信片 ¥39 · <strong>所有 SKU 均含「蓝眼泪盲盒保险」</strong></p>
+  </div>
+  <div class="foot"><span>FUDAN · 2026</span><span>08 / 24</span></div>
+</section>
+
+<!-- 9 蓝眼泪盲盒保险（机制差异化） -->
+<section class="slide">
+  <div class="frame"></div>
+  <div class="head">
+    <span class="num">CHAPTER 02</span>
+    <span class="brand">The Moat</span>
+    <span class="crumb">机制层差异化</span>
+  </div>
+  <div class="body">
+    <div class="kicker">这是我整套方案中——<strong>同赛道具备申请商业模式专利的潜力</strong>的机制</div>
+    <h2>「蓝眼泪盲盒保险」 — <em>把旅行遗憾自动转化为二次消费</em></h2>
+    <div class="grid2" style="margin-top:18px">
+      <div class="card" style="border-left-color:var(--teal)">
+        <span class="num">痛点</span>
+        <h3 style="color:var(--teal)">所有海岛游的常见痛点</h3>
+        <p style="font-size:15px">蓝眼泪不能预约 · 看不见就退款，景区难；看不见不退款，游客失望——<strong>这是行业普遍存在的体验难题</strong>。</p>
+      </div>
+      <div class="card">
+        <span class="num">破局</span>
+        <h3>我设计的自动补偿机制</h3>
+        <p style="font-size:14px;line-height:1.75">看不到蓝眼泪？小程序当晚 23:30 自动推送<strong>「补偿权益四选一」</strong>：<br>① 海鲜大排档 7 折券；<br>② 限定文创盲盒（压仓石/黑胶任选）；<br>③ 次日免费夜钓体验；<br>④ AI 蓝眼泪情绪明信片高定版。</p>
+      </div>
+    </div>
+    <h3 style="margin-top:24px">为什么这套机制有差异化</h3>
+    <ul class="bullets">
+      <li><strong>对游客</strong>：旅行遗憾被"接住"——情绪体验闭环、口碑保护</li>
+      <li><strong>对景区</strong>：差评率下降 + <strong>触发二次消费 / 二次入场</strong> + 拉长平均停留时长</li>
+      <li><strong>对 B 端商户</strong>：保险触发=精准导流，按核销分润，零空转成本</li>
+      <li><strong>对赛事评审</strong>：这是一个<strong>可进一步申请商业模式保护的具体机制</strong>——不是概念口号，而是可拆解、可执行的条款</li>
+    </ul>
+  </div>
+  <div class="foot"><span>FUDAN · 2026</span><span>09 / 24</span></div>
+</section>
+
+<!-- NEW · PASS 卡专题 -->
+<section class="slide">
+  <div class="frame"></div>
+  <div class="head">
+    <span class="num">CHAPTER 02</span>
+    <span class="brand">68 NM PASS · One Card</span>
+    <span class="crumb">通行 PASS 卡</span>
+  </div>
+  <div class="body">
+    <div class="kicker">解决传统旅游"分散付费、零碎优惠、无人对接"——我做了一张 ¥99 的全城联通卡</div>
+    <h2>「68 海里通行 PASS」 — <em>一卡通全城</em></h2>
+    <div style="display:grid;grid-template-columns:1.05fr 1fr;gap:30px;margin-top:18px;align-items:center">
+      <div>
+        <img src="assets/pass_card.png" alt="68NM PASS Card" style="width:100%;border:3px solid var(--ink);box-shadow:0 14px 40px rgba(0,0,0,.18)">
+        <p style="font-family:var(--serif-en);font-style:italic;font-size:11px;color:var(--sepia);text-align:center;margin-top:8px;letter-spacing:2px">68 NM PASS · ¥99 · ALL-IN-ONE TRAVEL CARD</p>
+      </div>
+      <div>
+        <h3 style="font-size:22px;color:var(--terracotta);margin-bottom:10px">¥99 一张 · 6 大权益</h3>
+        <ul class="bullets" style="margin-top:6px">
+          <li><strong>① 民宿优惠</strong> — 合作 30+ 家平潭民宿 · 立减 8—15%</li>
+          <li><strong>② 苍蝇小馆</strong> — 北港村/澳前镇 50+ 本地餐馆 · 9 折</li>
+          <li><strong>③ 公共出行</strong> — 高铁站接驳 + 岛内公交 + 滴滴优惠</li>
+          <li><strong>④ 景区门票</strong> — 海坛古城/东海仙境/猴研岛打折通票</li>
+          <li><strong>⑤ 租车租船</strong> — 电动车/自行车/夜钓船优先预订</li>
+          <li><strong>⑥ 限定礼物</strong> — 限定文创小礼包 + 蓝眼泪明信片 1 张</li>
+        </ul>
+        <div style="margin-top:18px;padding:14px;background:#fff;border-left:4px solid var(--ng-yellow)">
+          <p style="font-size:14px;line-height:1.7;margin:0">独立 SKU + 套餐内嵌（B/C 档已含）。<strong style="color:var(--terracotta)">首年目标 18 万张 · 营收 ¥1,782 万</strong>——这是我整套盈利模型较稳定的一根曲线。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>FUDAN · 2026</span><span>10 / 24</span></div>
+</section>
+
+<!-- NEW · AI 推荐附近民宿苍蝇小馆 -->
+<section class="slide">
+  <div class="frame"></div>
+  <div class="head">
+    <span class="num">CHAPTER 02</span>
+    <span class="brand">AI Recommendation</span>
+    <span class="crumb">AI 推荐 · 不只卖套餐</span>
+  </div>
+  <div class="body">
+    <div class="kicker">不强迫游客只走套餐——AI 会基于偏好推附近更适配的民宿、苍蝇小馆、隐藏玩法</div>
+    <h2>除了套餐 · <em>还有一整张本地化推荐网</em></h2>
+    <div class="grid3" style="margin-top:18px">
+      <div class="card">
+        <span class="num">REC · 01</span>
+        <h3>本地民宿 AI 排序</h3>
+        <p style="font-size:14px">不是付费推荐——基于"<strong>方言深度 + 海景 + 厨房 + 价格区间</strong>"AI 排序。北港村石厝民宿 / 澳前精品 / 海景公寓三类标签清晰可选。</p>
+      </div>
+      <div class="card">
+        <span class="num">REC · 02</span>
+        <h3>苍蝇小馆地图</h3>
+        <p style="font-size:14px">本地老字号 50 家——金井湾海鲜 / 流水镇早茶 / 北港村台青馆——按"<strong>翻台率 + 本地人评分 + 距离</strong>"AI 排序，避开网红坑。</p>
+      </div>
+      <div class="card">
+        <span class="num">REC · 03</span>
+        <h3>动态偏好学习</h3>
+        <p style="font-size:14px">输入"我喜欢小众路线 / 想拍照 / 不能吃辣 / 预算 ¥300"——AI 在 30 秒内出 1 份个性化的"<strong>非官方路线"</strong>。</p>
+      </div>
+    </div>
+    <h3 style="margin-top:24px;font-size:22px">为什么这套推荐能"绕开传统差评点"</h3>
+    <ul class="bullets">
+      <li>所有合作民宿/餐馆<strong>必须接入持有 PASS 卡的游客实时反馈</strong>——差评 3 次自动剔除推荐池</li>
+      <li>"<strong>不强迫消费</strong>"——这是和传统旅行社重要差异化：游客可只买 ¥99 PASS 卡，自由组合行程</li>
+      <li>对<strong>本地小商户友好</strong>——零获客成本、按核销分润，把流量精准导给"未被网红化"的真实老店</li>
+    </ul>
+  </div>
+  <div class="foot"><span>FUDAN · 2026</span><span>11 / 24</span></div>
+</section>
+
+<!-- NEW · 蓝眼泪实况智能预警 -->
+<section class="slide">
+  <div class="frame"></div>
+  <div class="head">
+    <span class="num">CHAPTER 02</span>
+    <span class="brand">Blue Tears Live</span>
+    <span class="crumb">蓝眼泪实况</span>
+  </div>
+  <div class="body">
+    <div class="kicker">市场上已有官方"蓝眼泪实况"小程序（600 万+ 用户）——我做的是它的<strong>专业版</strong></div>
+    <h2>「蓝眼泪 · 实况 PRO」 — <em>预测 + 上报 + 直播 + 保险</em>四合一</h2>
+    <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:30px;margin-top:18px;align-items:stretch">
+      <div>
+        <img src="assets/bluetears_real.png" alt="Blue Tears" style="width:100%;height:340px;object-fit:cover;border:3px solid var(--ink)">
+        <p style="font-family:var(--serif-en);font-style:italic;font-size:11px;color:var(--sepia);text-align:center;margin-top:8px;letter-spacing:2px">BLUE TEARS · APRIL—AUGUST · NIGHT TIDE</p>
+      </div>
+      <div>
+        <div class="card" style="border-left-color:var(--terracotta);margin-bottom:14px">
+          <h3 style="color:var(--terracotta);font-size:18px">① 预测 · AI 概率模型</h3>
+          <p style="font-size:13px">综合气象/潮汐/水温/风向数据，每 30 分钟更新当晚出现概率（如"今晚 72%"）。</p>
+        </div>
+        <div class="card" style="border-left-color:var(--teal);margin-bottom:14px">
+          <h3 style="color:var(--teal);font-size:18px">② 上报 · 游客 UGC 实况</h3>
+          <p style="font-size:13px">游客拍到上报，AI 自动校对位置、时间、可信度，热点亮起——形成<strong>实时蓝眼泪热力地图</strong>。</p>
+        </div>
+        <div class="card" style="border-left-color:var(--gold);margin-bottom:14px">
+          <h3 style="color:var(--gold);font-size:18px">③ 直播 · 部署夜间摄像头</h3>
+          <p style="font-size:13px">猴研岛/龙凤头海滨 5 个观测点 24 小时直播——没去现场也能在小程序里"云追泪"。</p>
+        </div>
+        <div class="card" style="border-left-color:var(--ng-yellow)">
+          <h3 style="color:#1a1612;font-size:18px">④ 保险 · 自动补偿</h3>
+          <p style="font-size:13px">概率 &lt; 30% 当晚自动派发<strong>「补偿权益四选一」</strong>——把劣势天气转化为消费转化。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>FUDAN · 2026</span><span>12 / 24</span></div>
+</section>
+
+<!-- 10 章节卷首：技术 -->
+<section class="slide chapter">
+  <div class="frame"></div>
+  <div class="ch">CHAPTER · THREE</div>
+  <h1>技术</h1>
+  <div class="ch-sub">YUTU·68 · 让文化"听懂、看懂、买懂、管懂"</div>
+  <div class="foot"><span>FUDAN · 2026</span><span>13 / 24</span></div>
+</section>
+
+<!-- 11 AI 三大原型总览 -->
+<section class="slide">
+  <div class="frame"></div>
+  <div class="head">
+    <span class="num">CHAPTER 03</span>
+    <span class="brand">YUTU·68 AI Engine</span>
+    <span class="crumb">AI 引擎</span>
+  </div>
+  <div class="body">
+    <div class="kicker">我自研的「语途·68」AI 引擎 — 全部能在今天现场看见</div>
+    <h2>三个原型 · <em>听懂 → 看懂 → 买懂 → 管懂</em></h2>
+    <div class="grid3" style="margin-top:18px">
+      <div class="card">
+        <span class="num">AI · 01</span>
+        <h3>方言情绪翻译器</h3>
+        <p style="font-size:14px">基于<strong>闽东语·福州语系</strong>真实语料，输入平潭话 → 输出情绪化意译 + 罗马拼音 + 普通话译文 + AI 情绪明信片。</p>
+        <p style="font-size:13px;color:var(--sepia);margin-top:8px"><em>解决"听不懂"，触发 UGC 传播</em></p>
+      </div>
+      <div class="card">
+        <span class="num">AI · 02</span>
+        <h3>VLM 场景智能解读</h3>
+        <p style="font-size:14px">扫描石厝/猴研岛/蓝眼泪/海蚀洞 — AR 叠加文化讲解 + 物理模拟 + 万年地质回放 + <strong>一键购买文创</strong>。</p>
+        <p style="font-size:13px;color:var(--sepia);margin-top:8px"><em>解决"看不透"，转化"扫描即购买"</em></p>
+      </div>
+      <div class="card">
+        <span class="num">AI · 03</span>
+        <h3>运营画像与分润大屏</h3>
+        <p style="font-size:14px">AI 实时聚合游客画像 / 动线热力 / 异业核销，5%—10% 自动分润 — <strong>B 端可直接接入</strong>。</p>
+        <p style="font-size:13px;color:var(--sepia);margin-top:8px"><em>解决"管不动"，让产品具备长期运营能力</em></p>
+      </div>
+    </div>
+    <div class="quote">
+      <div class="qn">我的克制原则</div>
+      <div class="qt">不是泛泛而谈"AI 数字人"，而是把每一个 AI 能力都打成"<strong>用户输入 → 系统输出 → 消费转化</strong>"三段式可演原型。</div>
+    </div>
+  </div>
+  <div class="foot"><span>FUDAN · 2026</span><span>14 / 24</span></div>
+</section>
+
+<!-- 12 微信小程序落地 -->
+<section class="slide">
+  <div class="slide-bg"></div>
+  <div class="frame"></div>
+  <div class="head">
+    <span class="num">CHAPTER 03</span>
+    <span class="brand">WeChat Mini-Program</span>
+    <span class="crumb">微信小程序落地</span>
+  </div>
+  <div class="body">
+    <div class="kicker">我已经把它做成可上线的产品形态——这是我对"可持续可落地"的回答</div>
+    <h2>「68 海里」微信小程序 · <em>一个入口承载所有能力</em></h2>
+    <div class="wxapp">
+      <div class="phones" style="cursor:pointer" onclick="localStorage.setItem('ppt_last_slide',String(idx));window.open('wxapp_demo.html','_blank')" title="点击进入小程序现场体验">
+        <!-- C端 游客版 -->
+        <div class="phone tilt-l">
+          <div class="notch"></div>
+          <div class="ph-screen">
+            <div class="ph-bar">9:24 ●●● 100%</div>
+            <div class="ph-hero">
+              <div class="ph-logo">68NM · 漫游护照</div>
+              <div class="ph-title">你好，旅人</div>
+              <div class="ph-sub">猴研岛距台湾 68 海里</div>
+            </div>
+            <div class="ph-tabs">
+              <div class="ph-tab"><span>A · 声音地图日</span><strong>¥199</strong></div>
+              <div class="ph-tab" style="border-left-color:var(--terracotta)"><span>★ B · 两面漫游 3 日</span><strong>¥1,380</strong></div>
+              <div class="ph-tab"><span>C · 田野工作坊</span><strong>¥3,680</strong></div>
+              <div class="ph-tab" style="background:#fff8d8"><span>蓝眼泪概率 · 今晚</span><strong>72%</strong></div>
+            </div>
+            <div class="ph-foot"><span>● 首页</span><span>○ 地图</span><span>○ 翻译</span><span>○ 我的</span></div>
+          </div>
+        </div>
+        <!-- 翻译器 -->
+        <div class="phone b">
+          <div class="notch"></div>
+          <div class="ph-screen">
+            <div class="ph-bar">9:24 ●●● 100%</div>
+            <div class="ph-hero">
+              <div class="ph-logo">YUTU·68 · 方言情绪翻译</div>
+              <div class="ph-title">长按录音</div>
+              <div class="ph-sub">闽东语·福州语系</div>
+            </div>
+            <div class="ph-tabs">
+              <div class="ph-tab"><span>📍 北港村</span><strong>识别中</strong></div>
+              <div class="ph-tab"><span>原音 · ngiè máing-bo̤</span><strong>▶</strong></div>
+              <div class="ph-tab" style="border-left-color:var(--terracotta)"><span>情绪意译</span><strong>★</strong></div>
+              <div class="ph-tab" style="background:#0e5267;color:#fff;border-left-color:#ffcc00"><span>生成情绪明信片</span><strong>¥39</strong></div>
+            </div>
+            <div class="ph-foot"><span>○ 首页</span><span>○ 地图</span><span>● 翻译</span><span>○ 我的</span></div>
+          </div>
+        </div>
+        <!-- VLM 扫描 -->
+        <div class="phone tilt-r c">
+          <div class="notch"></div>
+          <div class="ph-screen">
+            <div class="ph-bar">9:24 ●●● 100%</div>
+            <div class="ph-hero">
+              <div class="ph-logo">YUTU·68 · VLM 扫描</div>
+              <div class="ph-title">扫一扫文化</div>
+              <div class="ph-sub">石厝 · 猴研岛 · 蓝眼泪</div>
+            </div>
+            <div class="ph-tabs">
+              <div class="ph-tab"><span>🪨 石厝压顶</span><strong>已识别</strong></div>
+              <div class="ph-tab"><span>AR · 12 级台风受力</span><strong>▶</strong></div>
+              <div class="ph-tab"><span>讲解 · 60 秒</span><strong>♪</strong></div>
+              <div class="ph-tab" style="background:#fff8d8;border-left-color:var(--terracotta)"><span>压仓石文镇</span><strong>¥98</strong></div>
+            </div>
+            <div class="ph-foot"><span>○ 首页</span><span>● 地图</span><span>○ 翻译</span><span>○ 我的</span></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 style="font-size:22px;color:var(--terracotta)">5 大功能模块</h3>
+        <ul class="bullets" style="margin-top:6px">
+          <li><strong>① 漫游护照</strong>—— SKU 下单 + 数字票券核销</li>
+          <li><strong>② AI 方言翻译器</strong>—— 长按录音、情绪意译、明信片生成</li>
+          <li><strong>③ VLM 扫描器</strong>—— 摄像头扫物→AR 讲解→一键购买</li>
+          <li><strong>④ 蓝眼泪雷达</strong>—— 实时概率 + 自动盲盒保险触发</li>
+          <li><strong>⑤ 我的田野手账</strong>—— 离岛后 AI 自动生成可分享 H5</li>
+        </ul>
+        <div style="margin-top:14px;padding:11px 14px;background:linear-gradient(135deg,#1a1612,#c8552d);color:#fff;border-radius:0;display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="localStorage.setItem('ppt_last_slide',String(idx));window.open('wxapp_demo.html','_blank')">
+          <div>
+            <strong style="font-family:var(--serif-en);font-size:11px;letter-spacing:3px;color:var(--ng-yellow)">▶ LIVE INTERACTION</strong>
+            <p style="font-size:13px;margin-top:3px;color:#fff">点击进入小程序现场体验 · 输入指令 AI 即时回应</p>
+          </div>
+          <div style="font-size:24px;color:var(--ng-yellow)">→</div>
+        </div>
+        <h3 style="font-size:18px;margin-top:14px;color:var(--teal)">迭代路线</h3>
+        <p style="font-size:14px;line-height:1.7;color:#2c2418">
+          <strong>V1 上线（3 个月）</strong>护照+订单+翻译器 → 
+          <strong>V2（6 个月）</strong>VLM 扫描+蓝眼泪雷达 → 
+          <strong>V3（12 个月）</strong>B 端运营大屏开放 + 数字人客服 + 海西经济圈联动版。
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>FUDAN · 2026</span><span>15 / 24</span></div>
+</section>
+
+<!-- NEW · 文创衍生品矩阵 -->
+<section class="slide">
+  <div class="frame"></div>
+  <div class="head">
+    <span class="num">CHAPTER 03</span>
+    <span class="brand">Cultural Merchandise</span>
+    <span class="crumb">文创衍生品矩阵</span>
+  </div>
+  <div class="body">
+    <div class="kicker">¥39 — ¥588 多档位文创 · 覆盖游客全消费场景 · 共享一套深海蓝+烫金视觉语言</div>
+    <h2 style="font-size:34px"><em>文创衍生品</em>矩阵 · 一套自有视觉的产品族</h2>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px">
+      <div style="background:#fff;border:1px solid var(--sand);overflow:hidden">
+        <img src="assets/passport.png" style="width:100%;aspect-ratio:1/0.78;object-fit:cover;display:block">
+        <div style="padding:8px 10px"><div style="font-family:var(--serif-en);font-size:9px;letter-spacing:2px;color:var(--terracotta);font-weight:700">M·01</div><strong style="font-size:12px;display:block">漫游护照</strong><span style="font-family:var(--serif-en);color:var(--terracotta);font-weight:700;font-size:14px">¥168</span></div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--sand);overflow:hidden">
+        <img src="assets/pass_card.png" style="width:100%;aspect-ratio:1/0.78;object-fit:cover;display:block">
+        <div style="padding:8px 10px"><div style="font-family:var(--serif-en);font-size:9px;letter-spacing:2px;color:var(--terracotta);font-weight:700">M·02</div><strong style="font-size:12px;display:block">通行 PASS 卡</strong><span style="font-family:var(--serif-en);color:var(--terracotta);font-weight:700;font-size:14px">¥99</span></div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--sand);overflow:hidden">
+        <img src="assets/merch_vinyl.png" style="width:100%;aspect-ratio:1/0.78;object-fit:cover;display:block">
+        <div style="padding:8px 10px"><div style="font-family:var(--serif-en);font-size:9px;letter-spacing:2px;color:var(--terracotta);font-weight:700">M·03</div><strong style="font-size:12px;display:block">海风之声黑胶</strong><span style="font-family:var(--serif-en);color:var(--terracotta);font-weight:700;font-size:14px">¥98</span></div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--sand);overflow:hidden">
+        <img src="assets/merch_paperweight.png" style="width:100%;aspect-ratio:1/0.78;object-fit:cover;display:block">
+        <div style="padding:8px 10px"><div style="font-family:var(--serif-en);font-size:9px;letter-spacing:2px;color:var(--terracotta);font-weight:700">M·04</div><strong style="font-size:12px;display:block">压仓石文镇</strong><span style="font-family:var(--serif-en);color:var(--terracotta);font-weight:700;font-size:14px">¥58-168</span></div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--sand);overflow:hidden">
+        <img src="assets/postcard.png" style="width:100%;aspect-ratio:1/0.78;object-fit:cover;display:block">
+        <div style="padding:8px 10px"><div style="font-family:var(--serif-en);font-size:9px;letter-spacing:2px;color:var(--terracotta);font-weight:700">M·05</div><strong style="font-size:12px;display:block">AI 情绪明信片</strong><span style="font-family:var(--serif-en);color:var(--terracotta);font-weight:700;font-size:14px">¥39</span></div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--sand);overflow:hidden">
+        <img src="assets/merch_keychain.png" style="width:100%;aspect-ratio:1/0.78;object-fit:cover;display:block">
+        <div style="padding:8px 10px"><div style="font-family:var(--serif-en);font-size:9px;letter-spacing:2px;color:var(--terracotta);font-weight:700">M·06</div><strong style="font-size:12px;display:block">罗盘钥匙扣</strong><span style="font-family:var(--serif-en);color:var(--terracotta);font-weight:700;font-size:14px">¥48</span></div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--sand);overflow:hidden">
+        <img src="assets/merch_tote.png" style="width:100%;aspect-ratio:1/0.78;object-fit:cover;display:block">
+        <div style="padding:8px 10px"><div style="font-family:var(--serif-en);font-size:9px;letter-spacing:2px;color:var(--terracotta);font-weight:700">M·07</div><strong style="font-size:12px;display:block">海风帆布袋</strong><span style="font-family:var(--serif-en);color:var(--terracotta);font-weight:700;font-size:14px">¥68</span></div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--sand);overflow:hidden">
+        <img src="assets/merch_tape.png" style="width:100%;aspect-ratio:1/0.78;object-fit:cover;display:block">
+        <div style="padding:8px 10px"><div style="font-family:var(--serif-en);font-size:9px;letter-spacing:2px;color:var(--terracotta);font-weight:700">M·08</div><strong style="font-size:12px;display:block">手账胶带 3 卷套</strong><span style="font-family:var(--serif-en);color:var(--terracotta);font-weight:700;font-size:14px">¥58</span></div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--sand);overflow:hidden">
+        <img src="assets/merch_journal.png" style="width:100%;aspect-ratio:1/0.78;object-fit:cover;display:block">
+        <div style="padding:8px 10px"><div style="font-family:var(--serif-en);font-size:9px;letter-spacing:2px;color:var(--terracotta);font-weight:700">M·09</div><strong style="font-size:12px;display:block">田野手账本</strong><span style="font-family:var(--serif-en);color:var(--terracotta);font-weight:700;font-size:14px">¥88</span></div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--sand);overflow:hidden">
+        <img src="assets/merch_tea.png" style="width:100%;aspect-ratio:1/0.78;object-fit:cover;display:block">
+        <div style="padding:8px 10px"><div style="font-family:var(--serif-en);font-size:9px;letter-spacing:2px;color:var(--terracotta);font-weight:700">M·10</div><strong style="font-size:12px;display:block">海风茶（铁罐）</strong><span style="font-family:var(--serif-en);color:var(--terracotta);font-weight:700;font-size:14px">¥128</span></div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--sand);overflow:hidden">
+        <img src="assets/merch_mug.png" style="width:100%;aspect-ratio:1/0.78;object-fit:cover;display:block">
+        <div style="padding:8px 10px"><div style="font-family:var(--serif-en);font-size:9px;letter-spacing:2px;color:var(--terracotta);font-weight:700">M·11</div><strong style="font-size:12px;display:block">石厝搪瓷杯</strong><span style="font-family:var(--serif-en);color:var(--terracotta);font-weight:700;font-size:14px">¥78</span></div>
+      </div>
+      <div style="background:#fff;border:1.5px solid var(--terracotta);overflow:hidden">
+        <img src="assets/merch_giftbox.png" style="width:100%;aspect-ratio:1/0.78;object-fit:cover;display:block">
+        <div style="padding:8px 10px"><div style="font-family:var(--serif-en);font-size:9px;letter-spacing:2px;color:var(--terracotta);font-weight:700">M·12 · BOX</div><strong style="font-size:12px;display:block">两岸物产礼盒</strong><span style="font-family:var(--serif-en);color:var(--terracotta);font-weight:700;font-size:14px">¥588</span></div>
+      </div>
+    </div>
+    <p style="margin-top:8px;font-size:12px;color:var(--sepia)">客单价 <strong style="color:var(--terracotta)">¥39 — ¥588</strong>·支撑首年衍生品+护照收入约 <strong style="color:var(--terracotta)">¥1,210 万</strong>。</p>
+  </div>
+  <div class="foot"><span>FUDAN · 2026</span><span>16 / 24</span></div>
+</section>
+
+<!-- 13 视频展示页 -->
+<section class="slide">
+  <div class="frame"></div>
+  <div class="head">
+    <span class="num">CHAPTER 03</span>
+    <span class="brand">Product Film · 30s</span>
+    <span class="crumb">产品展示视频</span>
+  </div>
+  <div class="body">
+    <div class="kicker">这是我为评委准备的 30 秒产品视频——它会回答："这套产品做出来到底长什么样？"</div>
+    <h2>《68 海里 · 两面》 — <em>30 秒产品片</em></h2>
+    <div class="vid-card">
+      <div class="preview" id="videoBtn">
+        <div class="play"></div>
+      </div>
+      <div>
+        <h3>3 幕 · 30 秒 · 一个产品的完整自白</h3>
+        <p><strong>幕一（0—10s）</strong>：海风 + 渔民方言 + 字幕"在 68 海里之外，有一种声音你从没听懂。"</p>
+        <p><strong>幕二（10—20s）</strong>：小程序 / 翻译器 / VLM 扫描 / 漫游护照 — 实拍快剪，节奏点切镜。</p>
+        <p><strong>幕三（20—30s）</strong>：石厝、蓝眼泪、猴研岛长镜头收 — 字幕"我们用 AI，重新翻译了这 68 海里。"</p>
+        
+      </div>
+    </div>
+    <p style="margin-top:14px;font-size:14px;color:var(--sepia)"></p>
+  </div>
+  <div class="foot"><span>FUDAN · 2026</span><span>17 / 24</span></div>
+</section>
+
+<!-- 14 章节卷首：运营 -->
+<section class="slide chapter">
+  <div class="frame"></div>
+  <div class="ch">CHAPTER · FOUR</div>
+  <h1>运营</h1>
+  <div class="ch-sub">Operation · 协同·盈利·风险预案</div>
+  <div class="foot"><span>FUDAN · 2026</span><span>18 / 24</span></div>
+</section>
+
+<!-- 15 周边联动（大局观） -->
+<section class="slide">
+  <div class="frame"></div>
+  <div class="head">
+    <span class="num">CHAPTER 04</span>
+    <span class="brand">Regional Synergy</span>
+    <span class="crumb">海西经济圈联动</span>
+  </div>
+  <div class="body">
+    <div class="kicker">沪→平潭直达高铁班次有限，多数游客抵岛即傍晚 — 我把"这个不便"转化成"区域协同的机会"</div>
+    <h2>「68 海里 PLUS」 — <em>带动福州·泉州·厦门共同发展</em></h2>
+    <div class="route-band">
+      <div class="stops">
+        <div class="stop"><div class="day">DAY 0</div><div class="city">上海虹桥</div><div class="what">G 字头列车<br>下午发车</div></div>
+        <div class="stop"><div class="day">DAY 0 PM</div><div class="city">福州站</div><div class="what">三坊七巷夜游<br>福州话田野第 1 站</div></div>
+        <div class="stop"><div class="day">DAY 1—3</div><div class="city">平潭岛</div><div class="what">主体三日深度游<br>核心 SKU</div></div>
+        <div class="stop"><div class="day">DAY 4</div><div class="city">泉州（可选）</div><div class="what">闽南语对照体验<br>蟳埔簪花、海丝起点</div></div>
+        <div class="stop"><div class="day">DAY 5</div><div class="city">厦门（可选）</div><div class="what">鼓浪屿对岸眺望<br>返程虹桥</div></div>
+      </div>
+    </div>
+    <h3 style="margin-top:14px;font-size:24px">为什么这套联动让我的方案"格局更大"</h3>
+    <ul class="bullets">
+      <li><strong>解决交通现实痛点</strong>——把"上海→平潭只能下午到、晚上空转"的劣势变成"福州一夜文化预热"的优势</li>
+      <li><strong>构成"福州话→平潭话→闽南语"完整方言连续体闭环</strong>——这恰好是我整套学术叙事的物理坐标轴</li>
+      <li><strong>响应海西经济圈协同发展战略</strong>——产品对接综合实验区 + 福州/泉州/厦门四地文旅局，可形成<strong>区域联合采购</strong></li>
+      <li><strong>对游客</strong>——单点变多点，体验密度+票房面积同步提升</li>
+      <li><strong>对评委</strong>——证明我不是只做"一个岛的小产品"，而是<strong>有大局观的区域级文旅战略</strong></li>
+    </ul>
+  </div>
+  <div class="foot"><span>FUDAN · 2026</span><span>19 / 24</span></div>
+</section>
+
+<!-- 16 营收 + 多方共赢 -->
+<section class="slide">
+  <div class="frame"></div>
+  <div class="head">
+    <span class="num">CHAPTER 04</span>
+    <span class="brand">Revenue & Value</span>
+    <span class="crumb">盈利与社会价值</span>
+  </div>
+  <div class="body">
+    <div class="kicker">基于平潭 2025 年 1,200 万年客流真实基数 · 0.4% 精准抓取测算</div>
+    <h2>首年保守 ≈ <em>9,200 万</em> · 乐观可达 <em>¥1.5 亿</em></h2>
+    <div class="kpi" style="margin-top:14px">
+      <div class="kpi-it"><div class="v">¥9,200万</div><div class="l">首年保守 · MVP 起步</div></div>
+      <div class="kpi-it"><div class="v">¥1.5亿</div><div class="l">第二年乐观可达</div></div>
+      <div class="kpi-it"><div class="v">1,200万</div><div class="l">2025 年平潭客流基数</div></div>
+      <div class="kpi-it"><div class="v">0.5%</div><div class="l">目标抓取率 ≈ 6 万人</div></div>
+    </div>
+    <div class="grid4" style="margin-top:14px">
+      <div class="card" style="border-left-color:var(--terracotta)">
+        <h3 style="font-size:18px">游客</h3>
+        <p style="font-size:13px">买到<strong>有人文厚度、有情绪闭环</strong>的旅行——而非套路打卡。</p>
+      </div>
+      <div class="card" style="border-left-color:var(--teal)">
+        <h3 style="font-size:18px;color:var(--teal)">本地商户</h3>
+        <p style="font-size:13px">通过 AI 大屏获得<strong>精准客流 + 自动分润</strong>，零获客成本。</p>
+      </div>
+      <div class="card" style="border-left-color:var(--gold)">
+        <h3 style="font-size:18px;color:var(--gold)">文旅局/政府</h3>
+        <p style="font-size:13px">获得<strong>叙事 IP + 数据资产 + 两岸融合示范案例</strong>。</p>
+      </div>
+      <div class="card">
+        <h3 style="font-size:18px">社会价值</h3>
+        <p style="font-size:13px">推动<strong>方言保护、非遗活化、台青就业、海岛乡村振兴</strong>。</p>
+      </div>
+    </div>
+    <h3 style="margin-top:18px;font-size:22px">5 条收入曲线</h3>
+    <ul class="bullets">
+      <li><strong>① 路线套餐</strong>（A ¥199×3万人 + B ¥1,380×3万人 + C ¥3,680×3,000人）≈ <strong>¥5,134 万</strong></li>
+      <li><strong>② 通行 PASS 卡</strong>（¥99 × 18 万张 · 综合实验区合作商户矩阵入口）≈ <strong>¥1,782 万</strong></li>
+      <li><strong>③ 体验门票+衍生品</strong>（音乐会/夜场/夜钓 + 黑胶/文镇/明信片）≈ <strong>¥1,420 万</strong></li>
+      <li><strong>④ B 端定制</strong>（高校研学 30 团 + 企业团建 50 团 + 政府采购 8 例）≈ <strong>¥520 万</strong></li>
+      <li><strong>⑤ 异业分润+IP 版权</strong>（5—10% 抽佣 + 出版 + 媒体授权）≈ <strong>¥320 万</strong></li>
+    </ul>
+  </div>
+  <div class="foot"><span>FUDAN · 2026</span><span>20 / 24</span></div>
+</section>
+
+<!-- 17 风险预案 -->
+<section class="slide">
+  <div class="frame"></div>
+  <div class="head">
+    <span class="num">CHAPTER 04</span>
+    <span class="brand">Risk Plan</span>
+    <span class="crumb">风险预案</span>
+  </div>
+  <div class="body">
+    <div class="kicker">把可能让评委关心的问题，提前给出应对方案</div>
+    <h2>5 类风险 · <em>每一类都有可执行的预案</em></h2>
+    <table class="risk-tbl" style="margin-top:14px">
+      <thead><tr><th>风险类别</th><th>具体场景</th><th>我的应对预案</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="cat">① 自然不可控</td>
+          <td class="risk">蓝眼泪未现 / 台风停航 / 大风浪封礁</td>
+          <td class="plan"><strong>蓝眼泪盲盒保险</strong>自动触发；台风/封航启动"室内备选包"（海坛古城非遗夜场+石厝民宿故事会），并由小程序<strong>免费改期或全额退款</strong>。</td>
+        </tr>
+        <tr>
+          <td class="cat">② 服务承载</td>
+          <td class="risk">节假日客流爆棚、民宿排队、讲解员不足</td>
+          <td class="plan">采用<strong>限额制</strong>（B 档 ≤30 人/批，C 档 ≤12 人/批）；高峰期接入<strong>AI 数字人讲解员</strong>分流；预留 3 家备选民宿与本地接驳车池。</td>
+        </tr>
+        <tr>
+          <td class="cat">③ 安全突发</td>
+          <td class="risk">游客摔伤 / 海上夜钓意外 / 食品安全</td>
+          <td class="plan">所有 SKU 强制<strong>团体意外险</strong>；每条线路配 1 名<strong>持证安全员</strong>；与平潭医院、120 急救建立<strong>VIP 绿色通道</strong>；夜钓船只均为持牌经营+救生设备双备份。</td>
+        </tr>
+        <tr>
+          <td class="cat">④ 口碑波动</td>
+          <td class="risk">差评、社交媒体负面、小红书曝光</td>
+          <td class="plan">建立<strong>72 小时舆情响应机制</strong>；每位游客离岛 24h 内主动回访；差评免费补偿一次回访权益；C 档客户由<strong>本人亲自跟进</strong>。</td>
+        </tr>
+        <tr>
+          <td class="cat">⑤ 运营合规</td>
+          <td class="risk">分润纠纷 / 数据合规 / 知识产权</td>
+          <td class="plan">异业合作签<strong>三方分润协议</strong>+月度自动对账；AI 数据采集严格遵循《个人信息保护法》获用户授权；漫游护照视觉与"语途·68"商标提前注册。</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="foot"><span>FUDAN · 2026</span><span>21 / 24</span></div>
+</section>
+
+<!-- NEW · 网站展示 -->
+<section class="slide">
+  <div class="frame"></div>
+  <div class="head">
+    <span class="num">CHAPTER 04</span>
+    <span class="brand">Public Website</span>
+    <span class="crumb">公开站点 · 双角色入口</span>
+  </div>
+  <div class="body">
+    <div class="kicker">面向游客的预订入口+面向运营方的能力展示——网站已可访问</div>
+    <h2>「68海里」<em>官方站点</em> · 同一个网站 两个入口</h2>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-top:18px;align-items:stretch">
+      <div style="background:#fff;border:1.5px solid var(--sand);border-top:5px solid var(--terracotta);padding:22px;cursor:pointer" onclick="localStorage.setItem('ppt_last_slide',String(idx));window.open('index.html','_blank')">
+        <div style="font-family:var(--serif-en);font-size:11px;letter-spacing:4px;color:var(--terracotta);font-weight:700">FOR TRAVELERS</div>
+        <h3 style="font-size:20px;margin:6px 0 10px">游客通道</h3>
+        <ul class="bullets" style="margin-top:5px">
+          <li>3 档套餐预订（¥199 / ¥1,380 / ¥3,680）</li>
+          <li>¥99 通行 PASS 卡 + 蓝眼泪盲盒保险</li>
+          <li>文创衍生品商城</li>
+          <li>AI 智慧文旅 6 模块入口</li>
+        </ul>
+      </div>
+      <div style="background:#fff;border:1.5px solid var(--sand);border-top:5px solid var(--teal);padding:22px;cursor:pointer" onclick="localStorage.setItem('ppt_last_slide',String(idx));window.open('index.html#operator','_blank')">
+        <div style="font-family:var(--serif-en);font-size:11px;letter-spacing:4px;color:var(--teal);font-weight:700">FOR OPERATORS</div>
+        <h3 style="font-size:20px;margin:6px 0 10px;color:var(--teal)">合作机构通道</h3>
+        <ul class="bullets" style="margin-top:5px">
+          <li>叙事 IP 资产 + 商业机制专利</li>
+          <li>AI 基础设施 + 异业自动分润</li>
+          <li>海西区域协同战略 + 政策契合度</li>
+          <li>完整方案 PPT + 运营分润大屏</li>
+        </ul>
+      </div>
+    </div>
+    <div style="margin-top:18px;padding:14px 18px;background:linear-gradient(135deg,#1a1612,#0e5267);color:#fff;display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="localStorage.setItem('ppt_last_slide',String(idx));window.open('index.html','_blank')">
+      <div>
+        <strong style="font-family:var(--serif-en);font-size:11px;letter-spacing:3px;color:var(--ng-yellow)">▶ LIVE WEBSITE</strong>
+        <p style="font-size:14px;margin-top:4px;color:#fff">点击进入完整网站 · 三语切换（简/EN/繁）· 响应式适配 · 完整图片来源声明</p>
+      </div>
+      <div style="font-size:26px;color:var(--ng-yellow)">→</div>
+    </div>
+  </div>
+  <div class="foot"><span>FUDAN · 2026</span><span>22 / 24</span></div>
+</section>
+
+<!-- 18 结尾 三句金句 -->
+<section class="slide">
+  <div class="frame"></div>
+  <div class="head">
+    <span class="num">CLOSING</span>
+    <span class="brand">Three Closing Lines</span>
+    <span class="crumb">三句结语</span>
+  </div>
+  <div class="body" style="justify-content:flex-start;padding-top:30px">
+    <div class="kicker">我想留给评审与观众的三句话</div>
+    <h2>从 <em>个人故事</em> 到 <em>区域战略</em></h2>
+    <div class="quote"><div class="qn">QUOTE 01</div><div class="qt">"我们不生产标准化的打卡点——我们用 AI 与人文，重新翻译了这 68 海里的距离。"</div></div>
+    <div class="quote"><div class="qn">QUOTE 02</div><div class="qt">"当海风的粗粝感、两岸的乡音被技术转化为可感知、可消费的产品，文化才真正具备了自我造血的生命力。"</div></div>
+    <div class="quote" style="border-left-color:var(--ng-yellow);background:#fff8d8"><div class="qn" style="color:var(--terracotta)">QUOTE 03</div><div class="qt">"68 海里——曾经是一段可被量化的地理距离。今天，<strong style="color:var(--terracotta)">让它成为青年文化消费里、海西区域协同里、两岸融合发展里——更容易被理解的距离</strong>。"</div></div>
+
+  </div>
+  <div class="foot"><span>FUDAN · 2026</span><span>23 / 24</span></div>
+</section>
+
+<!-- FINAL · 致谢页 -->
+<section class="slide chapter">
+  <div class="frame"></div>
+  <div class="ch">THANK YOU</div>
+  <h1 style="font-size:92px;letter-spacing:2px">谢谢聆听</h1>
+  <div class="ch-sub" style="font-size:22px;line-height:1.8;margin-top:24px">68 海里 · 两面<br>让一座岛被看见，也让一种语言被听见</div>
+  <div style="margin-top:46px;font-family:var(--serif-cn);font-size:17px;color:var(--sepia);letter-spacing:3px">郭嘉 · 复旦大学外国语言文学学院 · 翻译硕士 MTI · 25210120088</div>
+  <div class="foot"><span>FUDAN · 2026</span><span>24 / 24</span></div>
+</section>
+
+</div>
+
+
+<a class="nav-back-ppt" href="index.html" title="返回网站首页">← 网站</a>
+<div class="ctrl">
+  <button id="prev">‹</button>
+  <span class="pn"><span id="cur">1</span> / <span id="total">18</span></span>
+  <button id="next">›</button>
+  <button id="full" title="Full">⛶</button>
+</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+document.getElementById('total').textContent = total;
+let idx = 0;
+function show(n) {
+  idx = (n + total) % total;
+  slides.forEach((s, i) => s.classList.toggle('active', i === idx));
+  document.getElementById('cur').textContent = idx + 1;
+  document.getElementById('progress').style.width = ((idx+1)/total*100) + '%';
+  localStorage.setItem('ppt_last_slide', String(idx));
+  history.replaceState(null, '', '#slide-' + (idx + 1));
+}
+document.getElementById('prev').addEventListener('click', () => show(idx - 1));
+document.getElementById('next').addEventListener('click', () => show(idx + 1));
+document.getElementById('full').addEventListener('click', () => {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') show(idx + 1);
+  if (e.key === 'ArrowLeft' || e.key === 'PageUp') show(idx - 1);
+  if (e.key === 'f' || e.key === 'F') document.getElementById('full').click();
+});
+const vb = document.getElementById('videoBtn');
+if (vb) vb.addEventListener('click', () => { localStorage.setItem('ppt_last_slide', String(idx)); window.open('video.html', '_blank'); });
+const hashMatch = location.hash.match(/slide-(\d+)/);
+const savedSlide = hashMatch ? (parseInt(hashMatch[1],10)-1) : parseInt(localStorage.getItem('ppt_last_slide') || '0', 10);
+show(Number.isFinite(savedSlide) ? savedSlide : 0);
+</script>
+</body>
+</html>

@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>68海里·两面 — 平潭跨海峡数字人文文旅产品</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="基于方言连续体的数字人文文旅产品。漫游护照、AI 方言翻译器、VLM 智能扫描、蓝眼泪盲盒保险——让 68 海里成为青年文化消费中更容易被理解的距离。">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --paper:#f8f3e6;--paper-d:#efe7d2;--ink:#1a1612;--ng-yellow:#ffcc00;--terracotta:#c8552d;--teal:#0e5267;--sepia:#7a5a3a;--sand:#d9c9a8;--gold:#b08a3e;
+  }
+  html{scroll-behavior:smooth}
+  body{background:var(--paper);font-family:'Noto Sans SC',sans-serif;color:var(--ink);line-height:1.7}
+  a{color:inherit;text-decoration:none}
+  img{max-width:100%;display:block}
+
+  /* 顶导航 */
+  .nav{position:fixed;top:0;left:0;right:0;background:rgba(248,243,230,.96);backdrop-filter:blur(10px);border-bottom:1.5px solid var(--ink);z-index:100;padding:14px 50px;display:flex;justify-content:space-between;align-items:center}
+  .nav .brand{font-family:'Noto Serif SC',serif;font-size:22px;font-weight:900;letter-spacing:-1px}
+  .nav .brand em{font-style:normal;color:var(--terracotta)}
+  .nav .links{display:flex;gap:30px;align-items:center}
+  .nav .links a{font-size:13px;font-weight:500;letter-spacing:1px;padding:6px 0;border-bottom:2px solid transparent;transition:all .25s}
+  .nav .links a:hover{color:var(--terracotta);border-color:var(--terracotta)}
+  .nav .cta{background:var(--ink);color:var(--ng-yellow);padding:9px 18px;font-size:13px;letter-spacing:2px;font-weight:700;font-family:'Cormorant Garamond',serif;text-transform:uppercase}
+  .nav .cta:hover{background:var(--terracotta)}
+
+  /* HERO */
+  .hero{min-height:100vh;background:#000 url('assets/houyan_aerial.png') center/cover;position:relative;display:flex;align-items:center;color:#fff;padding:120px 50px 80px}
+  .hero::after{content:'';position:absolute;inset:0;background:linear-gradient(120deg,rgba(14,82,103,.4) 0%,rgba(14,24,32,.78) 100%)}
+  .hero .frame{position:absolute;inset:90px 30px 30px;border:3px solid var(--ng-yellow);pointer-events:none;z-index:1}
+  .hero .frame::before{content:'';position:absolute;left:-3px;top:30%;width:14px;height:40%;background:#000;border-left:3px solid var(--ng-yellow)}
+  .hero .frame::before{display:none}
+  .hero .inner{position:relative;z-index:2;max-width:1200px;margin:0 auto;width:100%}
+  .hero .vol{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;letter-spacing:6px;color:var(--ng-yellow);margin-bottom:20px}
+  .hero h1{font-family:'Noto Serif SC',serif;font-size:128px;font-weight:900;line-height:.95;letter-spacing:-3px;margin-bottom:24px}
+  .hero h1 em{font-style:normal;color:var(--ng-yellow)}
+  .hero .lead{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:30px;color:var(--ng-yellow);margin-bottom:18px;letter-spacing:1px}
+  .hero .desc{font-size:20px;max-width:680px;line-height:1.65;margin-bottom:50px;color:rgba(255,255,255,.92)}
+  .hero .ctas{display:flex;gap:20px;flex-wrap:wrap}
+  .hero .ctas a{padding:16px 30px;font-size:14px;letter-spacing:3px;font-weight:700;font-family:'Cormorant Garamond',serif;border:2px solid var(--ng-yellow);transition:all .3s}
+  .hero .ctas a.primary{background:var(--ng-yellow);color:var(--ink)}
+  .hero .ctas a.primary:hover{background:var(--terracotta);border-color:var(--terracotta);color:#fff}
+  .hero .ctas a.ghost{color:var(--ng-yellow)}
+  .hero .ctas a.ghost:hover{background:var(--ng-yellow);color:var(--ink)}
+  .hero .scroll-tip{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);color:var(--ng-yellow);font-family:'Cormorant Garamond',serif;font-size:12px;letter-spacing:3px;z-index:2}
+  .hero .scroll-tip::after{content:'↓';display:block;text-align:center;margin-top:4px;animation:bounce 1.6s ease infinite}
+  @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
+
+  /* 通用 section */
+  section.sect{padding:100px 50px;position:relative}
+  .container{max-width:1200px;margin:0 auto}
+  .sec-head{margin-bottom:50px;padding-bottom:24px;border-bottom:2px solid var(--ink);display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:20px}
+  .sec-head .left .en{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;letter-spacing:5px;color:var(--terracotta);margin-bottom:10px}
+  .sec-head .left h2{font-family:'Noto Serif SC',serif;font-size:54px;font-weight:900;line-height:1.05;letter-spacing:-1.5px}
+  .sec-head .left h2 em{font-style:normal;color:var(--terracotta)}
+  .sec-head .right{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;letter-spacing:3px;color:var(--sepia);text-align:right;line-height:1.8}
+
+  /* 双角色入口 */
+  .roles{display:grid;grid-template-columns:1fr 1fr;gap:30px}
+  .role-card{position:relative;background:#fff;border:1.5px solid var(--sand);border-top:6px solid var(--ng-yellow);padding:46px;transition:all .3s;overflow:hidden}
+  .role-card.b{border-top-color:var(--teal)}
+  .role-card:hover{transform:translateY(-6px);box-shadow:0 20px 40px rgba(0,0,0,.08)}
+  .role-card .tag{font-family:'Cormorant Garamond',serif;font-size:12px;letter-spacing:5px;color:var(--terracotta);font-weight:700}
+  .role-card.b .tag{color:var(--teal)}
+  .role-card h3{font-family:'Noto Serif SC',serif;font-size:36px;font-weight:900;margin:8px 0 12px;line-height:1.2}
+  .role-card h3 em{font-style:normal;color:var(--terracotta)}
+  .role-card.b h3 em{color:var(--teal)}
+  .role-card .lead{font-size:16px;color:var(--sepia);line-height:1.7;margin-bottom:18px}
+  .role-card ul{list-style:none;margin-bottom:24px}
+  .role-card ul li{padding:8px 0 8px 22px;position:relative;font-size:15px}
+  .role-card ul li::before{content:'›';position:absolute;left:0;color:var(--ng-yellow);font-weight:700;font-size:18px;line-height:1.5}
+  .role-card .cta-row{display:flex;gap:12px;flex-wrap:wrap}
+  .role-card .cta-row a{padding:12px 22px;font-size:13px;letter-spacing:2px;font-weight:700;font-family:'Cormorant Garamond',serif;border:1.5px solid var(--ink);transition:all .25s}
+  .role-card .cta-row a.solid{background:var(--ink);color:var(--ng-yellow)}
+  .role-card .cta-row a.solid:hover{background:var(--terracotta);border-color:var(--terracotta);color:#fff}
+  .role-card .cta-row a.line:hover{background:var(--ink);color:var(--ng-yellow)}
+
+  /* 数字 */
+  .nums{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+  .num-it{padding:24px;border-left:5px solid var(--ng-yellow);background:#fff}
+  .num-it .v{font-family:'Cormorant Garamond',serif;font-size:60px;font-weight:700;color:var(--terracotta);line-height:1}
+  .num-it .l{font-size:14px;color:var(--sepia);margin-top:10px;letter-spacing:1px}
+
+  /* 套餐 */
+  .pkgs{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .pkg{background:#fff;border:1.5px solid var(--sand);padding:30px;display:flex;flex-direction:column;position:relative;transition:all .3s}
+  .pkg:hover{box-shadow:0 14px 32px rgba(0,0,0,.08);transform:translateY(-4px)}
+  .pkg.star{border:2.5px solid var(--terracotta);background:#fffaf3}
+  .pkg .star-tag{position:absolute;top:-13px;left:24px;background:var(--terracotta);color:#fff;padding:5px 12px;font-size:11px;letter-spacing:3px;font-weight:700}
+  .pkg .tier{font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:5px;color:var(--terracotta);font-weight:700}
+  .pkg .name{font-family:'Noto Serif SC',serif;font-size:28px;font-weight:700;color:var(--ink);margin:10px 0 16px;line-height:1.3}
+  .pkg .price{font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:700;color:var(--terracotta);line-height:1}
+  .pkg .price small{font-size:16px;font-family:'Noto Sans SC',sans-serif;color:var(--sepia);font-weight:400;margin-left:6px}
+  .pkg .audi{padding:14px 0;margin:14px 0;border-top:1px dashed var(--sand);border-bottom:1px dashed var(--sand);font-size:13px;color:var(--sepia)}
+  .pkg .feats{flex:1;font-size:14px;line-height:1.85;color:#2c2418;margin-bottom:22px}
+  .pkg .feats strong{color:var(--terracotta);font-weight:600}
+  .pkg .buy{padding:14px;background:var(--ink);color:var(--ng-yellow);text-align:center;font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:3px;font-weight:700;cursor:pointer;transition:background .25s}
+  .pkg .buy:hover{background:var(--terracotta)}
+  .pkg.star .buy{background:var(--terracotta)}
+  .pkg.star .buy:hover{background:var(--ink)}
+
+  /* 卖点 */
+  .sells{display:grid;grid-template-columns:repeat(2,1fr);gap:32px;align-items:center}
+  .sells .img{position:relative;aspect-ratio:4/3;overflow:hidden;border:3px solid var(--ink)}
+  .sells .img img{width:100%;height:100%;object-fit:cover;transition:transform .8s ease}
+  .sells .img:hover img{transform:scale(1.05)}
+  .sells .img .cap{position:absolute;bottom:0;left:0;right:0;padding:14px 18px;background:rgba(26,22,18,.8);color:#f8f3e6;font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:3px;font-style:italic}
+  .sells .text h3{font-family:'Noto Serif SC',serif;font-size:42px;font-weight:900;margin-bottom:14px;letter-spacing:-1px}
+  .sells .text h3 em{font-style:normal;color:var(--terracotta)}
+  .sells .text p{font-size:16px;line-height:1.85;color:#2c2418;margin-bottom:14px}
+  .sells .text p strong{color:var(--terracotta);font-weight:600}
+  .sells.reverse{grid-template-columns:1fr 1fr;direction:rtl}
+  .sells.reverse>*{direction:ltr}
+
+  /* AI 三大能力 */
+  .ai-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .ai-card{background:#fff;border:1.5px solid var(--sand);border-left:5px solid var(--ng-yellow);padding:28px;display:flex;flex-direction:column;transition:all .3s}
+  .ai-card:hover{transform:translateY(-4px);box-shadow:0 14px 30px rgba(0,0,0,.08)}
+  .ai-card .ai-num{font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:5px;color:var(--terracotta);font-weight:700}
+  .ai-card h3{font-family:'Noto Serif SC',serif;font-size:24px;margin:10px 0 12px;color:var(--ink);font-weight:700}
+  .ai-card p{font-size:14px;line-height:1.75;color:#2c2418;margin-bottom:14px;flex:1}
+  .ai-card p strong{color:var(--terracotta);font-weight:600}
+  .ai-card .open{padding:10px 16px;background:transparent;color:var(--ink);border:1.5px solid var(--ink);text-align:center;font-family:'Cormorant Garamond',serif;font-size:12px;letter-spacing:2px;font-weight:700;cursor:pointer;align-self:flex-start}
+  .ai-card .open:hover{background:var(--ink);color:var(--ng-yellow)}
+
+  /* Gallery */
+  .gallery{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:160px;gap:8px}
+  .gallery .g{position:relative;overflow:hidden;background:#000}
+  .gallery .g img{width:100%;height:100%;object-fit:cover;transition:transform .8s ease,opacity .4s ease;opacity:.92}
+  .gallery .g:hover img{transform:scale(1.08);opacity:1}
+  .gallery .g .lab{position:absolute;left:10px;bottom:10px;color:#fff;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:11px;letter-spacing:2px;text-shadow:0 1px 4px rgba(0,0,0,.7)}
+  .gallery .g.big{grid-row:span 2;grid-column:span 2}
+
+  /* B端模块 */
+  .b-block{background:#1a1612;color:#f8f3e6;padding:90px 50px}
+  .b-block .sec-head{border-color:var(--ng-yellow)}
+  .b-block .sec-head h2{color:#fff}
+  .b-block .sec-head h2 em{color:var(--ng-yellow)}
+  .b-block .sec-head .left .en{color:var(--ng-yellow)}
+  .b-block .sec-head .right{color:var(--sand)}
+  .b-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .b-card{padding:26px;border:1.5px solid #3a342b;border-left:4px solid var(--ng-yellow);background:rgba(255,204,0,.03)}
+  .b-card .h{font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:4px;color:var(--ng-yellow);font-weight:700}
+  .b-card h3{font-size:22px;margin:8px 0 10px;color:#fff;font-weight:700}
+  .b-card p{font-size:14px;line-height:1.75;color:var(--sand)}
+  .b-card p strong{color:var(--ng-yellow);font-weight:600}
+
+  /* footer */
+  footer{background:#0d0a06;color:#d9c9a8;padding:60px 50px 30px}
+  footer .ftop{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1.2fr;gap:40px;padding-bottom:30px;border-bottom:1px solid #3a342b}
+  footer h4{font-family:'Noto Serif SC',serif;font-size:14px;letter-spacing:3px;color:var(--ng-yellow);margin-bottom:14px;font-weight:700}
+  footer .brand{font-family:'Noto Serif SC',serif;font-size:28px;font-weight:900;color:#fff}
+  footer .brand em{font-style:normal;color:var(--ng-yellow)}
+  footer p{font-size:13px;line-height:1.85;margin-bottom:8px}
+  footer a{color:#d9c9a8;font-size:13px;display:block;padding:3px 0;transition:color .2s}
+  footer a:hover{color:var(--ng-yellow)}
+  footer .credits{max-width:1200px;margin:0 auto;padding-top:24px;font-family:'Cormorant Garamond',serif;font-size:11px;color:#7a5a3a;letter-spacing:1px;line-height:1.85}
+  footer .credits strong{color:var(--ng-yellow);font-style:normal;font-family:'Noto Sans SC';font-weight:600}
+  footer .copy{max-width:1200px;margin:30px auto 0;padding-top:20px;border-top:1px solid #3a342b;font-size:12px;color:#7a5a3a;display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px}
+
+  @media (max-width:980px){
+    .hero h1{font-size:72px}
+    .hero .lead{font-size:22px}
+    .nav .links{display:none}
+    .roles,.nums,.pkgs,.sells,.sells.reverse,.ai-grid,.b-grid,.gallery{grid-template-columns:1fr;direction:ltr}
+    .gallery{grid-auto-rows:200px}
+    .gallery .g.big{grid-row:auto;grid-column:auto}
+    section.sect,.b-block{padding:60px 24px}
+    .sec-head h2{font-size:36px}
+    footer .ftop{grid-template-columns:1fr}
+  }
+
+  .lang-switcher button.active{background:var(--ink)!important;color:var(--ng-yellow)!important}
+  .lang-switcher button:hover:not(.active){background:var(--paper-d)}
+</style>
+</head>
+<body>
+
+<!-- 顶部导航 -->
+<nav class="nav">
+  <div class="brand">68海里 · <em>两面</em></div>
+  <div class="links">
+    <a href="#story" data-i18n="nav.story">缘起</a>
+    <a href="#bluetears" data-i18n="nav.blue">蓝眼泪</a>
+    <a href="#pass" data-i18n="nav.pass">PASS 卡</a>
+    <a href="#packages" data-i18n="nav.packages">套餐</a>
+    <a href="#yutu" data-i18n="nav.ai">AI 平台</a>
+    <a href="#merch" data-i18n="nav.merch">文创</a>
+    <a href="#operator" data-i18n="nav.b">合作机构</a>
+    <a href="#about" data-i18n="nav.about">关于</a>
+  </div>
+  <div style="display:flex;align-items:center;gap:14px">
+    <div class="lang-switcher" style="display:flex;border:1px solid var(--ink);overflow:hidden">
+      <button data-lang-switch="zh-CN" class="active" style="background:transparent;color:var(--ink);border:none;padding:6px 10px;font-size:11px;letter-spacing:1px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-weight:600;border-right:1px solid var(--ink)">CN</button>
+      <button data-lang-switch="en" style="background:transparent;color:var(--ink);border:none;padding:6px 10px;font-size:11px;letter-spacing:1px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-weight:600;border-right:1px solid var(--ink)">EN</button>
+      <button data-lang-switch="zh-TW" style="background:transparent;color:var(--ink);border:none;padding:6px 10px;font-size:11px;letter-spacing:1px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-weight:600">TC</button>
+    </div>
+    <a href="ppt.html" class="cta">DECK</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="frame"></div>
+  <div class="inner">
+    <div class="vol">PINGTAN · 2026 · VOL.01</div>
+    <h1>68海里<br>的<em>两面</em></h1>
+    <div class="lead">A Cross-Strait Cultural Translation Project</div>
+    <p class="desc">面向国内市场以"跨文化情绪解码"为核心的数字人文文旅产品。<br>用 AI 与方言连续体，重新翻译这段 68 海里的海上距离。</p>
+    <div class="ctas">
+      <a href="#packages" class="primary">立即预订 · BOOK NOW</a>
+      <a href="#yutu" class="ghost">体验 AI · TRY YUTU·68</a>
+    </div>
+  </div>
+  <div class="scroll-tip">SCROLL TO DISCOVER</div>
+</section>
+
+<!-- 双角色入口 -->
+<section class="sect" id="entry">
+  <div class="container">
+    <div class="sec-head">
+      <div class="left">
+        <div class="en">CHOOSE YOUR ENTRANCE</div>
+        <h2>两个入口 · <em>同一片海</em></h2>
+      </div>
+      <div class="right">FOR TRAVELERS &amp; OPERATORS<br>VOL.01 · MAY 2026</div>
+    </div>
+    <div class="roles">
+      <div class="role-card">
+        <div class="tag">FOR TRAVELERS</div>
+        <h3>我是<em>游客</em><br>我想买这趟旅行</h3>
+        <p class="lead">3 档套餐 · 含 AI 翻译手账 · 含蓝眼泪盲盒保险</p>
+        <ul>
+          <li>3 天 2 夜深度漫游 ¥1,380 起 · 含 PASS 卡</li>
+          <li>蓝眼泪未现自动补偿券</li>
+          <li>漫游护照（实体+数字双载体）</li>
+          <li>AI 方言翻译器陪你听懂渔港</li>
+        </ul>
+        <div class="cta-row">
+          <a href="#packages" class="solid">查看套餐</a>
+          <a href="wxapp.html" class="line" target="_blank">小程序预览</a>
+        </div>
+      </div>
+      <div class="role-card b">
+        <div class="tag">FOR OPERATORS &amp; PARTNERS</div>
+        <h3>我是<em>运营/文旅局/媒体</em><br>我想了解这套产品</h3>
+        <p class="lead">完整产品方案 · 商业模型 · AI 引擎 · 三方分润机制</p>
+        <ul>
+          <li>首年保守 ¥9,200 万 · 第二年 ¥1.5 亿</li>
+          <li>异业商户 5—10% 自动分润</li>
+          <li>"语途·68" AI 引擎 · 3 个可演原型</li>
+          <li>海西经济圈协同 · 福州·泉州·厦门联动</li>
+        </ul>
+        <div class="cta-row">
+          <a href="ppt.html" class="solid">完整方案 PPT</a>
+          <a href="demo_dashboard.html" class="line" target="_blank">运营大屏</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 项目缘起 -->
+<section class="sect" id="story" style="background:var(--paper-d)">
+  <div class="container">
+    <div class="sec-head">
+      <div class="left">
+        <div class="en">THE GENESIS</div>
+        <h2>项目缘起 · <em>从潮汕到平潭</em></h2>
+      </div>
+      <div class="right">A PERSONAL FIELDWORK<br>BY GUO JIA · FUDAN</div>
+    </div>
+    <div class="sells">
+      <div class="img">
+        <img src="assets/real/fishport.jpg" alt="平潭澳前渔港">
+        <div class="cap">PINGTAN · AOQIAN FISHING PORT · WIKIMEDIA COMMONS</div>
+      </div>
+      <div class="text">
+        <h3>近 <em>200 座城市</em>之后，<br>我把镜头对准了 68 海里</h3>
+        <p>我是潮汕人。从小听着<strong>闽南语—潮汕话—福佬话</strong>之间无法精确切割的"语言连续体"长大；后来成为复旦大学外国语言文学学院的翻译硕士 MTI。</p>
+        <p>当我站在猴研岛的礁石上，在北港村的台青咖啡馆里听到福州话与台湾闽南语在同一张桌上对话——<strong>潮汕人对"南方语言连续体"的本能敏感被瞬间唤醒</strong>。</p>
+        <p>近期潮汕方言电影《给阿嬷的情书》出圈，也说明乡音、侨批、漂泊与归来的情感仍能打动年轻观众。这套方案不是普通的"看海三日游"，而是把<strong>翻译硕士训练、潮汕语感与近 200 城产品视野</strong>转化为可落地的文旅产品。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 关键数字 -->
+<section class="sect">
+  <div class="container">
+    <div class="sec-head">
+      <div class="left">
+        <div class="en">KEY NUMBERS</div>
+        <h2>四个数字 · <em>一座岛的可量化魅力</em></h2>
+      </div>
+      <div class="right">PINGTAN AT A GLANCE</div>
+    </div>
+    <div class="nums">
+      <div class="num-it"><div class="v">68</div><div class="l">海里 · 两岸相近距离</div></div>
+      <div class="num-it"><div class="v">12</div><div class="l">级 · 石厝抗台风等级</div></div>
+      <div class="num-it"><div class="v">4-8</div><div class="l">月 · 蓝眼泪出现窗口</div></div>
+      <div class="num-it"><div class="v">3</div><div class="l">档套餐 + 4 类衍生品</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 卖点1：方言连续体 -->
+<section class="sect" style="background:var(--paper-d)">
+  <div class="container">
+    <div class="sells">
+      <div class="img">
+        <img src="assets/real/donghai.jpg" alt="平潭东海仙境">
+        <div class="cap">DONGHAI XIANJING · EAST SEA FAIRYLAND · WIKIMEDIA COMMONS</div>
+      </div>
+      <div class="text">
+        <h3>核心卖点 1<br>方言<em>连续体</em></h3>
+        <p>平潭话属于<strong>闽东语·福州语系</strong>，保留古汉语"厝、鼎、箸"等词汇。68 海里之外的台湾闽南语与之形成独特的对照——这是连接海峡两岸语言与文化记忆的<strong>代表性活态实验场</strong>。</p>
+        <p>我们没有把民俗做成展板，而是让游客在<strong>真实的渔港、台青咖啡馆和老厝</strong>里完成"听不懂—听懂—听透"的三段式跨文化体验。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 卖点2：石厝美学 -->
+<section class="sect">
+  <div class="container">
+    <div class="sells reverse">
+      <div class="img">
+        <img src="assets/real/shipaiyang.jpg" alt="平潭石牌洋">
+        <div class="cap">SHIPAIYANG · STONE SAIL ROCKS · WIKIMEDIA COMMONS</div>
+      </div>
+      <div class="text">
+        <h3>核心卖点 2<br>石厝<em>生存美学</em></h3>
+        <p>北港村的<strong>花岗岩石厝</strong>，屋顶压满碎石——这是当地人与 12 级台风对抗百年的<strong>建筑现象学</strong>，也是中国南方海岸生存美学的活化石。</p>
+        <p>用 AI · VLM 扫一扫石墙，AR 叠加台风受力模拟图，扫描即解读。<strong>从拍照打卡到读懂"为什么这么砌"</strong>——这就是我们重新定义海岛游的方式。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 套餐购买 -->
+<section class="sect" style="background:var(--paper-d)" id="packages">
+  <div class="container">
+    <div class="sec-head">
+      <div class="left">
+        <div class="en">BOOK YOUR JOURNEY</div>
+        <h2>选择你的<em>漫游方式</em></h2>
+      </div>
+      <div class="right">3 PACKAGES · 4 MERCHANDISE LINES<br>ALL INCLUDE BLUE-TEARS INSURANCE</div>
+    </div>
+    <div class="pkgs">
+      <div class="pkg">
+        <div class="tier">A · 听见</div>
+        <div class="name">声音地图日</div>
+        <div class="price">¥199 <small>/ 1 日</small></div>
+        <div class="audi">福州/厦门周边短途客 · 学生党友好<br>初次访岛者<br><strong style="color:var(--terracotta)">同档自由行平均 ¥250+</strong></div>
+        <div class="feats">
+          ① <strong>漫游护照（实体）</strong> + AI 导览小程序<br>
+          ② 北港村 3 家台青咖啡馆<strong>声音特调券</strong><br>
+          ③ 石头会唱歌·夜间音乐会门票<br>
+          ④ 1 张 AI 数字情绪明信片<br>
+          ⑤ 蓝眼泪盲盒保险（自动）
+        </div>
+        <div class="buy">立即预订 · BOOK</div>
+      </div>
+      <div class="pkg star">
+        <div class="star-tag">★ 主推 RECOMMENDED</div>
+        <div class="tier">B · 听懂</div>
+        <div class="name">两面漫游 3 日</div>
+        <div class="price">¥1,380 <small>/ 3 日 2 夜</small></div>
+        <div class="audi">沪京榕人文青年（22—35）<br>外语/翻译/传播专业生 · 反走马观花<br><strong style="color:var(--terracotta)">对标携程同档 ¥1,427 起 · 含 ¥99 PASS 卡</strong></div>
+        <div class="feats">
+          <strong>A 档全部内容</strong> + ① 北港村石厝精品民宿 2 晚<br>
+          ② 猴研岛 + 东海仙境 + 长江澳风车田<strong>专属讲解</strong><br>
+          ③ 海坛古城非遗夜场（藤牌操/词明戏）<br>
+          ④ <strong>AI 翻译手账定制</strong>（含 5 段田野录音）<br>
+          ⑤ 海鲜大排档晚餐 + 渔港早市体验
+        </div>
+        <div class="buy">立即预订 · BOOK</div>
+      </div>
+      <div class="pkg">
+        <div class="tier">C · 听透</div>
+        <div class="name">作者带团田野工作坊</div>
+        <div class="price">¥3,680 <small>/ 5 日 4 夜（限 12 人）</small></div>
+        <div class="audi">创作者 / 作家 / 播客主<br>外语翻译研学团 · 企业文化团建<br><strong style="color:var(--terracotta)">对标携程豪华 ¥3,251 · 专属学术访谈</strong></div>
+        <div class="feats">
+          <strong>B 档全部内容</strong> + ① 180° 海景精品民宿<br>
+          ② <strong>3 位台青 + 2 位老渔民深度访谈</strong>（60min×5 含转录稿）<br>
+          ③ <strong>作者本人带领"方言田野调查"工作坊</strong><br>
+          ④ 个人播客 1 期录制+剪辑+发布<br>
+          ⑤ 海上夜钓+渔获烹饪 + 私家车全程<br>
+          ⑥ 离岛获《我的 68 海里·田野手账》定制出版物<br>
+          ⑦ 1 年内可凭护照免费回访 1 次
+        </div>
+        <div class="buy">立即预订 · BOOK</div>
+      </div>
+    </div>
+    <p style="margin-top:30px;font-size:14px;color:var(--sepia);text-align:center">
+      + <strong style="color:var(--terracotta)">「68 海里通行 PASS 卡」¥99/张</strong>（民宿/苍蝇小馆/打车/景区门票多方面优惠+限定礼物）<br>+ 4 类衍生品 · 声音黑胶 ¥98 · 压仓石文镇 ¥58—168 · 两岸物产礼盒 ¥128 · AI 数字明信片 ¥39
+    </p>
+  </div>
+</section>
+
+
+
+<!-- ========== 通行 PASS 卡 独立模块 ========== -->
+<section class="sect" id="pass" style="background:linear-gradient(135deg,#1a1612 0%,#0e5267 100%);color:#f8f3e6">
+  <div class="container">
+    <div class="sec-head" style="border-color:var(--ng-yellow)">
+      <div class="left">
+        <div class="en" style="color:var(--ng-yellow)">68 NM PASS · ALL-IN-ONE TRAVEL CARD</div>
+        <h2 style="color:#fff">通行 PASS 卡 · <em style="color:var(--ng-yellow)">¥99 一卡通城</em></h2>
+      </div>
+      <div class="right" style="color:var(--sand)">FIRST-YEAR TARGET<br>180,000 CARDS · ¥17.8M</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1.1fr;gap:40px;align-items:center">
+      <div>
+        <img src="assets/pass_card.png" alt="68NM PASS Card" style="width:100%;border:3px solid var(--ng-yellow);box-shadow:0 30px 60px rgba(0,0,0,.4)">
+        <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:11px;color:var(--ng-yellow);text-align:center;margin-top:14px;letter-spacing:3px">68 NM PASS · DESIGNED BY GUO JIA</p>
+      </div>
+      <div>
+        <h3 style="font-family:'Noto Serif SC',serif;font-size:36px;color:#fff;margin-bottom:14px;line-height:1.2">不只是优惠卡 ——<br>这是 <em style="color:var(--ng-yellow);font-style:normal">本地化深度游</em>的入口</h3>
+        <p style="font-size:16px;line-height:1.85;color:var(--sand);margin-bottom:24px">不强迫你走套餐线路。<strong style="color:var(--ng-yellow)">¥99 一张</strong>，自由组合民宿、餐馆、出行——AI 把传统旅行社不会推的"苍蝇小馆"和"非网红民宿"推荐给你。</p>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:24px">
+          <div style="padding:14px;background:rgba(255,204,0,.08);border-left:3px solid var(--ng-yellow)"><strong style="color:var(--ng-yellow);font-size:13px">① 民宿优惠</strong><p style="font-size:12px;color:var(--sand);margin-top:4px">合作 30+ 民宿立减 8—15%</p></div>
+          <div style="padding:14px;background:rgba(255,204,0,.08);border-left:3px solid var(--ng-yellow)"><strong style="color:var(--ng-yellow);font-size:13px">② 苍蝇小馆</strong><p style="font-size:12px;color:var(--sand);margin-top:4px">50+ 本地老店 9 折</p></div>
+          <div style="padding:14px;background:rgba(255,204,0,.08);border-left:3px solid var(--ng-yellow)"><strong style="color:var(--ng-yellow);font-size:13px">③ 公共出行</strong><p style="font-size:12px;color:var(--sand);margin-top:4px">高铁接驳+公交+滴滴优惠</p></div>
+          <div style="padding:14px;background:rgba(255,204,0,.08);border-left:3px solid var(--ng-yellow)"><strong style="color:var(--ng-yellow);font-size:13px">④ 景区门票</strong><p style="font-size:12px;color:var(--sand);margin-top:4px">海坛/东海/猴研打折通票</p></div>
+          <div style="padding:14px;background:rgba(255,204,0,.08);border-left:3px solid var(--ng-yellow)"><strong style="color:var(--ng-yellow);font-size:13px">⑤ 租车租船</strong><p style="font-size:12px;color:var(--sand);margin-top:4px">电动车+夜钓船优先</p></div>
+          <div style="padding:14px;background:rgba(255,204,0,.08);border-left:3px solid var(--ng-yellow)"><strong style="color:var(--ng-yellow);font-size:13px">⑥ 限定礼物</strong><p style="font-size:12px;color:var(--sand);margin-top:4px">文创小礼包+蓝眼泪明信片</p></div>
+        </div>
+        <a href="wxapp.html" target="_blank" style="display:inline-block;padding:14px 30px;background:var(--ng-yellow);color:var(--ink);font-family:'Cormorant Garamond',serif;font-size:14px;letter-spacing:3px;font-weight:700">▶ 查看小程序原型</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 蓝眼泪实况 PRO 模块 ========== -->
+<section class="sect" id="bluetears" style="background:#0a1525;color:#fff;padding:100px 50px;position:relative;overflow:hidden">
+  <div style="position:absolute;inset:0;background:url('assets/bluetears_real.png') center/cover;opacity:.35;pointer-events:none"></div>
+  <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,21,37,.8) 0%,rgba(10,21,37,.95) 100%);pointer-events:none"></div>
+  <div class="container" style="position:relative;z-index:2">
+    <div class="sec-head" style="border-color:var(--ng-yellow)">
+      <div class="left">
+        <div class="en" style="color:var(--ng-yellow)">BLUE TEARS · LIVE PRO</div>
+        <h2 style="color:#fff">蓝眼泪实况 · <em style="color:var(--ng-yellow);font-style:normal">预测+上报+直播+保险</em></h2>
+      </div>
+      <div class="right" style="color:var(--sand)">REFERENCE · OFFICIAL "蓝眼泪实况" MINI-PROGRAM<br>6M+ ACTIVE USERS</div>
+    </div>
+    <p style="font-size:18px;line-height:1.8;color:var(--sand);margin-bottom:30px;max-width:780px">市场上已有官方"蓝眼泪实况"小程序——<strong style="color:var(--ng-yellow)">600 万+ 用户</strong>。我做的是它的"专业升级版"，把分散的 4 大功能整合，用 AI 把"看不到蓝眼泪"的旅行遗憾自动转化为二次消费。</p>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px">
+      <div style="padding:24px;background:rgba(255,204,0,.06);border-top:4px solid var(--ng-yellow)">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:700;color:var(--ng-yellow);line-height:1">01</div>
+        <h3 style="font-size:20px;color:#fff;margin:8px 0 8px">AI 概率预测</h3>
+        <p style="font-size:13px;line-height:1.7;color:var(--sand)">综合气象/潮汐/水温/风向数据，每 30 分钟更新当晚出现概率。</p>
+      </div>
+      <div style="padding:24px;background:rgba(255,204,0,.06);border-top:4px solid var(--ng-yellow)">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:700;color:var(--ng-yellow);line-height:1">02</div>
+        <h3 style="font-size:20px;color:#fff;margin:8px 0 8px">游客 UGC 上报</h3>
+        <p style="font-size:13px;line-height:1.7;color:var(--sand)">游客拍到自动上报，AI 校对位置和可信度，热点亮起。</p>
+      </div>
+      <div style="padding:24px;background:rgba(255,204,0,.06);border-top:4px solid var(--ng-yellow)">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:700;color:var(--ng-yellow);line-height:1">03</div>
+        <h3 style="font-size:20px;color:#fff;margin:8px 0 8px">5 点夜间直播</h3>
+        <p style="font-size:13px;line-height:1.7;color:var(--sand)">猴研岛/龙凤头等 5 个观测点 24 小时直播——云追泪。</p>
+      </div>
+      <div style="padding:24px;background:rgba(255,204,0,.06);border-top:4px solid var(--ng-yellow)">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:700;color:var(--ng-yellow);line-height:1">04</div>
+        <h3 style="font-size:20px;color:#fff;margin:8px 0 8px">盲盒保险触发</h3>
+        <p style="font-size:13px;line-height:1.7;color:var(--sand)">概率 &lt; 30% 自动派发四选一补偿券——劣势天气也变消费转化。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 文创产品 Gallery ========== -->
+<section class="sect" id="merch" style="background:var(--paper-d)">
+  <div class="container">
+    <div class="sec-head">
+      <div class="left">
+        <div class="en">CULTURAL MERCHANDISE</div>
+        <h2>4 类<em>文创衍生品</em></h2>
+      </div>
+      <div class="right">DESIGNED BY GUO JIA<br>HAND-CRAFTED + LIMITED EDITION</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-bottom:20px">
+      <div style="position:relative;background:#fff;border:1.5px solid var(--sand);overflow:hidden">
+        <img src="assets/passport.png" alt="68NM 漫游护照" style="width:100%;aspect-ratio:3/2;object-fit:cover">
+        <div style="padding:20px">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:12px;letter-spacing:4px;color:var(--terracotta);font-weight:700">M · 01 · PASSPORT</div>
+          <h3 style="font-family:'Noto Serif SC',serif;font-size:24px;font-weight:700;margin:6px 0 8px">68海里·漫游护照</h3>
+          <p style="font-size:14px;color:var(--sepia);line-height:1.7">深海蓝皮革+烫金，记录每一次访问与盖章。一卡通各档 SKU 通用。</p>
+          <div style="margin-top:12px;font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--terracotta);font-weight:700">¥168</div>
+        </div>
+      </div>
+      <div style="position:relative;background:#fff;border:1.5px solid var(--sand);overflow:hidden">
+        <img src="assets/merch_vinyl.png" alt="海风的声音黑胶" style="width:100%;aspect-ratio:3/2;object-fit:cover">
+        <div style="padding:20px">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:12px;letter-spacing:4px;color:var(--terracotta);font-weight:700">M · 02 · VINYL</div>
+          <h3 style="font-family:'Noto Serif SC',serif;font-size:24px;font-weight:700;margin:6px 0 8px">《海风的声音》黑胶</h3>
+          <p style="font-size:14px;color:var(--sepia);line-height:1.7">采集自北港村渔港、猴研岛潮汐、台青咖啡馆方言对谈的实录混编。</p>
+          <div style="margin-top:12px;font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--terracotta);font-weight:700">¥98</div>
+        </div>
+      </div>
+      <div style="position:relative;background:#fff;border:1.5px solid var(--sand);overflow:hidden">
+        <img src="assets/merch_paperweight.png" alt="压仓石文镇" style="width:100%;aspect-ratio:3/2;object-fit:cover">
+        <div style="padding:20px">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:12px;letter-spacing:4px;color:var(--terracotta);font-weight:700">M · 03 · PAPERWEIGHT</div>
+          <h3 style="font-family:'Noto Serif SC',serif;font-size:24px;font-weight:700;margin:6px 0 8px">压仓石文镇</h3>
+          <p style="font-size:14px;color:var(--sepia);line-height:1.7">取材平潭花岗岩，刻有石厝线稿。每一颗都是抗 12 级台风建筑的微型纪念。</p>
+          <div style="margin-top:12px;font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--terracotta);font-weight:700">¥58 — 168</div>
+        </div>
+      </div>
+      <div style="position:relative;background:#fff;border:1.5px solid var(--sand);overflow:hidden">
+        <img src="assets/postcard.png" alt="情绪明信片" style="width:100%;aspect-ratio:3/2;object-fit:cover">
+        <div style="padding:20px">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:12px;letter-spacing:4px;color:var(--terracotta);font-weight:700">M · 04 · POSTCARD</div>
+          <h3 style="font-family:'Noto Serif SC',serif;font-size:24px;font-weight:700;margin:6px 0 8px">AI 情绪明信片</h3>
+          <p style="font-size:14px;color:var(--sepia);line-height:1.7">AI 根据你录入的方言瞬间，自动生成专属情绪明信片，可邮寄、可数字收藏。</p>
+          <div style="margin-top:12px;font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--terracotta);font-weight:700">¥39</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AI 体验 - 一站式智慧文旅 -->
+<section class="sect" id="yutu" style="background:linear-gradient(135deg,#1a1612 0%,#0e5267 100%);color:#f8f3e6">
+  <div class="container">
+    <div class="sec-head" style="border-color:var(--ng-yellow)">
+      <div class="left">
+        <div class="en" style="color:var(--ng-yellow)">AI SMART TOURISM · ONE-STOP PLATFORM</div>
+        <h2 style="color:#fff">AI 智慧文旅 · <em style="color:var(--ng-yellow);font-style:normal">一站式服务</em></h2>
+      </div>
+      <div class="right" style="color:var(--sand)">「语途·68」AI ENGINE<br>9 MODULES IN ONE PLATFORM</div>
+    </div>
+    <p style="font-size:16px;line-height:1.85;color:var(--sand);margin-bottom:30px;max-width:900px">借鉴行业领先的智慧文旅产品形态——<strong style="color:var(--ng-yellow)">景点探索 / 美食推荐 / 文化体验 / 行程规划 / 游记分享</strong>一站式整合。深度对接平潭综合实验区"智慧文旅大脑"。</p>
+
+    <h3 style="font-family:'Noto Serif SC',serif;font-size:20px;color:#fff;margin-bottom:16px;font-weight:700">一站式 6 大智能模块</h3>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:36px">
+      <div style="padding:22px;background:rgba(255,204,0,.06);border:1px solid #3a342b;border-left:4px solid var(--ng-yellow)"><div style="width:42px;height:42px;background:var(--ng-yellow);color:var(--ink);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;margin-bottom:10px">A</div><h3 style="font-family:'Noto Serif SC',serif;font-size:17px;color:#fff;margin-bottom:6px;font-weight:700">AI 景点探索</h3><p style="font-size:12.5px;line-height:1.7;color:var(--sand);margin:0">68 海里全岛地图 + AI 排序 + AR 增强讲解。</p></div>
+      <div style="padding:22px;background:rgba(255,204,0,.06);border:1px solid #3a342b;border-left:4px solid var(--ng-yellow)"><div style="width:42px;height:42px;background:var(--ng-yellow);color:var(--ink);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;margin-bottom:10px">B</div><h3 style="font-family:'Noto Serif SC',serif;font-size:17px;color:#fff;margin-bottom:6px;font-weight:700">AI 美食推荐</h3><p style="font-size:12.5px;line-height:1.7;color:var(--sand);margin:0">50+ 苍蝇小馆按<strong style="color:var(--ng-yellow)">翻台率+本地评分+距离</strong>排序，避开网红坑。</p></div>
+      <div style="padding:22px;background:rgba(255,204,0,.06);border:1px solid #3a342b;border-left:4px solid var(--ng-yellow)"><div style="width:42px;height:42px;background:var(--ng-yellow);color:var(--ink);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;margin-bottom:10px">C</div><h3 style="font-family:'Noto Serif SC',serif;font-size:17px;color:#fff;margin-bottom:6px;font-weight:700">AI 文化体验</h3><p style="font-size:12.5px;line-height:1.7;color:var(--sand);margin:0">方言情绪翻译 + VLM 扫描 + 非遗夜场。</p></div>
+      <div style="padding:22px;background:rgba(255,204,0,.06);border:1px solid #3a342b;border-left:4px solid var(--ng-yellow)"><div style="width:42px;height:42px;background:var(--ng-yellow);color:var(--ink);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;margin-bottom:10px">D</div><h3 style="font-family:'Noto Serif SC',serif;font-size:17px;color:#fff;margin-bottom:6px;font-weight:700">AI 行程规划</h3><p style="font-size:12.5px;line-height:1.7;color:var(--sand);margin:0">输入预算+偏好+时长，30 秒出 1 份个性化路线。</p></div>
+      <div style="padding:22px;background:rgba(255,204,0,.06);border:1px solid #3a342b;border-left:4px solid var(--ng-yellow)"><div style="width:42px;height:42px;background:var(--ng-yellow);color:var(--ink);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;margin-bottom:10px">E</div><h3 style="font-family:'Noto Serif SC',serif;font-size:17px;color:#fff;margin-bottom:6px;font-weight:700">AI 游记分享</h3><p style="font-size:12.5px;line-height:1.7;color:var(--sand);margin:0">离岛后 AI 自动生成 H5 田野手账，含个人录音+照片+翻译。</p></div>
+      <div style="padding:22px;background:rgba(255,204,0,.06);border:1px solid #3a342b;border-left:4px solid var(--ng-yellow)"><div style="width:42px;height:42px;background:var(--ng-yellow);color:var(--ink);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;margin-bottom:10px">F</div><h3 style="font-family:'Noto Serif SC',serif;font-size:17px;color:#fff;margin-bottom:6px;font-weight:700">AI 蓝眼泪雷达</h3><p style="font-size:12.5px;line-height:1.7;color:var(--sand);margin:0">实时概率 + UGC 上报 + 5 点直播 + 盲盒保险触发。</p></div>
+    </div>
+
+    <h3 style="font-family:'Noto Serif SC',serif;font-size:20px;color:#fff;margin-bottom:16px;font-weight:700">3 个可现场演示的 AI 原型</h3>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:22px">
+      <div style="background:#fff;border-left:5px solid var(--ng-yellow);padding:24px;display:flex;flex-direction:column;color:var(--ink)">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:5px;color:var(--terracotta);font-weight:700">AI · 01</div>
+        <h3 style="font-family:'Noto Serif SC',serif;font-size:20px;margin:8px 0 10px;font-weight:700">方言情绪翻译器</h3>
+        <p style="font-size:13px;line-height:1.75;flex:1;margin-bottom:12px">基于<strong style="color:var(--terracotta)">闽东语·福州语系</strong>真实语料。输入平潭话，AI 输出情绪化意译 + 罗马拼音 + AI 明信片。</p>
+        <a href="demo_translator.html" target="_blank" style="padding:9px 14px;border:1.5px solid var(--ink);text-align:center;font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:2px;font-weight:700;align-self:flex-start;color:var(--ink)">→ 体验翻译器</a>
+      </div>
+      <div style="background:#fff;border-left:5px solid var(--ng-yellow);padding:24px;display:flex;flex-direction:column;color:var(--ink)">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:5px;color:var(--terracotta);font-weight:700">AI · 02</div>
+        <h3 style="font-family:'Noto Serif SC',serif;font-size:20px;margin:8px 0 10px;font-weight:700">VLM 场景智能解读</h3>
+        <p style="font-size:13px;line-height:1.75;flex:1;margin-bottom:12px">扫描石厝/猴研岛/蓝眼泪/海蚀洞 — AR 叠加文化讲解 + 物理模拟 + <strong style="color:var(--terracotta)">一键购买文创</strong>。</p>
+        <a href="demo_vlm.html" target="_blank" style="padding:9px 14px;border:1.5px solid var(--ink);text-align:center;font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:2px;font-weight:700;align-self:flex-start;color:var(--ink)">→ 体验 VLM</a>
+      </div>
+      <div style="background:#fff;border-left:5px solid var(--ng-yellow);padding:24px;display:flex;flex-direction:column;color:var(--ink)">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:5px;color:var(--terracotta);font-weight:700">AI · 03</div>
+        <h3 style="font-family:'Noto Serif SC',serif;font-size:20px;margin:8px 0 10px;font-weight:700">运营画像与分润大屏</h3>
+        <p style="font-size:13px;line-height:1.75;flex:1;margin-bottom:12px">实时聚合游客画像、动线热力、异业核销与自动分润 — <strong style="color:var(--terracotta)">5—10% 佣金月度自动对账</strong>。</p>
+        <a href="demo_dashboard.html" target="_blank" style="padding:9px 14px;border:1.5px solid var(--ink);text-align:center;font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:2px;font-weight:700;align-self:flex-start;color:var(--ink)">→ 运营大屏</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 真实风光 Gallery -->
+<section class="sect" style="background:var(--paper-d)">
+  <div class="container">
+    <div class="sec-head">
+      <div class="left">
+        <div class="en">FIELD GALLERY</div>
+        <h2>平潭<em>真实风光</em></h2>
+      </div>
+      <div class="right">PHOTOGRAPHY VIA WIKIMEDIA COMMONS<br>CC LICENSED · SEE FOOTER</div>
+    </div>
+    <div class="gallery">
+      <div class="g big"><img src="assets/real/longfengtou.jpg" alt="龙凤头海滨"><div class="lab">龙凤头海滨</div></div>
+      <div class="g"><img src="assets/real/donghai.jpg" alt="东海仙境"><div class="lab">东海仙境</div></div>
+      <div class="g"><img src="assets/real/shipaiyang.jpg" alt="石牌洋"><div class="lab">石牌洋</div></div>
+      <div class="g"><img src="assets/real/pingtan_beach.jpg" alt="平潭海岸"><div class="lab">平潭海岸</div></div>
+      <div class="g"><img src="assets/real/sandart.jpg" alt="沙雕"><div class="lab">沙雕艺术</div></div>
+      <div class="g"><img src="assets/real/fishport.jpg" alt="澳前渔港"><div class="lab">澳前渔港</div></div>
+      <div class="g"><img src="assets/real/rocks.jpg" alt="海岸礁石"><div class="lab">海岸礁石</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- B 端模块 -->
+<section class="b-block" id="operator">
+  <div class="container">
+    <div class="sec-head">
+      <div class="left">
+        <div class="en">FOR OPERATORS · GOVERNMENT · MEDIA</div>
+        <h2>为运营方·文旅局·媒体准备的<br><em>产品能力清单</em></h2>
+      </div>
+      <div class="right">¥92M FIRST-YEAR · ¥150M YR-2<br>BASED ON PINGTAN 12M VISITORS</div>
+    </div>
+    <div class="b-grid">
+      <div class="b-card">
+        <div class="h">B · 01</div>
+        <h3>叙事 IP 资产</h3>
+        <p>"68 海里"+ "方言连续体"+ "石厝美学"——<strong>具有差异化优势可注册商标</strong>的文化叙事矩阵。</p>
+      </div>
+      <div class="b-card">
+        <div class="h">B · 02</div>
+        <h3>商业机制专利</h3>
+        <p><strong>"蓝眼泪盲盒保险"</strong>是同赛道具备申请商业模式专利的潜力的机制——把气候风险转化为二次消费抓手。</p>
+      </div>
+      <div class="b-card">
+        <div class="h">B · 03</div>
+        <h3>AI 基础设施</h3>
+        <p>"语途·68"覆盖 C 端体验+B 端运营双层——大屏可<strong>直接接入文旅局指挥中心</strong>。</p>
+      </div>
+      <div class="b-card">
+        <div class="h">B · 04</div>
+        <h3>异业自动分润</h3>
+        <p>5%—10% 佣金 · 月度自动对账 · 三方分润协议——<strong>本地商户零获客成本</strong>。</p>
+      </div>
+      <div class="b-card">
+        <div class="h">B · 05</div>
+        <h3>海西区域协同</h3>
+        <p>从上海出发、福州一夜文化预热、平潭主线、可衔接<strong>泉州·厦门方言连续体闭环</strong>。</p>
+      </div>
+      <div class="b-card">
+        <div class="h">B · 06</div>
+        <h3>政策契合度</h3>
+        <p>对接<strong>"两岸融合发展示范区"</strong>战略——天然适合作为政府采购级文化外宣产品。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 关于 -->
+<section class="sect" id="about">
+  <div class="container">
+    <div class="sec-head">
+      <div class="left">
+        <div class="en">ABOUT THE CREATOR</div>
+        <h2>关于<em>创作者</em></h2>
+      </div>
+      <div class="right">郭嘉 · GUO JIA</div>
+    </div>
+    <div class="sells">
+      <div class="img">
+        <img src="assets/real/pingtan_beach.jpg" alt="平潭海岸">
+        <div class="cap">FIELDWORK · MAY 2026 · PINGTAN</div>
+      </div>
+      <div class="text">
+        <h3>郭嘉 · <em>GUO JIA</em></h3>
+        <p>复旦大学外国语言文学学院 · 翻译硕士 MTI。潮汕人，从小生活在闽南语—潮汕话—福佬话的语言连续体之中。</p>
+        <p>走过近 <strong>200 座国内城市</strong>。把翻译硕士的专业训练与产品视野融合在这套方案里——这不只是一份大赛作品，而是一个我打算<strong>真正落地、并持续运营</strong>的文旅项目。</p>
+        <p style="font-size:14px;color:var(--sepia)">合作 · 媒体 · 学术 · 投资意向<br>📧 jguo25@m.fudan.edu.cn</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- footer -->
+<footer>
+  <div class="ftop">
+    <div>
+      <div class="brand">68海里 · <em>两面</em></div>
+      <p style="margin-top:14px">基于方言连续体的<br>数字人文文旅产品。</p>
+      <p style="font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ng-yellow);margin-top:14px;letter-spacing:2px">A CROSS-STRAIT CULTURAL TRANSLATION PROJECT</p>
+    </div>
+    <div>
+      <h4>游客通道</h4>
+      <a href="#packages">套餐预订</a>
+      <a href="wxapp.html" target="_blank">小程序预览</a>
+      <a href="demo_translator.html" target="_blank">AI 翻译器</a>
+      <a href="demo_vlm.html" target="_blank">VLM 扫描</a>
+    </div>
+    <div>
+      <h4>合作伙伴</h4>
+      <a href="ppt.html">完整方案</a>
+      <a href="demo_dashboard.html" target="_blank">运营大屏</a>
+      <a href="#operator">B 端能力</a>
+      <a href="video.html" target="_blank">产品介绍片</a>
+    </div>
+    <div>
+      <h4>联系作者</h4>
+      <p>郭嘉 · GUO JIA</p>
+      <p>复旦大学外国语言文学学院</p>
+      <p>翻译硕士 MTI · 25210120088</p>
+      <p>jguo25@m.fudan.edu.cn</p>
+    </div>
+  </div>
+
+  <div class="credits">
+    <h4 style="margin-bottom:14px">图片来源 · IMAGE CREDITS</h4>
+    <p>本网站使用的<strong>所有平潭岛真实风光照片</strong>均取自 Wikimedia Commons，依照对应的 <strong>CC BY / CC BY-SA / CC0</strong> 协议合规使用，已注明来源以避免侵权：</p>
+    <p>
+      ▸ <em>longfengtou.jpg</em> — File:龙凤头海滨浴场.jpg · Wikimedia Commons<br>
+      ▸ <em>donghai.jpg</em> — File:东海仙境_-_East_Sea_Fairyland_-_2009.10_-_panoramio.jpg · panoramio · CC BY 3.0<br>
+      ▸ <em>shipaiyang.jpg</em> — File:Shipaiyang.jpg · Wikimedia Commons<br>
+      ▸ <em>pingtan_beach.jpg</em> — File:Pingtan_Beach_-_panoramio.jpg · panoramio · CC BY 3.0<br>
+      ▸ <em>sandart.jpg</em> — File:Sand_art_in_Pingtan.jpg · Wikimedia Commons<br>
+      ▸ <em>fishport.jpg</em> — File:Fishing_port_in_Aoqian,_Pingtan_(20170124094746).jpg · Wikimedia Commons<br>
+      ▸ <em>rocks.jpg</em> — File:Rocks_on_seashore_-_panoramio.jpg · panoramio · CC BY 3.0
+    </p>
+    <p style="margin-top:10px"><strong>产品视觉示意图（漫游护照 / 情绪明信片 / 通行 PASS 卡 / 黑胶 / 压仓石文镇 / 蓝眼泪概念图 / 石厝黄昏 / 猴研岛航拍）</strong>均为 AI 生成，<strong>仅作产品概念展示之用</strong>。商业落地版本将由专业摄影师/产品设计师重制。如有任何版权问题，请联系作者邮箱处理。</p>
+  </div>
+
+  <div class="copy">
+    <span>© 2026 GUO JIA · FUDAN UNIVERSITY · 复旦大学青春文旅设计大赛参赛作品</span>
+    <span>本站为参赛展示用途 · 商业落地版本将完成商标/专利注册后正式发布</span>
+  </div>
+</footer>
+
+
+<script src="assets/translations.js"></script>
+<script src="assets/i18n.js"></script>
+<script>
+I18N.register({
+  'nav.story': { 'zh-CN':'缘起', 'en':'Story', 'zh-TW':'緣起' },
+  'nav.packages': { 'zh-CN':'套餐', 'en':'Packages', 'zh-TW':'套餐' },
+  'nav.pass': { 'zh-CN':'PASS 卡', 'en':'PASS Card', 'zh-TW':'PASS 卡' },
+  'nav.blue': { 'zh-CN':'蓝眼泪', 'en':'Blue Tears', 'zh-TW':'藍眼淚' },
+  'nav.ai': { 'zh-CN':'AI 平台', 'en':'AI Platform', 'zh-TW':'AI 平台' },
+  'nav.merch': { 'zh-CN':'文创', 'en':'Merch', 'zh-TW':'文創' },
+  'nav.b': { 'zh-CN':'合作机构', 'en':'Operators', 'zh-TW':'合作機構' },
+  'nav.about': { 'zh-CN':'关于', 'en':'About', 'zh-TW':'關於' }
+});
+
+// 注册翻译映射给新 i18n 引擎
+I18N.registerTranslations({
+  'en': {
+  "缘起": "Story",
+  "套餐": "Packages",
+  "关于": "About",
+  "蓝眼泪": "Blue Tears",
+  "文创": "Merch",
+  "合作机构": "Operators",
+  "AI 平台": "AI Platform",
+  "通行 PASS": "PASS Card",
+  "两面": "Two Sides",
+  "基于方言连续体的": "Built on the Dialect Continuum",
+  "数字人文文旅产品方案": "A Digital Humanities Tourism Product",
+  "走过近 200 座国内城市之后，我把镜头对准了 68 海里": "After nearly 200 Chinese cities, I turned my lens to 68 nautical miles",
+  "近 200 座城市": "nearly 200 cities",
+  "我把镜头对准了 68 海里": "I turned my lens to 68 nautical miles",
+  "两个入口 · 同一片海": "Two Entrances · One Sea",
+  "我是游客": "I am a Traveler",
+  "我想买这趟旅行": "I want to book this journey",
+  "我是运营/文旅局/媒体": "I am Operator / Authority / Media",
+  "我想了解这套产品": "I want to learn about this product",
+  "查看套餐": "View Packages",
+  "小程序预览": "Mini-Program",
+  "完整方案 PPT": "Full PPT",
+  "运营大屏": "Dashboard",
+  "立即预订": "Book Now",
+  "立即体验": "Try Now",
+  "体验 AI · TRY YUTU·68": "TRY YUTU·68",
+  "立即预订 · BOOK NOW": "BOOK NOW",
+  "立即预订 · BOOK": "BOOK",
+  "关键数字": "Key Numbers",
+  "四个数字 · 一座岛的可量化魅力": "Four Numbers · An Island Quantified",
+  "项目缘起": "Project Origin",
+  "从潮汕到平潭": "From Chaoshan to Pingtan",
+  "潮汕人": "From Chaoshan",
+  "翻译硕士": "M.A. in Translation",
+  "复旦大学外国语言文学学院": "Fudan University · School of Foreign Languages",
+  "半日轻体验": "Half-Day Experience",
+  "作者带路": "Author-Led",
+  "作者亲带": "Author-Hosted",
+  "★ 主推 RECOMMENDED": "★ BESTSELLER",
+  "★ 主推": "★ BESTSELLER",
+  "听见": "Hear",
+  "听懂": "Listen",
+  "听透": "Understand",
+  "声音地图日": "Sound Map Day",
+  "两面漫游 3 日": "3-Day Two-Sides Journey",
+  "作者带团田野工作坊": "Author-Led Fieldwork",
+  "含 AI 翻译手账": "Includes AI Journal",
+  "含 4 大体验 + 通行 PASS 卡": "Includes 4 Experiences + PASS Card",
+  "含独家学术访谈 + 全套 11 件文创": "Includes Academic Interview + Full Merch",
+  "通行 PASS 卡": "PASS Card",
+  "一卡通城": "All-in-One",
+  "不只是优惠卡": "Not Just a Discount Card",
+  "是 9 类合作商持续优惠的入口": "Gateway to 9 Categories of Partner Discounts",
+  "合作酒店": "Partner Hotels",
+  "本地民宿": "Local Homestays",
+  "海鲜餐馆": "Seafood Restaurants",
+  "海岛打车": "Island Taxi",
+  "租车自驾": "Car Rental",
+  "景点门票": "Attractions",
+  "夜游船": "Night Cruise",
+  "文创伴手礼": "Souvenir",
+  "出岛交通": "Departure",
+  "会发光的海": "A Glowing Sea",
+  "蓝眼泪是夜光虫与多边舌甲藻的生物发光现象": "Blue Tears: bioluminescence by dinoflagellates",
+  "当晚出现概率": "Probability Tonight",
+  "小程序实时预测": "Live Prediction",
+  "AI 智慧文旅 · 一站式服务": "AI Smart Tourism · One-Stop",
+  "AI 景点探索": "AI Attractions",
+  "AI 美食推荐": "AI Food",
+  "AI 文化体验": "AI Culture",
+  "AI 行程规划": "AI Itinerary",
+  "AI 游记分享": "AI Journal",
+  "AI 蓝眼泪雷达": "AI Tears Radar",
+  "文创衍生品矩阵": "Cultural Merchandise Matrix",
+  "漫游护照": "Roaming Passport",
+  "海风之声黑胶": "Sea-Wind Vinyl",
+  "压仓石文镇": "Granite Paperweight",
+  "罗盘钥匙扣": "Compass Keychain",
+  "海风帆布袋": "Sea-Wind Tote",
+  "手账胶带": "Washi Tape",
+  "田野手账本": "Field Journal",
+  "海风茶": "Sea-Wind Tea",
+  "石厝搪瓷杯": "Stone-House Mug",
+  "AI 情绪明信片": "AI Emotion Postcard",
+  "两岸物产礼盒": "Cross-Strait Gift Box",
+  "查看完整方案 PPT": "View Full PPT",
+  "运营大屏 Demo": "Dashboard Demo",
+  "小程序原型": "Mini-Program Prototype",
+  "联系作者": "Contact Author",
+  "图片来源 · IMAGE CREDITS": "IMAGE CREDITS",
+  "本站为参赛展示用途 · 商业落地版本将完成商标/专利注册后正式发布": "For competition exhibition only · Commercial version pending IP registration",
+  "行业趋势": "Industry Trends",
+  "客流": "Visitors",
+  "人次": "Visits",
+  "首年保守": "Year-1 Conservative",
+  "乐观": "Optimistic",
+  "收入曲线": "Revenue Streams",
+  "风险预案": "Risk Plan",
+  "海西经济圈": "Western-Strait Economic Belt",
+  "周边联动": "Regional Synergy",
+  "福州": "Fuzhou",
+  "泉州": "Quanzhou",
+  "厦门": "Xiamen"
+},
+  'zh-TW': {
+  "缘起": "緣起",
+  "套餐": "套餐",
+  "关于": "關於",
+  "蓝眼泪": "藍眼淚",
+  "文创": "文創",
+  "合作机构": "合作機構",
+  "两面": "兩面",
+  "基于方言连续体的": "基於方言連續體的",
+  "数字人文文旅产品方案": "數字人文文旅產品方案",
+  "走过近 200 座国内城市之后，我把镜头对准了 68 海里": "走過近 200 座國內城市之後，我把鏡頭對準了 68 海里",
+  "近 200 座城市": "近 200 座城市",
+  "两个入口 · 同一片海": "兩個入口 · 同一片海",
+  "我是游客": "我是遊客",
+  "我想买这趟旅行": "我想買這趟旅行",
+  "我是运营/文旅局/媒体": "我是營運/文旅局/媒體",
+  "我想了解这套产品": "我想了解這套產品",
+  "查看套餐": "查看套餐",
+  "立即预订": "立即預訂",
+  "立即体验": "立即體驗",
+  "关键数字": "關鍵數字",
+  "四个数字 · 一座岛的可量化魅力": "四個數字 · 一座島的可量化魅力",
+  "项目缘起": "項目緣起",
+  "从潮汕到平潭": "從潮汕到平潭",
+  "潮汕人": "潮汕人",
+  "翻译硕士": "翻譯碩士",
+  "复旦大学外国语言文学学院": "復旦大學外國語言文學學院",
+  "半日轻体验": "半日輕體驗",
+  "作者带路": "作者帶路",
+  "作者亲带": "作者親帶",
+  "声音地图日": "聲音地圖日",
+  "两面漫游 3 日": "兩面漫遊 3 日",
+  "作者带团田野工作坊": "作者帶團田野工作坊",
+  "含 AI 翻译手账": "含 AI 翻譯手帳",
+  "含 4 大体验 + 通行 PASS 卡": "含 4 大體驗 + 通行 PASS 卡",
+  "含独家学术访谈 + 全套 11 件文创": "含獨家學術訪談 + 全套 11 件文創",
+  "通行 PASS 卡": "通行 PASS 卡",
+  "一卡通城": "一卡通城",
+  "不只是优惠卡": "不只是優惠券",
+  "是 9 类合作商持续优惠的入口": "是 9 類合作商持續優惠的入口",
+  "合作酒店": "合作酒店",
+  "本地民宿": "本地民宿",
+  "海鲜餐馆": "海鮮餐館",
+  "海岛打车": "海島打車",
+  "租车自驾": "租車自駕",
+  "景点门票": "景點門票",
+  "夜游船": "夜遊船",
+  "文创伴手礼": "文創伴手禮",
+  "出岛交通": "出島交通",
+  "会发光的海": "會發光的海",
+  "当晚出现概率": "當晚出現概率",
+  "小程序实时预测": "小程序即時預測",
+  "AI 智慧文旅 · 一站式服务": "AI 智慧文旅 · 一站式服務",
+  "AI 景点探索": "AI 景點探索",
+  "AI 美食推荐": "AI 美食推薦",
+  "AI 文化体验": "AI 文化體驗",
+  "AI 行程规划": "AI 行程規劃",
+  "AI 游记分享": "AI 遊記分享",
+  "AI 蓝眼泪雷达": "AI 藍眼淚雷達",
+  "文创衍生品矩阵": "文創衍生品矩陣",
+  "漫游护照": "漫遊護照",
+  "海风之声黑胶": "海風之聲黑膠",
+  "压仓石文镇": "壓艙石文鎮",
+  "罗盘钥匙扣": "羅盤鑰匙扣",
+  "海风帆布袋": "海風帆布袋",
+  "手账胶带": "手帳膠帶",
+  "田野手账本": "田野手帳本",
+  "海风茶": "海風茶",
+  "石厝搪瓷杯": "石厝搪瓷杯",
+  "AI 情绪明信片": "AI 情緒明信片",
+  "两岸物产礼盒": "兩岸物產禮盒",
+  "查看完整方案 PPT": "查看完整方案 PPT",
+  "运营大屏 Demo": "營運大屏 Demo",
+  "小程序原型": "小程序原型",
+  "联系作者": "聯絡作者",
+  "图片来源 · IMAGE CREDITS": "圖片來源 · IMAGE CREDITS",
+  "行业趋势": "行業趨勢",
+  "客流": "客流",
+  "人次": "人次",
+  "首年保守": "首年保守",
+  "乐观": "樂觀",
+  "收入曲线": "收入曲線",
+  "风险预案": "風險預案",
+  "海西经济圈": "海西經濟圈",
+  "周边联动": "周邊聯動",
+  "福州": "福州",
+  "泉州": "泉州",
+  "厦门": "廈門",
+  "体": "體",
+  "为": "為",
+  "发": "發",
+  "机": "機",
+  "内": "內",
+  "网": "網",
+  "学": "學",
+  "专": "專",
+  "线": "線",
+  "项": "項",
+  "点": "點",
+  "费": "費",
+  "计": "計",
+  "务": "務",
+  "术": "術",
+  "双": "雙",
+  "变": "變",
+  "应": "應",
+  "区": "區",
+  "与": "與",
+  "两": "兩",
+  "县": "縣",
+  "头": "頭",
+  "听": "聽",
+  "单": "單",
+  "击": "擊",
+  "报": "報",
+  "现": "現",
+  "价": "價",
+  "买": "買",
+  "卖": "賣",
+  "认": "認",
+  "观": "觀",
+  "览": "覽",
+  "众": "眾",
+  "总": "總",
+  "据": "據",
+  "远": "遠",
+  "边": "邊",
+  "后": "後",
+  "导": "導",
+  "样": "樣",
+  "议": "議",
+  "间": "間",
+  "题": "題",
+  "声": "聲",
+  "开": "開",
+  "关": "關",
+  "员": "員",
+  "馆": "館"
+}
+});
+
+</script>
+</body>
+</html>

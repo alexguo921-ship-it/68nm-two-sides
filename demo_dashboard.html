@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>语途·68 · 运营画像与异业分润大屏</title>
+<link rel="stylesheet" href="assets/theme.css">
+<style>
+:root {
+  --dash-bg: #1a1612;
+  --dash-bg2: #2c2620;
+  --dash-card: rgba(247,241,227,.04);
+  --dash-line: rgba(212,168,87,.18);
+}
+body { background: var(--dash-bg); color: var(--paper); padding: 14px; min-height: 100vh; font-family: var(--sans-en); }
+.dash {
+  background:
+    radial-gradient(circle at 10% 10%, rgba(255,210,0,.05), transparent 40%),
+    radial-gradient(circle at 90% 90%, rgba(194,86,42,.04), transparent 40%),
+    var(--dash-bg);
+  border: 2px solid var(--ng-yellow);
+  padding: 18px;
+}
+
+.dash-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 16px; background: rgba(247,241,227,.03);
+  border-bottom: 1px solid var(--dash-line);
+  margin-bottom: 14px;
+}
+.dash-head h1 {
+  font-family: var(--serif-cn); font-size: 18px;
+  color: var(--ng-yellow); letter-spacing: 1px;
+  font-weight: 700;
+}
+.dash-head h1 small { font-family: var(--sans-en); font-size: 10px; color: var(--paper); margin-left: 10px; letter-spacing: 2px; opacity: .6; }
+.dash-head .right { display: flex; gap: 18px; align-items: center; font-size: 11px; }
+.dash-head .live { display: flex; align-items: center; gap: 5px; color: #4caf50; }
+.dash-head .live::before { content: ""; width: 7px; height: 7px; background: #4caf50; border-radius: 50%; animation: pulseLive 1.5s infinite; }
+@keyframes pulseLive { 0%,100%{opacity:1;} 50%{opacity:.3;} }
+.dash-head .clock { color: var(--ng-yellow); font-family: var(--serif-en); font-size: 14px; }
+.dash-head .back { color: var(--ng-yellow); text-decoration: none; padding: 4px 10px; border: 1px solid var(--ng-yellow); font-size: 10px; letter-spacing: 2px; }
+
+.grid { display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 14px; height: calc(100vh - 100px); }
+.col { display: flex; flex-direction: column; gap: 14px; }
+
+.card {
+  background: var(--dash-card); padding: 14px;
+  border: 1px solid var(--dash-line); position: relative;
+  display: flex; flex-direction: column;
+  min-height: 0;
+}
+.card::before { content:""; position:absolute; top:0; left:0; right:0; height: 2px; background: linear-gradient(90deg, transparent, var(--ng-yellow), transparent); }
+.card h3 {
+  font-family: var(--sans-en); font-size: 11px; letter-spacing: 2px;
+  color: var(--paper); opacity: .7; margin-bottom: 12px;
+  display: flex; justify-content: space-between; align-items: center;
+  text-transform: uppercase;
+}
+.card h3 .badge {
+  font-size: 9px; padding: 2px 8px; background: var(--ng-yellow);
+  color: var(--ink); letter-spacing: 1px; font-weight: 700;
+}
+
+/* KPI */
+.kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.kpi {
+  padding: 12px 12px; background: rgba(247,241,227,.03);
+  border-left: 3px solid var(--ng-yellow);
+}
+.kpi .v {
+  font-family: var(--serif-en); font-size: 26px; font-weight: 700;
+  color: var(--ng-yellow); line-height: 1;
+}
+.kpi .l { font-size: 10px; color: rgba(247,241,227,.7); margin-top: 6px; letter-spacing: 1px; }
+.kpi .delta { font-size: 10px; color: #6ec46e; margin-top: 4px; font-family: var(--serif-en); }
+.kpi.warm { border-left-color: var(--terracotta); }
+.kpi.warm .v { color: var(--terracotta); }
+.kpi.cyan { border-left-color: #6fb3c4; }
+.kpi.cyan .v { color: #6fb3c4; }
+.kpi.pink { border-left-color: #d97a99; }
+.kpi.pink .v { color: #d97a99; }
+
+/* 客群标签 */
+.tag-group h4 { font-size: 10px; color: rgba(247,241,227,.5); margin-bottom: 8px; letter-spacing: 2px; text-transform: uppercase; }
+.tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.tg {
+  padding: 4px 10px; background: rgba(255,210,0,.08);
+  color: var(--ng-yellow); border: 1px solid rgba(255,210,0,.3);
+  font-family: var(--sans-en); font-size: 10px; letter-spacing: 1px;
+}
+.tg .pct { color: rgba(247,241,227,.5); margin-left: 4px; }
+
+/* 地图 */
+.map-card { flex: 1; min-height: 0; }
+.map { width: 100%; flex: 1; min-height: 320px; position: relative; overflow: hidden; }
+.map svg { width: 100%; height: 100%; }
+.heat-dot {
+  position: absolute; width: 11px; height: 11px; border-radius: 50%;
+  background: var(--ng-yellow); box-shadow: 0 0 16px var(--ng-yellow);
+  transform: translate(-50%, -50%); animation: heatPulse 2s infinite;
+}
+@keyframes heatPulse { 0%,100%{transform:translate(-50%,-50%) scale(1); opacity:1;} 50%{transform:translate(-50%,-50%) scale(1.5); opacity:.5;} }
+.heat-dot.hot { background: var(--terracotta); box-shadow: 0 0 24px var(--terracotta); width: 13px; height: 13px; }
+.heat-dot.cool { background: #6fb3c4; box-shadow: 0 0 12px #6fb3c4; }
+.heat-label {
+  position: absolute; transform: translate(-50%, -180%);
+  font-family: var(--sans-en); font-size: 10px; padding: 3px 8px;
+  background: rgba(26,22,18,.85); color: var(--ng-yellow);
+  white-space: nowrap; border: 1px solid rgba(255,210,0,.3);
+  letter-spacing: 1px;
+}
+.flow-line { stroke-dasharray: 4 6; stroke-width: 1.4; animation: flowDash 1.5s linear infinite; }
+@keyframes flowDash { to { stroke-dashoffset: -20; } }
+
+/* 提醒卡 */
+.alert {
+  padding: 10px 14px; margin-bottom: 8px;
+  background: rgba(194,86,42,.12);
+  border-left: 3px solid var(--terracotta);
+  font-family: var(--serif-cn); font-size: 12px; line-height: 1.6;
+  color: rgba(247,241,227,.92);
+}
+.alert.cyan { background: rgba(111,179,196,.1); border-left-color: #6fb3c4; }
+.alert.cyan strong { color: #6fb3c4; }
+.alert .ico { font-size: 18px; margin-right: 8px; vertical-align: -2px; }
+.alert strong { color: var(--terracotta); }
+
+/* 分润 */
+.huge-num { font-family: var(--serif-en); font-size: 32px; color: var(--ng-yellow); font-weight: 700; line-height: 1; }
+.split-row { margin-bottom: 10px; }
+.split-head { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px; font-family: var(--serif-cn); }
+.split-head .name { color: rgba(247,241,227,.85); }
+.split-head .v { color: var(--ng-yellow); font-family: var(--serif-en); }
+.split-bar { height: 5px; background: rgba(247,241,227,.05); }
+.split-bar .fill { height: 100%; background: linear-gradient(90deg, var(--ng-yellow), var(--terracotta)); transition: width 1s; }
+
+/* 事件流 */
+.event-list { flex: 1; min-height: 0; overflow-y: auto; }
+.event {
+  padding: 7px 10px; margin-bottom: 5px;
+  background: rgba(247,241,227,.03);
+  border-left: 2px solid #6fb3c4;
+  font-size: 11px; line-height: 1.5;
+  display: flex; gap: 8px;
+  font-family: var(--serif-cn);
+}
+.event .time { color: rgba(247,241,227,.4); font-family: var(--serif-en); flex-shrink: 0; }
+.event strong { color: var(--ng-yellow); }
+.event .gold { color: var(--ng-yellow); font-family: var(--serif-en); font-weight: 700; }
+.event .warm { color: var(--terracotta); font-family: var(--serif-en); font-weight: 700; }
+
+[data-lang]{display:none;}
+html[lang="zh-CN"] [data-lang="zh-CN"], html[lang="en"] [data-lang="en"], html[lang="zh-TW"] [data-lang="zh-TW"] {display:inline;}
+.lang-switcher{top:24px!important; right:24px!important; background: var(--dash-bg)!important; border-color: var(--ng-yellow)!important;}
+.lang-switcher button{color: var(--paper)!important; border-color: rgba(255,210,0,.3)!important;}
+.lang-switcher button:hover{background: rgba(255,210,0,.1)!important;}
+.lang-switcher button.active{background: var(--ng-yellow)!important; color: var(--ink)!important;}
+</style>
+</head>
+<body>
+<div style="position:fixed;top:18px;left:18px;z-index:999;display:flex;gap:8px">
+  <a href="javascript:window.location.href='ppt.html#slide-'+(parseInt(localStorage.getItem('ppt_last_slide')||'0',10)+1)" style="background:#1a1612;color:#ffcc00;border:1.5px solid #ffcc00;padding:7px 14px;font-size:11px;letter-spacing:2px;text-decoration:none;font-family:'Cormorant Garamond',serif;font-weight:700;border-radius:2px">← BACK</a>
+  <a href="index.html" style="background:rgba(248,243,230,.95);color:#1a1612;border:1.5px solid #1a1612;padding:7px 14px;font-size:11px;letter-spacing:2px;text-decoration:none;font-family:'Cormorant Garamond',serif;font-weight:700;border-radius:2px">⌂ HOME</a>
+</div>
+
+<div class="dash">
+  <div class="dash-head">
+    <h1><span data-i18n="d.k1">语途·68 · 运营画像与异业分润大屏</span><small>YUTU·68 OPERATION DASHBOARD · LIVE</small></h1>
+    <div class="right">
+      <span class="live"><span data-i18n="d.k2">实时数据</span></span>
+      <span class="clock" id="clock">--:--:--</span>
+      <a href="index.html" class="back">← <span data-i18n="d.k3">返回</span></a>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- 左 -->
+    <div class="col">
+      <div class="card">
+        <h3><span><span data-i18n="d.k4">核心指标 · 今日</span></span><span class="badge">T-DAY</span></h3>
+        <div class="kpi-grid">
+          <div class="kpi"><div class="v" id="k1">147</div><div class="l"><span data-i18n="d.k5">在岛旅行者</span></div><div class="delta">↑ +12 vs. yesterday</div></div>
+          <div class="kpi warm"><div class="v" id="k2">¥48,720</div><div class="l"><span data-i18n="d.k6">今日 GMV</span></div><div class="delta">↑ +18.4%</div></div>
+          <div class="kpi cyan"><div class="v" id="k3">3.7%</div><div class="l"><span data-i18n="d.k7">UV 转化率</span></div><div class="delta">↑ vs. industry +1.2%</div></div>
+          <div class="kpi pink"><div class="v" id="k4">¥4,872</div><div class="l"><span data-i18n="d.k8">异业分润待结算</span></div><div class="delta">10% auto-clear</div></div>
+        </div>
+      </div>
+
+      <div class="card" style="flex:1; min-height:0;">
+        <h3><span><span data-i18n="d.k9">实时客群画像 · AI 标签</span></span></h3>
+        <div class="tag-group">
+          <h4><span data-i18n="d.k10">兴趣标签</span></h4>
+          <div class="tag-list">
+            <span class="tg"><span data-i18n="d.k11">语言学</span><span class="pct">31%</span></span>
+            <span class="tg"><span data-i18n="d.k12">人文社科</span><span class="pct">27%</span></span>
+            <span class="tg"><span data-i18n="d.k13">建筑摄影</span><span class="pct">19%</span></span>
+            <span class="tg"><span data-i18n="d.k14">播客重度</span><span class="pct">42%</span></span>
+            <span class="tg"><span data-i18n="d.k15">两岸文化</span><span class="pct">23%</span></span>
+            <span class="tg"><span data-i18n="d.k16">不可控美学</span><span class="pct">15%</span></span>
+          </div>
+        </div>
+        <div class="tag-group">
+          <h4><span data-i18n="d.k17">客源城市</span></h4>
+          <div class="tag-list">
+            <span class="tg"><span data-i18n="d.k18">上海</span><span class="pct">28%</span></span>
+            <span class="tg"><span data-i18n="d.k19">福州</span><span class="pct">22%</span></span>
+            <span class="tg"><span data-i18n="d.k20">北京</span><span class="pct">14%</span></span>
+            <span class="tg"><span data-i18n="d.k21">厦门</span><span class="pct">12%</span></span>
+            <span class="tg"><span data-i18n="d.k22">杭州</span><span class="pct">9%</span></span>
+            <span class="tg"><span data-i18n="d.k23">台北</span><span class="pct">6%</span></span>
+          </div>
+        </div>
+        <div class="tag-group">
+          <h4><span data-i18n="d.k24">SKU 分布</span></h4>
+          <div class="tag-list">
+            <span class="tg">SKU-A<span class="pct">18%</span></span>
+            <span class="tg" style="background:rgba(255,210,0,.18); border-color:var(--ng-yellow);">SKU-B ★<span class="pct">63%</span></span>
+            <span class="tg">SKU-C<span class="pct">19%</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 中 -->
+    <div class="col">
+      <div class="card map-card" style="flex:1;">
+        <h3><span><span data-i18n="d.k25">平潭岛 · 实时客流热力图</span></span><span class="badge">10 SPOTS</span></h3>
+        <div class="map" id="map">
+          <svg viewBox="0 0 600 500" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <radialGradient id="island" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#3a3025"/>
+                <stop offset="70%" stop-color="#1f1812"/>
+                <stop offset="100%" stop-color="#1a1612"/>
+              </radialGradient>
+            </defs>
+            <g opacity=".06" stroke="#6fb3c4" fill="none">
+              <path d="M0 100 Q150 90 300 100 T600 100"/>
+              <path d="M0 200 Q150 190 300 200 T600 200"/>
+              <path d="M0 300 Q150 290 300 300 T600 300"/>
+              <path d="M0 400 Q150 390 300 400 T600 400"/>
+            </g>
+            <path d="M180 100 Q280 80 360 110 Q440 130 460 200 Q480 270 460 340 Q440 410 380 430 Q300 450 230 420 Q170 390 150 320 Q140 250 150 180 Q160 130 180 100 Z" fill="url(#island)" stroke="rgba(255,210,0,.4)" stroke-width="1.5"/>
+            <text x="305" y="270" text-anchor="middle" fill="rgba(255,210,0,.25)" font-size="32" font-weight="800" font-family="serif">平潭</text>
+            <text x="305" y="295" text-anchor="middle" fill="rgba(247,241,227,.2)" font-size="10" letter-spacing="3">PINGTAN</text>
+            <line x1="430" y1="380" x2="580" y2="450" stroke="var(--terracotta)" stroke-width="1.2" class="flow-line"/>
+            <text x="555" y="445" fill="var(--terracotta)" font-size="11" font-weight="700">→ TAIWAN</text>
+            <text x="490" y="430" fill="rgba(194,86,42,.7)" font-size="10">68 nm</text>
+            <g fill="none" stroke="var(--ng-yellow)" class="flow-line" opacity=".55">
+              <path d="M250 130 Q280 200 220 280"/>
+              <path d="M380 200 Q350 280 400 360"/>
+              <path d="M220 280 L380 200"/>
+            </g>
+          </svg>
+          <div class="heat-dot hot" style="top:30%; left:42%;"><div class="heat-label" data-lang="zh-CN">猴研岛 · 38人</div><div class="heat-label" data-lang="en">Houyan · 38</div><div class="heat-label" data-lang="zh-TW">猴研島 · 38人</div></div>
+          <div class="heat-dot hot" style="top:45%; left:35%;"><div class="heat-label" data-lang="zh-CN">北港村 · 27人 ⭐</div><div class="heat-label" data-lang="en">Beigang · 27 ⭐</div><div class="heat-label" data-lang="zh-TW">北港村 · 27人 ⭐</div></div>
+          <div class="heat-dot" style="top:58%; left:58%;"><div class="heat-label" data-lang="zh-CN">坛南湾 · 22人</div><div class="heat-label" data-lang="en">Tannan · 22</div><div class="heat-label" data-lang="zh-TW">壇南灣 · 22人</div></div>
+          <div class="heat-dot" style="top:38%; left:60%;"><div class="heat-label" data-lang="zh-CN">东海仙境 · 15人</div><div class="heat-label" data-lang="en">Donghai · 15</div><div class="heat-label" data-lang="zh-TW">東海仙境 · 15人</div></div>
+          <div class="heat-dot" style="top:26%; left:50%;"><div class="heat-label" data-lang="zh-CN">长江澳风车田 · 12人</div><div class="heat-label" data-lang="en">Wind Farm · 12</div><div class="heat-label" data-lang="zh-TW">長江澳風車田 · 12人</div></div>
+          <div class="heat-dot cool" style="top:70%; left:45%;"><div class="heat-label" data-lang="zh-CN">海坛古城 · 9人</div><div class="heat-label" data-lang="en">Haitan City · 9</div><div class="heat-label" data-lang="zh-TW">海壇古城 · 9人</div></div>
+          <div class="heat-dot cool" style="top:50%; left:28%;"><div class="heat-label" data-lang="zh-CN">石头会唱歌 · 8人</div><div class="heat-label" data-lang="en">Singing Stones · 8</div><div class="heat-label" data-lang="zh-TW">石頭會唱歌 · 8人</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span>🔔 <span data-i18n="d.k26">AI 智能调度提醒</span></span><span class="badge">PUSH</span></h3>
+        <div class="alert">
+          <span class="ico">⚡</span><strong><span data-i18n="d.k27">客群预警</span></strong>：
+          <span data-lang="zh-CN">今天有 <strong>27 位</strong>"语言学背景"标签旅行者将于 <strong>14:30</strong> 抵达北港村，建议<strong>"两面咖啡"主理人增开方言对谈场</strong>，预计触发 ¥1,215 客单。</span>
+          <span data-lang="en"><strong>27</strong> "Linguistics-tag" travelers arriving Beigang at <strong>14:30</strong>. Suggest <strong>"Two Sides Cafe" open a dialect-talk session</strong>. Estimated trigger: ¥1,215.</span>
+          <span data-lang="zh-TW">今天有 <strong>27 位</strong>「語言學背景」標籤旅行者將於 <strong>14:30</strong> 抵達北港村，建議<strong>「兩面咖啡」主理人增開方言對談場</strong>，預計觸發 ¥1,215 客單。</span>
+        </div>
+        <div class="alert cyan">
+          <span class="ico">🌊</span><strong><span data-i18n="d.k28">蓝眼泪盲盒触发</span></strong>：
+          <span data-lang="zh-CN">今晚气象不达标（云量85%），系统已对今晚 22 位预约者<strong>自动推送 7折海鲜补偿券</strong>，预测明日核销 ≈ ¥1,936。</span>
+          <span data-lang="en">Tonight's weather fails threshold (85% cloud). System auto-pushed <strong>30%-off seafood vouchers</strong> to 22 reservation holders. Predicted redemption tomorrow ≈ ¥1,936.</span>
+          <span data-lang="zh-TW">今晚氣象不達標（雲量85%），系統已對今晚 22 位預約者<strong>自動推送 7折海鮮補償券</strong>，預測明日核銷 ≈ ¥1,936。</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右 -->
+    <div class="col">
+      <div class="card">
+        <h3><span>💼 <span data-i18n="d.k29">异业分润实时结算</span></span><span class="badge">5—10%</span></h3>
+        <div style="text-align:center; padding: 4px 0 14px;">
+          <div class="huge-num" id="totalSplit">¥4,872</div>
+          <div style="font-size:10px; color:rgba(247,241,227,.5); margin-top:4px;"><span data-i18n="d.k30">今日累计 · 待月度结算</span></div>
+        </div>
+        <div class="split-row"><div class="split-head"><span class="name"><span data-i18n="d.k31">两面咖啡馆 · 北港村</span></span><span class="v">¥1,215 · 10%</span></div><div class="split-bar"><div class="fill" style="width:88%"></div></div></div>
+        <div class="split-row"><div class="split-head"><span class="name"><span data-i18n="d.k32">石厝海风民宿</span></span><span class="v">¥980 · 8%</span></div><div class="split-bar"><div class="fill" style="width:72%"></div></div></div>
+        <div class="split-row"><div class="split-head"><span class="name"><span data-i18n="d.k33">龙山路海鲜大排档</span></span><span class="v">¥856 · 5%</span></div><div class="split-bar"><div class="fill" style="width:62%"></div></div></div>
+        <div class="split-row"><div class="split-head"><span class="name"><span data-i18n="d.k34">石头会唱歌·文创聚落</span></span><span class="v">¥720 · 10%</span></div><div class="split-bar"><div class="fill" style="width:52%"></div></div></div>
+        <div class="split-row"><div class="split-head"><span class="name"><span data-i18n="d.k35">68海里·伴手礼旗舰店</span></span><span class="v">¥635 · 8%</span></div><div class="split-bar"><div class="fill" style="width:46%"></div></div></div>
+        <div class="split-row"><div class="split-head"><span class="name"><span data-i18n="d.k36">小耘工坊（台青手作）</span></span><span class="v">¥466 · 10%</span></div><div class="split-bar"><div class="fill" style="width:34%"></div></div></div>
+      </div>
+
+      <div class="card" style="flex:1; min-height:0;">
+        <h3><span>📡 <span data-i18n="d.k37">实时核销事件流</span></span><span class="badge" id="evCount">0 LOGGED</span></h3>
+        <div class="event-list" id="eventList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/i18n.js"></script>
+<script>
+I18N.register({
+  'd.k1': { 'zh-CN': '语途·68 · 运营画像与异业分润大屏', 'en': 'YUTU·68 · Operations & Revenue-Split Dashboard', 'zh-TW': '語途·68 · 運營畫像與異業分潤大屏' },
+  'd.k2': { 'zh-CN': '实时数据', 'en': 'LIVE DATA', 'zh-TW': '實時數據' },
+  'd.k3': { 'zh-CN': '返回', 'en': 'BACK', 'zh-TW': '返回' },
+  'd.k4': { 'zh-CN': '核心指标 · 今日', 'en': 'Core KPIs · Today', 'zh-TW': '核心指標 · 今日' },
+  'd.k5': { 'zh-CN': '在岛旅行者', 'en': 'Travelers on Island', 'zh-TW': '在島旅行者' },
+  'd.k6': { 'zh-CN': '今日 GMV', 'en': "Today's GMV", 'zh-TW': '今日 GMV' },
+  'd.k7': { 'zh-CN': 'UV 转化率', 'en': 'UV Conversion', 'zh-TW': 'UV 轉化率' },
+  'd.k8': { 'zh-CN': '异业分润待结算', 'en': 'Pending Revenue Split', 'zh-TW': '異業分潤待結算' },
+  'd.k9': { 'zh-CN': '实时客群画像 · AI 标签', 'en': 'Real-Time Audience Profile', 'zh-TW': '實時客群畫像' },
+  'd.k10': { 'zh-CN': '兴趣标签', 'en': 'Interest Tags', 'zh-TW': '興趣標籤' },
+  'd.k11': { 'zh-CN': '语言学', 'en': 'Linguistics', 'zh-TW': '語言學' },
+  'd.k12': { 'zh-CN': '人文社科', 'en': 'Humanities', 'zh-TW': '人文社科' },
+  'd.k13': { 'zh-CN': '建筑摄影', 'en': 'Architecture', 'zh-TW': '建築攝影' },
+  'd.k14': { 'zh-CN': '播客重度', 'en': 'Podcast Heavy', 'zh-TW': '播客重度' },
+  'd.k15': { 'zh-CN': '两岸文化', 'en': 'Cross-Strait', 'zh-TW': '兩岸文化' },
+  'd.k16': { 'zh-CN': '不可控美学', 'en': 'Uncontrollable', 'zh-TW': '不可控美學' },
+  'd.k17': { 'zh-CN': '客源城市', 'en': 'Source Cities', 'zh-TW': '客源城市' },
+  'd.k18': { 'zh-CN': '上海', 'en': 'Shanghai', 'zh-TW': '上海' },
+  'd.k19': { 'zh-CN': '福州', 'en': 'Fuzhou', 'zh-TW': '福州' },
+  'd.k20': { 'zh-CN': '北京', 'en': 'Beijing', 'zh-TW': '北京' },
+  'd.k21': { 'zh-CN': '厦门', 'en': 'Xiamen', 'zh-TW': '廈門' },
+  'd.k22': { 'zh-CN': '杭州', 'en': 'Hangzhou', 'zh-TW': '杭州' },
+  'd.k23': { 'zh-CN': '台北', 'en': 'Taipei', 'zh-TW': '台北' },
+  'd.k24': { 'zh-CN': 'SKU 分布', 'en': 'SKU Distribution', 'zh-TW': 'SKU 分布' },
+  'd.k25': { 'zh-CN': '平潭岛 · 实时客流热力图', 'en': 'Pingtan Island · Real-Time Traffic Heatmap', 'zh-TW': '平潭島 · 實時客流熱力圖' },
+  'd.k26': { 'zh-CN': 'AI 智能调度提醒', 'en': 'AI Smart Scheduling Alerts', 'zh-TW': 'AI 智能調度提醒' },
+  'd.k27': { 'zh-CN': '客群预警', 'en': 'Audience Alert', 'zh-TW': '客群預警' },
+  'd.k28': { 'zh-CN': '蓝眼泪盲盒触发', 'en': 'Blue Tears Insurance Triggered', 'zh-TW': '藍眼淚盲盒觸發' },
+  'd.k29': { 'zh-CN': '异业分润实时结算', 'en': 'Partner Revenue-Split Live', 'zh-TW': '異業分潤實時結算' },
+  'd.k30': { 'zh-CN': '今日累计 · 待月度结算', 'en': "Today's Total · Monthly Settlement", 'zh-TW': '今日累計 · 待月度結算' },
+  'd.k31': { 'zh-CN': '两面咖啡馆 · 北港村', 'en': 'Two Sides Cafe', 'zh-TW': '兩面咖啡館 · 北港村' },
+  'd.k32': { 'zh-CN': '石厝海风民宿', 'en': 'Stone-House Inn', 'zh-TW': '石厝海風民宿' },
+  'd.k33': { 'zh-CN': '龙山路海鲜大排档', 'en': 'Longshan Seafood', 'zh-TW': '龍山路海鮮大排檔' },
+  'd.k34': { 'zh-CN': '石头会唱歌·文创聚落', 'en': 'Singing Stones', 'zh-TW': '石頭會唱歌·文創聚落' },
+  'd.k35': { 'zh-CN': '68海里·伴手礼旗舰店', 'en': '68NM Gift Flagship', 'zh-TW': '68海里·伴手禮旗艦店' },
+  'd.k36': { 'zh-CN': '小耘工坊（台青手作）', 'en': 'Xiaoyun Studio', 'zh-TW': '小耘工坊（台青手作）' },
+  'd.k37': { 'zh-CN': '实时核销事件流', 'en': 'Real-Time Redemption Events', 'zh-TW': '實時核銷事件流' }
+});
+I18N.apply();
+</script>
+<script>
+function tick() {
+  const d = new Date();
+  document.getElementById('clock').textContent = [d.getHours(), d.getMinutes(), d.getSeconds()].map(n=>String(n).padStart(2,'0')).join(':');
+}
+setInterval(tick, 1000); tick();
+
+const events = [
+  { loc_zh:'北港村', loc_en:'Beigang', txt_zh:'<strong>李同学</strong>核销「两面」特调咖啡', txt_en:'<strong>Student Li</strong> redeemed "Two Sides" coffee', amt:'¥45', cls:'gold' },
+  { loc_zh:'猴研岛', loc_en:'Houyan', txt_zh:'<strong>蓝眼泪盲盒券</strong>触发自动推送给 22 位旅行者', txt_en:'<strong>Mystery-Box</strong> auto-pushed to 22 travelers', amt:'SYS', cls:'gold' },
+  { loc_zh:'北港村', loc_en:'Beigang', txt_zh:'<strong>VLM石厝扫描</strong>触发文创购买 · 压仓石文镇', txt_en:'<strong>VLM scan</strong> → Granite paperweight', amt:'¥98', cls:'gold' },
+  { loc_zh:'坛南湾', loc_en:'Tannan', txt_zh:'<strong>陈先生</strong>录制方言情绪明信片，分享 #翻译一座岛', txt_en:'<strong>Mr.Chen</strong> recorded postcard, shared #TranslateAnIsland', amt:'UGC', cls:'gold' },
+  { loc_zh:'石头会唱歌', loc_en:'Singing Stones', txt_zh:'夜场门票核销 · 今晚预约率 92%', txt_en:'Night ticket redeemed · 92% booked tonight', amt:'¥120', cls:'gold' },
+  { loc_zh:'北港村', loc_en:'Beigang', txt_zh:'<strong>SKU-B</strong> 售出 1 单（深度阅读3天2夜）', txt_en:'<strong>SKU-B</strong> sold (Deep Read 3D2N)', amt:'¥1,880', cls:'warm' },
+  { loc_zh:'海坛古城', loc_en:'Haitan City', txt_zh:'两岸物产礼盒售出（伴手礼）', txt_en:'Cross-strait gift box sold', amt:'¥128', cls:'gold' },
+  { loc_zh:'猴研岛', loc_en:'Houyan', txt_zh:'"68海里"邮戳点 · 明信片付费录音', txt_en:'68NM Stamp · Audio postcard paid', amt:'¥39', cls:'gold' },
+  { loc_zh:'北港村', loc_en:'Beigang', txt_zh:'<strong>AI智能提醒</strong>触达 · 增开方言对谈场', txt_en:'<strong>AI Alert</strong> · Dialect session opened', amt:'SYS', cls:'gold' },
+  { loc_zh:'石厝民宿', loc_en:'Stone-House Inn', txt_zh:'<strong>SKU-C驻留计划</strong>预定（5天4夜）', txt_en:'<strong>SKU-C Residency</strong> booked (5D4N)', amt:'¥3,680', cls:'warm' },
+  { loc_zh:'坛南湾', loc_en:'Tannan', txt_zh:'黄光手电租赁 · 蓝眼泪夜观', txt_en:'Yellow flashlight rental · Tears watching', amt:'¥60', cls:'gold' }
+];
+
+const eventList = document.getElementById('eventList');
+let evCount = 0;
+function addEvent() {
+  const e = events[Math.floor(Math.random()*events.length)];
+  const lang = window.I18N ? window.I18N.getLang() : 'zh-CN';
+  const now = new Date();
+  const t = [now.getHours(),now.getMinutes(),now.getSeconds()].map(n=>String(n).padStart(2,'0')).join(':');
+  const div = document.createElement('div');
+  div.className = 'event';
+  const loc = lang==='en' ? e.loc_en : e.loc_zh;
+  const txt = lang==='en' ? e.txt_en : e.txt_zh;
+  div.innerHTML = `<span class="time">${t}</span><span>📍${loc} · ${txt} <span class="${e.cls}">${e.amt}</span></span>`;
+  eventList.insertBefore(div, eventList.firstChild);
+  if (eventList.children.length > 18) eventList.removeChild(eventList.lastChild);
+  evCount++;
+  document.getElementById('evCount').textContent = evCount + ' LOGGED';
+  // 累加
+  if (e.amt.startsWith('¥')) {
+    const n = parseInt(e.amt.replace(/[¥,]/g,''));
+    if (!isNaN(n)) {
+      const k2 = document.getElementById('k2'); let cur = parseInt(k2.textContent.replace(/[¥,]/g,''));
+      cur += n; k2.textContent = '¥' + cur.toLocaleString();
+      const k4 = document.getElementById('k4'); let cur4 = parseInt(k4.textContent.replace(/[¥,]/g,''));
+      cur4 += Math.round(n*0.08); k4.textContent = '¥' + cur4.toLocaleString();
+      const ts = document.getElementById('totalSplit'); let cur5 = parseInt(ts.textContent.replace(/[¥,]/g,''));
+      cur5 += Math.round(n*0.08); ts.textContent = '¥' + cur5.toLocaleString();
+    }
+  }
+}
+for (let i=0; i<6; i++) addEvent();
+setInterval(addEvent, 2200);
+setInterval(() => {
+  const k1 = document.getElementById('k1');
+  k1.textContent = parseInt(k1.textContent) + (Math.random()>0.5 ? 1 : 0);
+  const k3 = document.getElementById('k3');
+  k3.textContent = (3.5 + Math.random()*0.6).toFixed(1) + '%';
+}, 3500);
+
+document.addEventListener('langchange', () => {
+  // 重新刷一遍近期事件以应用新语言（可选）
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>68海里·两面 — 操作演示</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;700&family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Noto Sans SC',sans-serif;background:#0d0a06;color:#f8f3e6;overflow:hidden;height:100vh}
+  .stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:50px}
+  .scene{position:absolute;inset:50px;display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(.96);transition:opacity .8s ease,transform .8s ease;pointer-events:none}
+  .scene.active{opacity:1;transform:scale(1);pointer-events:auto}
+  .scene .inner{max-width:1100px;width:100%;display:grid;grid-template-columns:1.25fr 1fr;gap:50px;align-items:center}
+  .scene .inner.single{grid-template-columns:1fr;text-align:center}
+  .visual{aspect-ratio:16/10;background:#1a1612;border:2px solid #ffcc00;position:relative;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+  .visual img{width:100%;height:100%;object-fit:cover;display:block}
+  .visual .label{position:absolute;left:0;top:0;background:#ffcc00;color:#1a1612;padding:6px 14px;font-family:'Cormorant Garamond',serif;font-weight:700;letter-spacing:3px;font-size:12px}
+  .text .step{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;letter-spacing:5px;color:#ffcc00;margin-bottom:14px}
+  .text h2{font-family:'Noto Serif SC',serif;font-size:42px;font-weight:900;line-height:1.15;margin-bottom:18px;color:#fff}
+  .text h2 em{font-style:normal;color:#ffcc00}
+  .text p{font-size:17px;line-height:1.85;color:#d9c9a8;margin-bottom:14px}
+  .text p strong{color:#ffcc00;font-weight:600}
+  .text .kbd{display:inline-block;padding:3px 10px;background:#2a221a;color:#ffcc00;border:1px solid #ffcc00;font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:1px;margin:0 4px}
+
+  /* 进度条 */
+  .progress{position:fixed;top:0;left:0;height:4px;background:#ffcc00;transition:width .4s linear;z-index:100}
+  .ctrl{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:10px;background:rgba(26,22,18,.92);border:1.5px solid #ffcc00;padding:10px 16px;z-index:101;font-family:'Cormorant Garamond',serif;color:#ffcc00;font-size:12px;letter-spacing:2px;align-items:center}
+  .ctrl button{background:transparent;color:#ffcc00;border:1px solid #ffcc00;width:32px;height:32px;cursor:pointer;font-size:14px}
+  .ctrl button:hover{background:#ffcc00;color:#1a1612}
+  .ctrl .pn{padding:0 14px;color:#fff}
+  .ctrl .play{width:auto;padding:0 14px}
+  .corner{position:fixed;top:18px;right:18px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:12px;letter-spacing:3px;color:#7a5a3a;z-index:100}
+  .back{position:fixed;top:18px;left:18px;background:rgba(26,22,18,.92);color:#ffcc00;border:1.5px solid #ffcc00;padding:7px 14px;font-size:12px;letter-spacing:2px;text-decoration:none;font-family:'Cormorant Garamond',serif;z-index:101}
+  .back:hover{background:#ffcc00;color:#1a1612}
+
+  /* 模拟浏览器框 */
+  .browser{position:absolute;inset:0;background:#fff;display:flex;flex-direction:column}
+  .browser .bar{height:32px;background:#e8e1cf;border-bottom:1px solid #ccc;display:flex;align-items:center;padding:0 12px;gap:6px}
+  .browser .bar .dot{width:10px;height:10px;border-radius:50%}
+  .browser .bar .url{flex:1;margin-left:18px;background:#fff;border:1px solid #d4cba8;padding:3px 12px;font-family:'Cormorant Garamond',serif;font-size:10px;color:#7a5a3a;letter-spacing:.5px}
+  .browser .body{flex:1;position:relative;overflow:hidden}
+
+  /* 各场景内的模拟内容 */
+  .mock-cover{background:#1a4a6b url('assets/cover_pingtan_sea.jpg') center/cover;position:absolute;inset:0;display:flex;align-items:center;padding-left:60px;color:#fff}
+  .mock-cover::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.75) 0%,rgba(0,0,0,.4) 70%)}
+  .mock-cover .ct{position:relative;z-index:2}
+  .mock-cover .ct .v{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;letter-spacing:3px;color:#ffcc00;margin-bottom:10px}
+  .mock-cover .ct h3{font-family:'Noto Serif SC',serif;font-size:48px;font-weight:900;line-height:1;color:#fff}
+  .mock-cover .ct h3 em{font-style:normal;color:#ffcc00}
+  .mock-cover .ct .s{font-family:'Noto Serif SC',serif;font-size:15px;font-weight:600;color:#f8f3e6;margin-top:12px}
+
+  .mock-site{background:#f8f3e6;position:absolute;inset:0;display:flex;flex-direction:column}
+  .mock-site .nav{height:46px;background:rgba(248,243,230,.92);border-bottom:1px solid #c8b88a;display:flex;align-items:center;padding:0 20px;font-family:'Noto Serif SC',serif;font-size:12px}
+  .mock-site .nav .brand{font-weight:900;color:#1a1612;flex:1}
+  .mock-site .nav .brand em{font-style:normal;color:#c8552d}
+  .mock-site .nav .links{display:flex;gap:14px;color:#5a4a32;font-size:10px;font-weight:500}
+  .mock-site .nav .lang{display:flex;gap:0;margin-left:14px;border:1px solid #1a1612;font-family:'Cormorant Garamond',serif;font-size:9px}
+  .mock-site .nav .lang span{padding:3px 7px;border-right:1px solid #1a1612}
+  .mock-site .nav .lang span:last-child{border:none}
+  .mock-site .nav .lang span.on{background:#1a1612;color:#ffcc00}
+  .mock-site .hero{flex:1;background:linear-gradient(135deg,#1a1612 0%,#7a5a3a 50%,#c8552d 100%);padding:30px;display:flex;flex-direction:column;justify-content:center;color:#fff;position:relative}
+  .mock-site .hero h4{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:12px;letter-spacing:4px;color:#ffcc00}
+  .mock-site .hero h2{font-family:'Noto Serif SC',serif;font-size:32px;font-weight:900;color:#fff;margin:6px 0}
+  .mock-site .hero h2 em{font-style:normal;color:#ffcc00}
+
+  .mock-ppt{background:#f8f3e6;position:absolute;inset:0;border:8px solid #1a1612}
+  .mock-ppt .frame{position:absolute;inset:12px;border:2px solid #ffcc00;padding:30px;display:flex;flex-direction:column;justify-content:center}
+  .mock-ppt .frame .num{font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:3px;color:#c8552d;font-weight:700}
+  .mock-ppt .frame h2{font-family:'Noto Serif SC',serif;font-size:36px;font-weight:900;color:#1a1612;line-height:1.1;margin-top:10px}
+  .mock-ppt .frame h2 em{font-style:normal;color:#c8552d}
+  .mock-ppt .frame .ind{position:absolute;bottom:14px;right:14px;font-family:'Cormorant Garamond',serif;font-size:10px;color:#7a5a3a;letter-spacing:2px}
+
+  .mock-phone{background:#1a1612;position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+  .mock-phone .ph{width:200px;height:90%;background:#fff;border:8px solid #2a221a;border-radius:24px;position:relative;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.6)}
+  .mock-phone .ph .hero{height:40%;background:linear-gradient(135deg,#0e5267,#c8552d);padding:14px;color:#fff;font-family:'Noto Serif SC',serif}
+  .mock-phone .ph .hero .l{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:2px;opacity:.85}
+  .mock-phone .ph .hero h5{font-size:16px;font-weight:900;margin-top:5px}
+  .mock-phone .ph .list{padding:10px;display:flex;flex-direction:column;gap:6px}
+  .mock-phone .ph .it{padding:7px 10px;background:#f7f1e3;border-left:3px solid #ffcc00;font-size:9px;color:#1a1612}
+
+  .mock-video{background:#0d0a06;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff}
+  .mock-video .play{width:80px;height:80px;background:rgba(255,204,0,.9);border-radius:50%;display:flex;align-items:center;justify-content:center}
+  .mock-video .play::after{content:'';width:0;height:0;border-style:solid;border-width:14px 0 14px 22px;border-color:transparent transparent transparent #1a1612;margin-left:5px}
+  .mock-video .lab{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);font-family:'Cormorant Garamond',serif;font-size:12px;letter-spacing:3px;color:#ffcc00}
+  
+  /* 鼠标光标动画 */
+  @keyframes float{0%,100%{transform:translate(0,0)}50%{transform:translate(-8px,-12px)}}
+  .cursor{position:absolute;width:28px;height:28px;z-index:5;animation:float 2s ease-in-out infinite}
+  .cursor::before{content:'';position:absolute;width:0;height:0;border-style:solid;border-width:14px 8px 0 8px;border-color:#ffcc00 transparent transparent transparent;transform:rotate(-30deg);filter:drop-shadow(0 2px 4px rgba(0,0,0,.6))}
+
+  /* 按键提示 */
+  .keys{display:flex;gap:6px;margin-top:18px}
+  .keys span{padding:6px 12px;background:#2a221a;color:#ffcc00;border:1px solid #ffcc00;font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<a href="评委组打开说明.html" class="back">← 返回评委说明</a>
+<div class="corner">OPERATION GUIDE · 90 SEC</div>
+
+<div class="stage" id="stage">
+
+  <!-- 场景 1: 欢迎 -->
+  <section class="scene active">
+    <div class="inner single">
+      <div class="text" style="text-align:center">
+        <div class="step">SCENE 01 · WELCOME</div>
+        <h2>欢迎评委老师<br>这是一段 <em>90 秒</em>的操作演示</h2>
+        <p>本演示将引导您完成 <strong>5 个关键页面</strong>的浏览路径，<br>看完后您即可独立浏览全部参赛材料。</p>
+        <div class="keys">
+          <span>← 上一页</span>
+          <span>→ 下一页</span>
+          <span>空格 自动播放</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 场景 2: 评委说明页 -->
+  <section class="scene">
+    <div class="inner">
+      <div class="visual">
+        <div class="label">01 / OPENING</div>
+        <div class="browser">
+          <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><div class="url">file:///评委组打开说明.html</div></div>
+          <div class="body" style="background:#f8f3e6;padding:24px;font-family:'Noto Serif SC',serif">
+            <div style="font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:3px;color:#c8552d">FOR THE JURY · OPENING GUIDE</div>
+            <h3 style="font-size:24px;color:#1a1612;font-weight:900;margin:6px 0 14px">68海里 · <em style="font-style:normal;color:#c8552d">两面</em></h3>
+            <div style="padding:12px 16px;background:#1a1612;color:#ffcc00;display:inline-block;font-size:11px;letter-spacing:2px;font-weight:700">▶ 打开产品官网首页</div>
+          </div>
+          <div class="cursor" style="right:120px;top:140px"></div>
+        </div>
+      </div>
+      <div class="text">
+        <div class="step">SCENE 02 · 第一步</div>
+        <h2>双击打开<br><em>评委组打开说明.html</em></h2>
+        <p>打开资料包后，请首先双击文件名为<br><strong>"评委组打开说明.html"</strong> 的文件。</p>
+        <p>这是评委专用的入口页，列出了所有材料的<strong>建议浏览顺序</strong>与一键直达按钮。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 场景 3: 官网 -->
+  <section class="scene">
+    <div class="inner">
+      <div class="visual">
+        <div class="label">02 / WEBSITE</div>
+        <div class="browser">
+          <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><div class="url">file:///index.html</div></div>
+          <div class="body">
+            <div class="mock-site">
+              <div class="nav">
+                <div class="brand">68海里 · <em>两面</em></div>
+                <div class="links"><span>缘起</span><span>蓝眼泪</span><span>PASS卡</span><span>套餐</span><span>AI</span></div>
+                <div class="lang"><span class="on">CN</span><span>EN</span><span>TC</span></div>
+              </div>
+              <div class="hero">
+                <h4>PINGTAN · 2026 · VOL.01</h4>
+                <h2>68海里<br>的<em>两面</em></h2>
+              </div>
+            </div>
+            <div class="cursor" style="right:38px;top:48px"></div>
+          </div>
+        </div>
+      </div>
+      <div class="text">
+        <div class="step">SCENE 03 · 第二步</div>
+        <h2>浏览 <em>产品官网</em><br>支持三语切换</h2>
+        <p>点击 <strong>"打开产品官网首页"</strong> 按钮，进入主站。</p>
+        <p>页面右上角的 <span class="kbd">CN</span><span class="kbd">EN</span><span class="kbd">TC</span> 三个按钮可在<br><strong>简体中文 / English / 繁體中文</strong> 之间实时切换。</p>
+        <p>从首屏的双角色入口，到底部的合作意向，<br>建议浏览约 <strong>3 分钟</strong>，体验完整产品叙事。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 场景 4: 答辩 PPT -->
+  <section class="scene">
+    <div class="inner">
+      <div class="visual">
+        <div class="label">03 / DECK</div>
+        <div class="browser">
+          <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><div class="url">file:///ppt.html</div></div>
+          <div class="body" style="background:#1a1612;padding:14px">
+            <div class="mock-ppt">
+              <div class="frame">
+                <div class="num">CHAPTER · ONE</div>
+                <h2>为什么<br>是<em>我</em></h2>
+                <div class="ind">02 / 24</div>
+              </div>
+            </div>
+            <div class="cursor" style="right:30px;bottom:30px"></div>
+          </div>
+        </div>
+      </div>
+      <div class="text">
+        <div class="step">SCENE 04 · 第三步</div>
+        <h2>翻阅 <em>答辩 PPT</em><br>共 24 页 · 5 分钟</h2>
+        <p>键盘 <span class="kbd">←</span> <span class="kbd">→</span> 或 <span class="kbd">空格</span> 翻页，<br>右下角支持鼠标点击翻页。</p>
+        <p>建议按顺序浏览，从封面 → 故事 → 套餐 →<br>AI 演示 → 财务模型 → 团队意向。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 场景 5: 视频 -->
+  <section class="scene">
+    <div class="inner">
+      <div class="visual">
+        <div class="label">04 / VIDEO</div>
+        <div class="browser">
+          <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><div class="url">file:///video.html</div></div>
+          <div class="body">
+            <div class="mock-video">
+              <div class="play"></div>
+              <div class="lab">▶ 60 SEC · TWO SIDES OF 68 NM</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="text">
+        <div class="step">SCENE 05 · 第四步</div>
+        <h2>观看 <em>60 秒</em><br>产品介绍片</h2>
+        <p>点击中央的播放按钮，即可观看产品分镜介绍片。</p>
+        <p>建议<strong>开启声音</strong>体验完整效果。<br>支持浏览器全屏 (F11) 沉浸观看。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 场景 6: 小程序 -->
+  <section class="scene">
+    <div class="inner">
+      <div class="visual">
+        <div class="label">05 / MINI-APP</div>
+        <div class="browser">
+          <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><div class="url">file:///wxapp_demo.html</div></div>
+          <div class="body">
+            <div class="mock-phone">
+              <div class="ph">
+                <div class="hero">
+                  <div class="l">YUTU · 68</div>
+                  <h5>语途·68</h5>
+                </div>
+                <div class="list">
+                  <div class="it">▷ AI 景点探索</div>
+                  <div class="it">▷ AI 美食推荐</div>
+                  <div class="it">▷ AI 文化体验</div>
+                  <div class="it">▷ AI 行程规划</div>
+                  <div class="it">▷ AI 蓝眼泪雷达</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="text">
+        <div class="step">SCENE 06 · 第五步</div>
+        <h2>体验 <em>小程序</em><br>原型与 AI 演示</h2>
+        <p>小程序模拟了真实的 <strong>「语途·68」</strong> 主界面，<br>包含 6 大智能模块与 PASS 卡核心功能。</p>
+        <p>资料包还包含 3 个独立 AI 演示页：<br>方言翻译器 / VLM 扫描 / 运营大屏。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 场景 7: 结束 -->
+  <section class="scene">
+    <div class="inner single">
+      <div class="text" style="text-align:center">
+        <div class="step">SCENE 07 · 演示结束</div>
+        <h2>感谢您的<br>耐心审阅 <em>·</em> 期待您的反馈</h2>
+        <p>所有材料均可重复浏览，按需切换页面与语言。<br>如有任何问题，请联系作者邮箱（详见官网底部）。</p>
+        <p style="margin-top:30px">
+          <a href="评委组打开说明.html" style="display:inline-block;padding:18px 30px;background:#ffcc00;color:#1a1612;text-decoration:none;font-family:'Noto Serif SC',serif;font-weight:700;font-size:16px;letter-spacing:2px">▶ 返回评委说明页</a>
+          &nbsp;
+          <a href="index.html" style="display:inline-block;padding:18px 30px;background:transparent;color:#ffcc00;text-decoration:none;font-family:'Noto Serif SC',serif;font-weight:700;font-size:16px;letter-spacing:2px;border:1.5px solid #ffcc00">直接进入官网</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="ctrl">
+  <button id="prev">‹</button>
+  <span class="pn"><span id="cur">1</span> / <span id="total">7</span></span>
+  <button id="next">›</button>
+  <button id="play" class="play">▷ 自动播放</button>
+</div>
+
+<script>
+const scenes = document.querySelectorAll('.scene');
+const total = scenes.length;
+document.getElementById('total').textContent = total;
+let idx = 0;
+let timer = null;
+function show(n){
+  idx = (n + total) % total;
+  scenes.forEach((s,i)=>s.classList.toggle('active', i===idx));
+  document.getElementById('cur').textContent = idx + 1;
+  document.getElementById('progress').style.width = ((idx+1)/total*100) + '%';
+}
+function next(){ show(idx + 1); }
+function prev(){ show(idx - 1); }
+document.getElementById('next').onclick = next;
+document.getElementById('prev').onclick = prev;
+document.addEventListener('keydown', e=>{
+  if (e.key === 'ArrowRight') next();
+  if (e.key === 'ArrowLeft') prev();
+  if (e.key === ' '){ e.preventDefault(); togglePlay(); }
+});
+function togglePlay(){
+  const btn = document.getElementById('play');
+  if (timer){ clearInterval(timer); timer=null; btn.textContent = '▷ 自动播放'; }
+  else { timer = setInterval(()=>{ if (idx === total-1){ clearInterval(timer); timer=null; btn.textContent='▷ 自动播放'; return; } next(); }, 13000); btn.textContent = '❚❚ 暂停'; }
+}
+document.getElementById('play').onclick = togglePlay;
+// 默认自动播放
+setTimeout(togglePlay, 800);
+show(0);
+</script>
+</body>
+</html>

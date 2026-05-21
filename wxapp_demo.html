@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>68海里 · 小程序现场体验</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;700&family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{--paper:#f8f3e6;--ink:#1a1612;--ng-yellow:#ffcc00;--terracotta:#c8552d;--teal:#0e5267;--sepia:#7a5a3a;--sand:#d9c9a8}
+  body{background:var(--paper);font-family:'Noto Sans SC',sans-serif;color:var(--ink);min-height:100vh;padding:30px}
+  .nav-back{background:var(--ink);color:var(--ng-yellow);border:1.5px solid var(--ink);padding:8px 16px;font-size:12px;letter-spacing:2px;text-decoration:none;font-family:'Cormorant Garamond',serif;font-weight:600}
+  .nav-back:hover{background:var(--ng-yellow);color:var(--ink)}
+
+  .top{max-width:1280px;margin:30px auto 30px;padding-bottom:20px;border-bottom:2px solid var(--ink);text-align:center}
+  .top .en{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;letter-spacing:5px;color:var(--terracotta);margin-bottom:8px}
+  .top h1{font-family:'Noto Serif SC',serif;font-size:38px;font-weight:900}
+  .top h1 em{font-style:normal;color:var(--terracotta)}
+  .top p{font-size:14px;color:var(--sepia);margin-top:8px}
+
+  .stage{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:330px 1fr;gap:30px;align-items:flex-start}
+
+  /* 手机展示区 */
+  .phone-wrap{position:sticky;top:30px}
+  .phone{width:300px;height:610px;background:#fff;border:10px solid #1a1612;border-radius:42px;box-shadow:0 25px 60px rgba(0,0,0,.25);overflow:hidden;position:relative;margin:0 auto}
+  .phone .notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:100px;height:24px;background:#1a1612;border-radius:0 0 16px 16px;z-index:50}
+  .phone-scr{position:absolute;inset:0;display:flex;flex-direction:column;font-size:12px;background:var(--paper);overflow:hidden}
+  .phone-bar{height:32px;background:var(--paper);display:flex;justify-content:space-between;align-items:center;padding:0 18px;font-size:11px;color:#666;font-weight:600;flex-shrink:0}
+  .phone-hero{background:linear-gradient(135deg,#0e5267,#c8552d);color:#fff;padding:14px 16px 14px;flex-shrink:0}
+  .phone-hero .lg{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:3px;opacity:.85}
+  .phone-hero h2{font-family:'Noto Serif SC',serif;font-size:18px;font-weight:900;margin-top:4px;line-height:1.2}
+  .phone-hero h2 em{font-style:normal;color:#ffcc00}
+  .phone-content{flex:1;overflow-y:auto;padding:12px;background:var(--paper)}
+  .phone-foot{height:46px;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;align-items:center;font-size:9px;color:#999;padding-top:5px;flex-shrink:0}
+  .phone-foot div{text-align:center;line-height:1.3}
+  .phone-foot div.act{color:var(--terracotta);font-weight:700}
+  .phone-foot div .ico{font-size:14px;display:block}
+
+  /* 用户消息+AI回复 */
+  .msg-user{background:#fff;border-radius:12px 12px 2px 12px;padding:10px 12px;margin:8px 0 8px 30px;font-size:11px;line-height:1.55;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.04);border:1px solid var(--sand);position:relative}
+  .msg-user::after{content:'';position:absolute;right:-8px;top:8px;border-style:solid;border-width:6px 0 6px 8px;border-color:transparent transparent transparent #fff}
+  .msg-ai{background:linear-gradient(135deg,#1a1612,#0e5267);color:#fff;border-radius:12px 12px 12px 2px;padding:11px 13px;margin:8px 30px 8px 0;font-size:11px;line-height:1.6;position:relative;box-shadow:0 4px 12px rgba(0,0,0,.18)}
+  .msg-ai::before{content:'AI';position:absolute;left:-22px;top:0;width:18px;height:18px;background:var(--ng-yellow);color:var(--ink);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;border-radius:50%;font-family:'Cormorant Garamond',serif}
+  .msg-ai strong{color:#ffcc00;font-weight:700}
+  .msg-ai .card-list{margin-top:8px;display:grid;gap:5px}
+  .msg-ai .card-it{background:rgba(255,255,255,.1);border-left:2px solid #ffcc00;padding:6px 8px;border-radius:0 4px 4px 0;font-size:10.5px}
+  .msg-ai .card-it strong{color:#ffcc00;display:block;margin-bottom:2px}
+  .msg-ai .card-it small{color:#d9c9a8;font-size:9.5px}
+  .msg-ai .price-row{margin-top:6px;padding-top:6px;border-top:1px dashed rgba(255,255,255,.25);display:flex;justify-content:space-between;align-items:center;font-size:10.5px}
+  .msg-ai .price-row strong{color:#ffcc00;font-family:'Cormorant Garamond',serif;font-size:14px}
+
+  .typing-indicator{display:inline-block}
+  .typing-indicator span{display:inline-block;width:5px;height:5px;background:#ffcc00;border-radius:50%;margin:0 1px;animation:typing 1.4s infinite}
+  .typing-indicator span:nth-child(2){animation-delay:.2s}
+  .typing-indicator span:nth-child(3){animation-delay:.4s}
+  @keyframes typing{0%,60%,100%{opacity:.3}30%{opacity:1}}
+
+  .phone-input{padding:8px 12px;background:#fff;border-top:1px solid #eee;display:flex;gap:6px;align-items:center;flex-shrink:0}
+  .phone-input input{flex:1;border:1px solid var(--sand);background:var(--paper);padding:7px 10px;font-size:11px;border-radius:18px;outline:none;font-family:inherit}
+  .phone-input button{background:var(--terracotta);color:#fff;border:none;padding:7px 12px;font-size:11px;border-radius:18px;cursor:pointer;font-weight:600}
+
+  /* 右侧操作面板 */
+  .panel{padding:0}
+  .panel h2{font-family:'Noto Serif SC',serif;font-size:24px;margin-bottom:6px;font-weight:700}
+  .panel h2 em{font-style:normal;color:var(--terracotta)}
+  .panel .pdesc{color:var(--sepia);font-size:13px;margin-bottom:18px;line-height:1.7}
+
+  /* 预设指令 */
+  .preset-section{background:#fff;border:1.5px solid var(--sand);border-left:5px solid var(--ng-yellow);padding:18px 20px;margin-bottom:14px}
+  .preset-section h3{font-family:'Noto Serif SC',serif;font-size:16px;color:var(--terracotta);margin-bottom:10px}
+  .preset-section .hint{font-size:11.5px;color:var(--sepia);margin-bottom:10px}
+  .preset-list{display:flex;flex-wrap:wrap;gap:8px}
+  .preset{padding:8px 14px;background:var(--paper);border:1px solid var(--sand);font-size:12px;color:var(--ink);cursor:pointer;transition:all .2s;border-radius:18px}
+  .preset:hover{background:var(--ink);color:var(--ng-yellow);border-color:var(--ink)}
+
+  /* 自定义输入 */
+  .custom-area{background:#1a1612;color:#fff;padding:18px 20px;border:1.5px solid var(--ink)}
+  .custom-area h3{font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:3px;color:var(--ng-yellow);margin-bottom:8px;font-weight:700}
+  .custom-area textarea{width:100%;min-height:80px;background:rgba(255,255,255,.06);color:#fff;border:1px solid #3a342b;padding:10px;font-size:13px;font-family:inherit;resize:vertical;outline:none;border-radius:4px}
+  .custom-area textarea:focus{border-color:var(--ng-yellow)}
+  .custom-area button{margin-top:10px;background:var(--ng-yellow);color:var(--ink);border:none;padding:10px 22px;font-size:12px;letter-spacing:2px;font-weight:700;font-family:'Cormorant Garamond',serif;cursor:pointer}
+  .custom-area button:hover{background:#fff}
+  .custom-area .stip{font-size:11px;color:#888;margin-top:8px;line-height:1.6;font-family:'Cormorant Garamond',serif;font-style:italic}
+
+  /* 切换标签 */
+  .tabs{display:flex;gap:8px;margin-bottom:14px}
+  .tab{padding:8px 16px;background:#fff;border:1.5px solid var(--sand);font-size:12px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-weight:600;letter-spacing:1px}
+  .tab.active{background:var(--ink);color:var(--ng-yellow);border-color:var(--ink)}
+
+  @media (max-width:900px){
+    .stage{grid-template-columns:1fr}
+    .phone-wrap{position:static}
+  }
+
+  /* ===== 智能定制路线地图 ===== */
+  .route-map{margin-top:8px;background:linear-gradient(180deg,#0e5267,#1a1612);border-radius:6px;padding:10px;position:relative;overflow:hidden}
+  .route-map::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle at 30% 40%,rgba(255,204,0,.06) 0%,transparent 60%),radial-gradient(circle at 75% 70%,rgba(200,85,45,.05) 0%,transparent 50%);pointer-events:none}
+  .route-map .map-title{font-size:9.5px;color:#ffcc00;letter-spacing:2px;font-family:'Cormorant Garamond',serif;font-weight:700;margin-bottom:4px;text-align:center}
+  .route-svg{width:100%;height:auto;display:block}
+  .day-list{margin-top:6px;display:grid;gap:5px}
+  .day-item{background:rgba(255,255,255,.05);border-left:2px solid #ffcc00;padding:5px 8px;border-radius:0 3px 3px 0;font-size:10px;line-height:1.5}
+  .day-item .day-tag{color:#ffcc00;font-weight:700;font-size:10px;font-family:'Cormorant Garamond',serif;letter-spacing:1px}
+  .day-item .day-title{color:#fff;font-weight:600;display:block;margin:1px 0}
+  .day-item .day-detail{color:#d9c9a8;font-size:9.5px}
+  .budget-bar{margin-top:6px;background:rgba(0,0,0,.3);border-radius:3px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center;font-size:10px}
+  .budget-bar small{color:#d9c9a8;font-size:9.5px}
+  .budget-bar strong{color:#ffcc00;font-family:'Cormorant Garamond',serif;font-size:13px}
+  .pkg-tip{margin-top:6px;background:rgba(255,204,0,.08);border:1px dashed #ffcc00;padding:6px 8px;font-size:10px;color:#ffcc00;border-radius:3px;line-height:1.5}
+  .pkg-tip strong{color:#fff}
+
+
+  /* ===== 小程序四大页面：首页/地图/蓝朋友/我的 ===== */
+  .phone-foot div{cursor:pointer;user-select:none;min-width:48px}
+  .home-card{background:#fff;border:1px solid var(--sand);border-left:3px solid var(--ng-yellow);border-radius:10px;padding:10px;margin-bottom:9px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+  .home-card h3{font-family:'Noto Serif SC',serif;font-size:14px;color:var(--terracotta);margin-bottom:5px;line-height:1.35}
+  .home-card p{font-size:10.5px;color:var(--sepia);line-height:1.55;margin:0}
+  .home-card .mini-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+  .mini-btn{border:1px solid var(--sand);background:var(--paper);border-radius:14px;padding:5px 8px;font-size:10px;color:var(--ink);cursor:pointer}
+  .mini-btn.hot{background:var(--ink);color:var(--ng-yellow);border-color:var(--ink)}
+  .forum-post{background:#fff8d8;border:1px dashed var(--ng-yellow);padding:8px;border-radius:8px;margin-top:6px;font-size:10px;line-height:1.5;color:var(--ink)}
+  .map-panel{background:linear-gradient(180deg,#0e5267,#1a1612);color:#fff;border-radius:12px;padding:12px;min-height:360px;position:relative;overflow:hidden}
+  .map-panel::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 45%,rgba(255,204,0,.14),transparent 35%),radial-gradient(circle at 80% 70%,rgba(200,85,45,.12),transparent 40%);pointer-events:none}
+  .mini-map{position:relative;height:210px;border:1px solid rgba(255,204,0,.35);border-radius:10px;overflow:hidden;background:#082f3d;margin:8px 0 10px}
+  .mini-map svg{width:100%;height:100%;display:block}
+  .poi-dot{position:absolute;width:12px;height:12px;border-radius:50%;background:#ffcc00;border:2px solid #1a1612;box-shadow:0 0 14px #ffcc00}
+  .poi-dot.me{background:#c8552d;width:14px;height:14px;animation:pulse 1.6s infinite}
+  @keyframes pulse{50%{transform:scale(1.25)}}
+  .map-info{position:relative;z-index:2;background:rgba(255,255,255,.08);border-left:2px solid #ffcc00;padding:7px 9px;border-radius:0 6px 6px 0;margin-top:7px;font-size:10px;line-height:1.55;color:#d9c9a8}
+  .profile-top{background:linear-gradient(135deg,#1a1612,#0e5267);color:#fff;border-radius:12px;padding:14px;text-align:center;margin-bottom:10px}
+  .avatar{width:64px;height:64px;border-radius:50%;background:#ffcc00;color:#1a1612;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;overflow:hidden;border:3px solid rgba(255,255,255,.8);cursor:pointer}
+  .avatar img{width:100%;height:100%;object-fit:cover}
+  .profile-form{display:grid;gap:8px}.profile-form input{border:1px solid var(--sand);background:#fff;border-radius:8px;padding:7px 9px;font-size:11px;outline:none}
+  .benefit{background:#fff;border:1px solid var(--sand);padding:9px;border-radius:9px;margin-top:8px;font-size:10px;line-height:1.55;color:var(--sepia)}
+  .benefit strong{color:var(--terracotta)}
+  .quick-qs{display:grid;gap:6px;margin-top:8px}.qchip{background:rgba(255,204,0,.12);border:1px solid rgba(255,204,0,.5);color:#ffcc00;border-radius:18px;padding:6px 9px;font-size:10px;text-align:left;cursor:pointer;line-height:1.4}.qchip:hover{background:#ffcc00;color:#1a1612}.shuffle{background:transparent;border:1px dashed #ffcc00;color:#ffcc00;border-radius:16px;padding:5px 8px;font-size:10px;cursor:pointer;justify-self:start}
+
+</style>
+</head>
+<body>
+
+<div class="nav-back-wrap" style="position:fixed;top:20px;left:20px;z-index:99;display:flex;gap:8px">
+  <a class="nav-back" href="javascript:window.location.href='ppt.html#slide-'+(parseInt(localStorage.getItem('ppt_last_slide')||'0',10)+1)">← 返回 PPT</a>
+  <a class="nav-back" href="index.html" style="background:transparent;color:#1a1612">网站首页</a>
+</div>
+
+<div class="top">
+  <div class="en">WECHAT MINI-PROGRAM · LIVE INTERACTION DEMO</div>
+  <h1>「68海里」<em>小程序</em>现场体验</h1>
+  <p>输入旅行需求 · AI 实时返回个性化推荐 · 适合现场答辩演示</p>
+</div>
+
+<div class="stage">
+
+  <!-- 左侧手机 -->
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="phone-scr">
+        <div class="phone-bar"><span>9:24</span><span>●●● 100%</span></div>
+        <div class="phone-hero">
+          <div class="lg">YUTU·68 · AI 蓝朋友</div>
+          <h2>你好，旅人 <em>·</em><br>说说你的需求</h2>
+        </div>
+        <div class="phone-content" id="chatArea">
+          <div class="msg-ai">
+            👋 我是「AI 蓝朋友」，可以帮你规划平潭行程、推荐民宿苍蝇小馆、翻译方言、预测今晚蓝眼泪。
+            <br><br>试试右侧预设指令，或直接问我：1万元6天带父母怎么玩？
+          </div>
+        </div>
+        <div class="phone-input">
+          <input type="text" id="chatInput" placeholder="如：1万元想跟父母玩6天" />
+          <button onclick="sendMsg()">发送</button>
+        </div>
+        <div class="phone-foot">
+          <div class="phone-tab" data-page="home" onclick="switchPhoneTab('home')"><span class="ico">⌂</span>首页</div>
+          <div class="phone-tab" data-page="map" onclick="switchPhoneTab('map')"><span class="ico">◌</span>地图</div>
+          <div class="phone-tab act" data-page="chat" onclick="switchPhoneTab('chat')"><span class="ico">A</span>蓝朋友</div>
+          <div class="phone-tab" data-page="me" onclick="switchPhoneTab('me')"><span class="ico">☰</span>我的</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 右侧面板 -->
+  <div class="panel">
+    <h2>现场<em>互动演示</em></h2>
+    <p class="pdesc">说出预算+天数+人数+偏好，AI 蓝朋友 1.2 秒生成<strong>定制路线 + 旅游地图 + 预算分配</strong>。套餐建议作为可选辅助。</p>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab(0)">行程规划</div>
+      <div class="tab" onclick="switchTab(1)">方言翻译</div>
+      <div class="tab" onclick="switchTab(2)">蓝眼泪预测</div>
+      <div class="tab" onclick="switchTab(3)">民宿小馆</div>
+    </div>
+
+    <!-- Tab 0 行程规划 -->
+    <div class="tab-panel" id="tab0">
+      <div class="preset-section">
+        <h3>① 个性化定制路线</h3>
+        <div class="hint">说出预算+天数+人数+偏好 → AI 自动生成<strong>每日动线 + 旅游地图 + 预算分配</strong>。套餐仅作为可选辅助。</div>
+        <div class="preset-list">
+          <div class="preset" data-cmd="trip-custom-1">我和父母 1 万元想玩 6 天</div>
+          <div class="preset" data-cmd="trip-custom-2">情侣 5000 元 4 天 想看蓝眼泪</div>
+          <div class="preset" data-cmd="trip-custom-3">学生党 2 天 800 元</div>
+          <div class="preset" data-cmd="trip-custom-4">摄影师 4 天 想出片</div>
+          <div class="preset" data-cmd="trip-custom-5">3 天 1500 元 喜欢小众文化深度</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 1 翻译 -->
+    <div class="tab-panel" id="tab1" style="display:none">
+      <div class="preset-section">
+        <h3>② 方言情绪翻译</h3>
+        <div class="hint">基于闽东语·福州语系真实语料，AI 输出情绪化意译 + 罗马拼音 + 普通话译文</div>
+        <div class="preset-list">
+          <div class="preset" data-cmd="dial-1">虾倒未？（平潭话渔港问候）</div>
+          <div class="preset" data-cmd="dial-2">猪一嘎重腕（平潭话本地俗语）</div>
+          <div class="preset" data-cmd="dial-3">风那么野，厝就要会站直（石厝美学）</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2 蓝眼泪 -->
+    <div class="tab-panel" id="tab2" style="display:none">
+      <div class="preset-section">
+        <h3>③ 蓝眼泪预测</h3>
+        <div class="hint">综合气象、潮汐、水温、风向数据，AI 实时预测今晚出现概率</div>
+        <div class="preset-list">
+          <div class="preset" data-cmd="blue-1">今晚蓝眼泪概率？</div>
+          <div class="preset" data-cmd="blue-2">明天适合追泪点位</div>
+          <div class="preset" data-cmd="blue-3">5 天概率趋势</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 3 民宿小馆 -->
+    <div class="tab-panel" id="tab3" style="display:none">
+      <div class="preset-section">
+        <h3>④ 民宿+苍蝇小馆推荐</h3>
+        <div class="hint">基于翻台率 + 本地评分 + 距离 AI 排序，避开网红坑</div>
+        <div class="preset-list">
+          <div class="preset" data-cmd="local-1">北港村方言深度民宿</div>
+          <div class="preset" data-cmd="local-2">本地人最爱的海鲜小馆</div>
+          <div class="preset" data-cmd="local-3">猴研岛附近黄昏摄影点</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 自定义输入 -->
+    <div class="custom-area" style="margin-top:18px">
+      <h3>SELF-DEFINE QUERY · 自定义提问</h3>
+      <textarea id="customQuery" placeholder="试试：5000 元 4 天 情侣 想看蓝眼泪 / 摄影师 6 天 想出片 / 我和父母 1 万元玩 5 天"></textarea>
+      <button onclick="sendCustom()">▶ 发送给 AI 蓝朋友</button>
+      <div class="stip">现场可让评委或观众即兴提问 · AI 会基于关键词智能匹配返回结果</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const chatArea = document.getElementById('chatArea');
+const chatInput = document.getElementById('chatInput');
+
+let currentPhonePage = 'chat';
+let chatHTMLCache = chatArea.innerHTML;
+const questionPool = [
+  '我有 5000 元，和朋友玩 4 天，想看蓝眼泪',
+  '带父母 6 天怎么玩，能不能少走路？',
+  '从上海到平潭怎么安排交通和住宿？',
+  '情侣 3 天想拍照出片，怎么走？',
+  '学生党 2 天 800 元，有什么路线？',
+  '今晚蓝眼泪概率怎么样？',
+  '北港村有哪些民宿和本地小馆？',
+  '我想了解平潭方言和石厝文化'
+];
+function setHero(title, sub='YUTU·68 · AI 蓝朋友'){
+  document.querySelector('.phone-hero .lg').textContent = sub;
+  document.querySelector('.phone-hero h2').innerHTML = title;
+}
+function updateFoot(page){
+  document.querySelectorAll('.phone-tab').forEach(t=>t.classList.toggle('act', t.dataset.page===page));
+}
+function switchPhoneTab(page){
+  if (currentPhonePage === 'chat') chatHTMLCache = chatArea.innerHTML;
+  currentPhonePage = page; updateFoot(page);
+  document.querySelector('.phone-input').style.display = page === 'chat' ? 'flex' : 'none';
+  if (page === 'home') renderHome();
+  if (page === 'map') renderMap();
+  if (page === 'chat') renderChat();
+  if (page === 'me') renderMe();
+}
+function renderHome(){
+  setHero('首页 <em>·</em><br>今日平潭推荐', '68NM · 首页');
+  chatArea.innerHTML = `
+    <div class="home-card"><h3>主推路线</h3><p>3 天 2 夜「两面漫游」：龙凤头海滨、北港石厝、猴研岛、蓝眼泪夜场。</p><div class="mini-row"><button class="mini-btn hot" onclick="askSuggestion('3 天 1500 元 喜欢小众文化深度')">让 AI 规划</button><button class="mini-btn" onclick="switchPhoneTab('chat')">问蓝朋友</button></div></div>
+    <div class="home-card"><h3>文旅产品</h3><p>通行 PASS 卡、漫游护照、海风黑胶、AI 情绪明信片、压仓石文镇。</p><div class="mini-row"><button class="mini-btn" onclick="askSuggestion('通行 PASS 卡有什么优惠？')">PASS 卡</button><button class="mini-btn" onclick="askSuggestion('有哪些文创产品适合送朋友？')">文创推荐</button></div></div>
+    <div class="home-card"><h3>当地热点</h3><p>蓝眼泪追泪窗口、北港村台青咖啡、海坛古城非遗夜场、长江澳风车田。</p><div class="mini-row"><button class="mini-btn" onclick="askSuggestion('今晚蓝眼泪概率怎么样？')">追泪</button><button class="mini-btn" onclick="askSuggestion('平潭最近有什么本地特色玩法？')">换玩法</button></div></div>
+    <div class="home-card"><h3>旅人论坛</h3><p>游客可讨论追泪实况、民宿体验、本地小馆和路线避坑。</p><div class="forum-post">@海边小林：昨晚龙凤头风大，猴研岛更适合长曝光。</div><div class="forum-post">@阿鱼：北港村石厝民宿建议提前两周订。</div><div class="mini-row"><button class="mini-btn hot" onclick="alert('演示版：正式小程序将接入登录后发帖功能')">发布讨论</button></div></div>`;
+}
+function renderMap(){
+  setHero('地图 <em>·</em><br>定位与附近推荐', '68NM · 智能地图');
+  chatArea.innerHTML = `
+    <div class="map-panel">
+      <div style="position:relative;z-index:2;font-family:'Noto Serif SC',serif;font-size:15px;font-weight:900;color:#ffcc00">平潭实时旅行地图</div>
+      <div style="position:relative;z-index:2;font-size:10px;color:#d9c9a8;margin-top:3px">需授权定位后，系统才会读取当前位置。</div>
+      <div class="mini-map" id="miniMap">
+        <svg viewBox="0 0 260 210"><path d="M35 20 Q90 10 150 34 T230 54 Q242 110 218 165 Q170 205 90 188 Q25 165 22 96 Q20 52 35 20Z" fill="rgba(255,204,0,.08)" stroke="rgba(255,204,0,.35)" stroke-dasharray="4 3"/><ellipse cx="150" cy="120" rx="48" ry="34" fill="rgba(255,204,0,.10)" stroke="#ffcc00"/><path d="M45 45 C90 70 112 120 150 120 S205 148 222 168" fill="none" stroke="#ffcc00" stroke-width="1.8" stroke-dasharray="5 4"/></svg>
+        <span class="poi-dot" style="left:138px;top:112px" title="平潭岛"></span><span class="poi-dot" style="left:196px;top:158px" title="猴研岛"></span><span class="poi-dot" style="left:108px;top:128px" title="北港村"></span><span class="poi-dot" style="left:150px;top:154px" title="龙凤头"></span>
+      </div>
+      <button class="mini-btn hot" onclick="requestLocation()">授权定位并推荐附近点位</button>
+      <div class="map-info" id="locInfo">尚未授权定位。你也可以直接问：我在龙凤头附近怎么玩？</div>
+      <div class="map-info"><strong style="color:#ffcc00">附近默认推荐</strong><br>① 龙凤头海滨：黄昏散步 / ② 北港村：石厝咖啡 / ③ 猴研岛：日落与两岸坐标 / ④ 海坛古城：非遗夜场</div>
+    </div>`;
+}
+function requestLocation(){
+  const box = document.getElementById('locInfo');
+  if (!navigator.geolocation){ box.innerHTML='当前浏览器不支持定位。可手动输入你所在位置，例如：我在龙凤头附近。'; return; }
+  box.innerHTML='正在请求定位授权……';
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const {latitude, longitude} = pos.coords;
+    const map = document.getElementById('miniMap');
+    if (map && !map.querySelector('.poi-dot.me')) map.insertAdjacentHTML('beforeend','<span class="poi-dot me" style="left:130px;top:96px" title="我的位置"></span>');
+    box.innerHTML = `<strong style="color:#ffcc00">已获取当前位置</strong><br>纬度 ${latitude.toFixed(4)}，经度 ${longitude.toFixed(4)}。<br>建议：先查看附近海风与潮汐，再选择龙凤头/猴研岛/北港村路线。`;
+  }, err=>{
+    box.innerHTML = '你暂未授权定位。为了保护隐私，系统不会继续读取位置；你可以手动输入“我在某某景点附近”。';
+  }, {enableHighAccuracy:true, timeout:8000});
+}
+function renderChat(){
+  setHero('你好，旅人 <em>·</em><br>说说你的需求', 'YUTU·68 · AI 蓝朋友');
+  chatArea.innerHTML = chatHTMLCache;
+  chatArea.scrollTop = chatArea.scrollHeight;
+}
+function renderMe(){
+  setHero('我的 <em>·</em><br>会员与生日福利', '68NM · 我的');
+  chatArea.innerHTML = `
+    <div class="profile-top"><div class="avatar" id="avatarBox" onclick="document.getElementById('avatarInput').click()">+</div><strong>点击上传头像</strong><br><span style="font-size:10px;color:#d9c9a8">注册后可领取会员专属福利</span></div>
+    <input id="avatarInput" type="file" accept="image/*" style="display:none" onchange="uploadAvatar(event)">
+    <div class="profile-form"><input id="nickName" placeholder="昵称，如：海边旅人"><input id="birthday" type="date"><input id="city" placeholder="常住城市，如：上海"></div>
+    <button class="mini-btn hot" style="margin-top:8px" onclick="saveProfile()">保存资料</button>
+    <div class="benefit"><strong>生日神秘礼</strong><br>若生日信息与本人证件一致，可在合作咖啡馆/文创店领取神秘小礼品。该福利仅限注册用户，每年一次。</div>
+    <div class="benefit"><strong>我的资产</strong><br>漫游护照 0 枚章 · PASS 卡未开通 · AI 明信片 0 张 · 论坛发帖 0 条</div>`;
+  const saved = localStorage.getItem('68nm_avatar');
+  if (saved) document.getElementById('avatarBox').innerHTML = `<img src="${saved}">`;
+}
+
+function uploadAvatar(e){
+  const file = e.target.files && e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => { document.getElementById('avatarBox').innerHTML = `<img src="${ev.target.result}">`; localStorage.setItem('68nm_avatar', ev.target.result); };
+  reader.readAsDataURL(file);
+}
+function saveProfile(){
+  const name = document.getElementById('nickName').value || '海边旅人';
+  const birthday = document.getElementById('birthday').value || '未填写';
+  const city = document.getElementById('city').value || '未填写';
+  localStorage.setItem('68nm_profile', JSON.stringify({name,birthday,city}));
+  alert('资料已保存。若生日与证件一致，到店可领取神秘小礼品。');
+}
+function renderQuestionSuggestions(){
+  const shuffled = questionPool.slice().sort(()=>Math.random()-.5).slice(0,4);
+  return `<div class="quick-qs">${shuffled.map(q=>`<button class="qchip" onclick="askSuggestion('${q.replace(/'/g,'\\\'')}')">${q}</button>`).join('')}<button class="shuffle" onclick="shuffleSuggestions(this)">换一换</button></div>`;
+}
+function askSuggestion(q){
+  switchPhoneTab('chat');
+  chatInput.value = q;
+  sendMsg();
+}
+function shuffleSuggestions(btn){
+  const wrap = btn.closest('.quick-qs');
+  if (wrap) wrap.outerHTML = renderQuestionSuggestions();
+}
+
+// AI 回复模板库
+const RESPONSES = {
+  // 行程规划
+  'trip-1': {
+    user: '我有 3 天 1500 元预算，喜欢小众文化深度，不爱网红打卡',
+    ai: `<strong>已为你定制 · 3 天 2 夜·B 档「两面漫游」</strong>
+<div class="card-list">
+<div class="card-it"><strong>Day 1 · 福州→平潭</strong><small>下午抵达 · 北港村石厝民宿入住 · 渔港晚餐</small></div>
+<div class="card-it"><strong>Day 2 · 深度日</strong><small>猴研岛日出 · 东海仙境讲解 · 海坛古城非遗夜场</small></div>
+<div class="card-it"><strong>Day 3 · 蓝眼泪</strong><small>方言田野调查 · 长江澳风车田 · 夜钓海鲜烹饪</small></div>
+</div>
+<div class="price-row"><span>套餐总价（含 PASS 卡）</span><strong>¥1,380</strong></div>`
+  },
+  'trip-2': {
+    user: '5 天 3000 元，上海出发，希望联动福州',
+    ai: `<strong>「68 海里 PLUS」海西联动 5 日</strong>
+<div class="card-list">
+<div class="card-it"><strong>D0 · 上海→福州</strong><small>下午高铁 G1637 · 三坊七巷夜游 · 福州话田野</small></div>
+<div class="card-it"><strong>D1-3 · 平潭主线</strong><small>B 档套餐：石厝/猴研岛/蓝眼泪/作者讲解</small></div>
+<div class="card-it"><strong>D4 · 泉州延伸</strong><small>蟳埔簪花 · 闽南语对照 · 海丝起点</small></div>
+<div class="card-it"><strong>D5 · 返程</strong><small>厦门动车回沪 · 《田野手账》定制邮寄到家</small></div>
+</div>
+<div class="price-row"><span>含交通+住宿+导览</span><strong>¥2,880</strong></div>`
+  },
+  'trip-3': {
+    user: '2 天 800 元，学生党想看蓝眼泪',
+    ai: `<strong>A 档·声音地图日 + 加购蓝眼泪夜场</strong>
+<div class="card-list">
+<div class="card-it"><strong>Day 1 白天</strong><small>北港村咖啡 · 海坛古城 · 渔港早市</small></div>
+<div class="card-it"><strong>Day 1 夜</strong><small>蓝眼泪雷达开启 · 实时定位适合点位</small></div>
+<div class="card-it"><strong>Day 2</strong><small>东海仙境 · 沙雕节 · 龙凤头海滨</small></div>
+</div>
+<div class="price-row"><span>A 档 + ¥99 PASS 卡 + 民宿</span><strong>¥588</strong></div>
+温馨提示：若蓝眼泪未现，自动派发四选一补偿券。`
+  },
+  // 方言
+  'dial-1': {
+    user: '虾倒未？（平潭话）',
+    ai: `<strong>📖 平潭话翻译</strong>
+<div class="card-list">
+<div class="card-it"><strong>原音</strong><small>hâ tô bǒi（罗马拼音）</small></div>
+<div class="card-it"><strong>普通话直译</strong><small>吃饭了吗？</small></div>
+<div class="card-it" style="border-left-color:#c8552d"><strong>★ 情绪意译</strong><small>"渔港很常见的问候——闽东语保留古汉语'虾'指代'食物'，是有海腥气的招呼"</small></div>
+</div>
+<div class="price-row"><span>是否生成情绪明信片？</span><strong>¥39</strong></div>`
+  },
+  'dial-2': {
+    user: '猪一嘎重腕（平潭话）',
+    ai: `<strong>📖 平潭话翻译</strong>
+<div class="card-list">
+<div class="card-it"><strong>原音</strong><small>tṳ siŏh kă dṳ̆ng uōng（福州语系）</small></div>
+<div class="card-it"><strong>普通话直译</strong><small>这猪有点重</small></div>
+<div class="card-it" style="border-left-color:#c8552d"><strong>★ 情绪意译</strong><small>"老一辈用来夸赞牲畜成色，背后是平潭海岛农耕的真实节奏"</small></div>
+</div>
+<div class="price-row"><span>该词条可发布到田野手账</span><strong>免费</strong></div>`
+  },
+  'dial-3': {
+    user: '风那么野，厝就要会站直',
+    ai: `<strong>📖 石厝建筑现象学注解</strong>
+<div class="card-list">
+<div class="card-it"><strong>字面</strong><small>风这么野，房子要站得直</small></div>
+<div class="card-it" style="border-left-color:#c8552d"><strong>★ 文化解读</strong><small>"压顶碎石不只是装饰——是百年与 12 级台风对话的方法论"</small></div>
+<div class="card-it"><strong>VLM 识别建议</strong><small>扫描北港村花岗岩石墙 → AR 受力模拟</small></div>
+</div>
+<div class="price-row"><span>压仓石文镇</span><strong>¥98</strong></div>`
+  },
+  // 蓝眼泪
+  'blue-1': {
+    user: '今晚蓝眼泪概率？',
+    ai: `<strong>🌊 蓝眼泪预测 · 今晚 22:00-01:00</strong>
+<div class="card-list">
+<div class="card-it" style="border-left-color:#ffcc00"><strong>综合概率 72%</strong><small>气象/潮汐/水温/风向加权</small></div>
+<div class="card-it"><strong>适合点位</strong><small>① 猴研岛海域（涨潮+南风）<br>② 龙凤头海滨（次选）</small></div>
+<div class="card-it"><strong>建议时段</strong><small>22:30-23:30 高峰窗口</small></div>
+</div>
+<div class="price-row"><span>已有 23 位旅人上报实况</span><strong>实时刷新</strong></div>`
+  },
+  'blue-2': {
+    user: '明天适合追泪点位',
+    ai: `<strong>🌊 明日预测 · 概率 58%</strong>
+<div class="card-list">
+<div class="card-it"><strong>主推点位</strong><small>东海仙境海蚀洞口（夜间洋流活跃）</small></div>
+<div class="card-it"><strong>备选</strong><small>北港村石厝码头</small></div>
+<div class="card-it"><strong>风险提示</strong><small>明天预计阵风 7 级，请注意安全</small></div>
+</div>
+<div class="price-row"><span>夜钓船预约（持 PASS 卡 9 折）</span><strong>¥180</strong></div>`
+  },
+  'blue-3': {
+    user: '5 天概率趋势',
+    ai: `<strong>🌊 5 日概率趋势预报</strong>
+<div class="card-list">
+<div class="card-it"><strong>5/22 周四</strong><small>72% · 强烈推荐</small></div>
+<div class="card-it"><strong>5/23 周五</strong><small>58% · 较好</small></div>
+<div class="card-it"><strong>5/24 周六</strong><small>34% · 一般 · 触发盲盒保险概率高</small></div>
+<div class="card-it"><strong>5/25 周日</strong><small>22% · 大概率拿到补偿券</small></div>
+<div class="card-it"><strong>5/26 周一</strong><small>65% · 反弹</small></div>
+</div>
+<div class="price-row"><span>建议预订 5/22-5/24 行程</span><strong>立即预订</strong></div>`
+  },
+  // 民宿小馆
+  'local-1': {
+    user: '北港村方言深度民宿',
+    ai: `<strong>🏠 已基于"方言沉浸度"AI 排序</strong>
+<div class="card-list">
+<div class="card-it"><strong>① 阿涛石厝小院</strong><small>主理人福清话母语 · ★ 4.9 · 持卡 9 折</small></div>
+<div class="card-it"><strong>② 听海台青民宿</strong><small>台湾闽南语+平潭话双语 · ★ 4.8</small></div>
+<div class="card-it"><strong>③ 老厝改造文创院</strong><small>含方言夜话工作坊 · ★ 4.85</small></div>
+</div>
+<div class="price-row"><span>持 PASS 卡平均立减</span><strong>¥38/晚</strong></div>`
+  },
+  'local-2': {
+    user: '本地人最爱的海鲜小馆',
+    ai: `<strong>🍴 翻台率+本地评分排序</strong>
+<div class="card-list">
+<div class="card-it"><strong>① 阿伯海鲜（金井湾）</strong><small>开业 23 年 · 翻台 4.2 次/日 · ★ 4.85</small></div>
+<div class="card-it"><strong>② 流水镇早茶老店</strong><small>本地人占比 87% · 凌晨开业 · ★ 4.78</small></div>
+<div class="card-it"><strong>③ 北港村台青馆</strong><small>两岸特调 · 持卡赠手作小食 · ★ 4.82</small></div>
+</div>
+<div class="price-row"><span>持 PASS 卡 9 折 · 人均</span><strong>¥85</strong></div>`
+  },
+  'local-3': {
+    user: '猴研岛附近黄昏摄影点',
+    ai: `<strong>📸 少有人知的摄影机位</strong>
+<div class="card-list">
+<div class="card-it"><strong>① 猴研岛西崖</strong><small>面对台湾海峡 · 适合日落 18:42</small></div>
+<div class="card-it"><strong>② 红色礁石浅滩</strong><small>退潮露出 · 适合长曝光</small></div>
+<div class="card-it"><strong>③ 标志碑后山坡</strong><small>俯拍角度独特 · 人少</small></div>
+</div>
+<div class="price-row"><span>免费 · 含 AI 摄影构图建议</span><strong>导航 →</strong></div>`
+  }
+};
+
+function switchTab(idx){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active', i===idx));
+  document.querySelectorAll('.tab-panel').forEach((p,i)=>p.style.display = i===idx ? 'block' : 'none');
+}
+
+function appendUser(text){
+  const div = document.createElement('div');
+  div.className = 'msg-user';
+  div.textContent = text;
+  chatArea.appendChild(div);
+  chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+function appendTyping(){
+  const div = document.createElement('div');
+  div.className = 'msg-ai typing-msg';
+  div.innerHTML = '<span class="typing-indicator"><span></span><span></span><span></span></span>';
+  chatArea.appendChild(div);
+  chatArea.scrollTop = chatArea.scrollHeight;
+  return div;
+}
+
+function appendAI(html){
+  const div = document.createElement('div');
+  div.className = 'msg-ai';
+  div.innerHTML = html;
+  chatArea.appendChild(div);
+  chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+function trigger(cmd){
+  if (currentPhonePage !== 'chat') switchPhoneTab('chat');
+  // trip-custom-X 直接走定制路线生成
+  if (cmd.startsWith('trip-custom-')){
+    const userTextMap = {
+      'trip-custom-1': '我和父母 1 万元想玩 6 天',
+      'trip-custom-2': '情侣 5000 元 4 天 想看蓝眼泪',
+      'trip-custom-3': '学生党 2 天 800 元',
+      'trip-custom-4': '摄影师 4 天 想出片',
+      'trip-custom-5': '3 天 1500 元 喜欢小众文化深度'
+    };
+    const userText = userTextMap[cmd];
+    if (!userText) return;
+    appendUser(userText);
+    const t = appendTyping();
+    setTimeout(()=>{
+      t.remove();
+      appendAI(matchCustom(userText));
+    }, 900 + Math.random()*400);
+    return;
+  }
+  const r = RESPONSES[cmd];
+  if (!r) return;
+  appendUser(r.user);
+  const t = appendTyping();
+  setTimeout(()=>{
+    t.remove();
+    appendAI(r.ai);
+  }, 900 + Math.random()*400);
+}
+
+// ============ AI 大模型接入开关 ============
+// 部署时把 API Key 填入下方即可启用真实大模型
+// 现场答辩建议：保持本地 fallback（更稳定，不依赖网络）
+const LLM_CONFIG = {
+  enabled: false,           // 默认关闭（不依赖网络）
+  endpoint: '',             // 例如 'https://api.openai.com/v1/chat/completions'
+  apiKey: '',               // 例如 'sk-xxxx'
+  model: 'gpt-4o-mini',
+  systemPrompt: '你是「68海里」AI蓝朋友，专门为平潭岛文旅游客提供服务。请用温暖、专业、简洁的中文回复，每次回复尽量在120字内，可以推荐套餐（A档¥199轻体验/B档¥1380作者带路/C档¥3680作者亲带）和¥99 PASS卡。'
+};
+
+async function callLLM(userText){
+  if (!LLM_CONFIG.enabled || !LLM_CONFIG.apiKey){
+    return null;  // 走本地 fallback
+  }
+  try {
+    const resp = await fetch(LLM_CONFIG.endpoint, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json', 'Authorization':'Bearer '+LLM_CONFIG.apiKey},
+      body: JSON.stringify({
+        model: LLM_CONFIG.model,
+        messages: [
+          {role:'system', content: LLM_CONFIG.systemPrompt},
+          {role:'user', content: userText}
+        ],
+        max_tokens: 220,
+        temperature: 0.7
+      })
+    });
+    const data = await resp.json();
+    const text = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+    if (text) return text.replace(/\n/g,'<br>');
+  } catch(e){ console.warn('LLM error', e); }
+  return null;
+}
+
+async function sendMsg(){
+  if (currentPhonePage !== 'chat') switchPhoneTab('chat');
+  const v = chatInput.value.trim();
+  if (!v) return;
+  appendUser(v);
+  chatInput.value = '';
+  const t = appendTyping();
+  // 优先调大模型
+  const llmReply = await callLLM(v);
+  setTimeout(()=>{
+    t.remove();
+    if (llmReply){
+      appendAI('<strong>AI 蓝朋友：</strong><br>' + llmReply);
+    } else {
+      appendAI(matchCustom(v));
+    }
+  }, 700);
+}
+
+async function sendCustom(){
+  const v = document.getElementById('customQuery').value.trim();
+  if (!v){ alert('请输入需求'); return; }
+  if (currentPhonePage !== 'chat') switchPhoneTab('chat');
+  appendUser(v);
+  document.getElementById('customQuery').value = '';
+  const t = appendTyping();
+  const llmReply = await callLLM(v);
+  setTimeout(()=>{
+    t.remove();
+    if (llmReply){
+      appendAI('<strong>AI 蓝朋友：</strong><br>' + llmReply);
+    } else {
+      appendAI(matchCustom(v));
+    }
+  }, 800);
+}
+
+// ===== 智能定制旅游路线（核心升级）+ 关键词匹配 =====
+function matchCustom(q){
+  const lq = q.toLowerCase();
+
+  // —— 1. 打招呼/闲聊（解决"你好"问题）——
+  if (/^(你好|您好|hi|hello|嗨|早|早上好|下午好|晚上好|在吗|在不在|有人吗)/.test(q.trim())){
+    return `👋 <strong>你好呀，旅人！</strong>我是「68海里」的 AI 蓝朋友。<br><br>我可以帮你：
+<div class="card-list">
+<div class="card-it"><strong>① 个性化定制路线</strong><small>说出你的预算+天数+人数+偏好，我为你生成专属路线和地图</small></div>
+<div class="card-it"><strong>② 方言情绪翻译</strong><small>把平潭话翻成你听得懂的故事</small></div>
+<div class="card-it"><strong>③ 蓝眼泪预测</strong><small>今晚出现概率 + 看泪点位</small></div>
+<div class="card-it"><strong>④ 本地小馆民宿</strong><small>避开网红坑 · 跟着 AI 找苍蝇店</small></div>
+</div>
+${renderQuestionSuggestions()}
+<div class="price-row"><span>点击一个问题即可开始</span><strong>AI 规划 →</strong></div>`;
+  }
+
+  // —— 2. 问产品/介绍 ——
+  if (/(你是谁|这是什么|介绍|什么(产品|方案|项目)|68海里是什么|介绍下你自己|功能|能干嘛|可以做什么)/.test(q)){
+    return `<strong>「68海里」 — 一份可买、可用、可传播的文旅商品</strong><br><br>我是它的小程序端 AI 助理「蓝朋友」，可以为你<strong>生成专属路线</strong>。
+<div class="card-list">
+<div class="card-it"><strong>定制行程</strong><small>说出预算/天数/人数/偏好 → 输出每日动线 + 地图</small></div>
+<div class="card-it"><strong>三档套餐（可选）</strong><small>A ¥199 / B ¥1,380 / C ¥3,680，可作为打包推荐</small></div>
+<div class="card-it"><strong>¥99 通行 PASS 卡</strong><small>9 类合作商优惠</small></div>
+<div class="card-it"><strong>蓝眼泪盲盒保险</strong><small>看不到自动补偿 · 四选一</small></div>
+</div>
+<div class="price-row"><span>更多详见网站</span><strong>index.html →</strong></div>`;
+  }
+
+  // —— 3. 问交通 ——
+  if (/(怎么(去|到)|交通|高铁|火车|动车|机场|从.*出发|上海.*去|福州.*去)/.test(q) && !/(\d+)\s*(元|块|¥|RMB|￥|多少钱)/.test(q)){
+    return `<strong>上海 → 平潭 · 主流到达方式</strong>
+<div class="card-list">
+<div class="card-it"><strong>① 高铁直达（推荐）</strong><small>虹桥 G1637 · 5h28m · 起步 ¥478.5</small></div>
+<div class="card-it"><strong>② 福州中转</strong><small>动车到福州站 → 平潭班车 1h10m</small></div>
+<div class="card-it"><strong>③ 飞机</strong><small>上海 → 福州长乐机场 → 大巴 1h40m</small></div>
+<div class="card-it" style="border-left-color:#c8552d"><strong>★ 周边联动建议</strong><small>"福州 1 天 + 平潭 2 天" 是热门组合</small></div>
+</div>
+<div class="price-row"><span>所有路线含接送指引</span><strong>覆盖三种交通 →</strong></div>`;
+  }
+
+  // —— 4. 蓝眼泪 ——
+  if ((q.indexOf('蓝眼泪') >= 0 || q.indexOf('追泪') >= 0 || q.indexOf('荧光') >= 0) && !q.match(/\d+/)){
+    return RESPONSES['blue-1'].ai;
+  }
+
+  // —— 5 ★★★ 核心改造：定制旅游路线（基于预算+天数+人数+偏好）——
+  // 预算识别：避免把“6天”误识别成“6元预算”
+  const budgetMatch = q.match(/(\d+(?:\.\d+)?)\s*(万|元|块|¥|RMB|￥)/);
+  const bareBudgetMatch = budgetMatch ? null : q.match(/(\d{3,6})\s*(?:预算|左右|以内|以下|以上)?/);
+  const priceMatch = budgetMatch || bareBudgetMatch;
+  const dayMatch = q.match(/(\d+)\s*(天|日)/);
+  const peopleMatch = q.match(/(\d+)\s*(人|位|个人)/);
+  const wanInQ = !!(budgetMatch && budgetMatch[2] === '万');
+  const pairOldMatch = /(父母|爸妈|爸爸|妈妈|长辈|老人|爷爷|奶奶)/.test(q);
+  const pairLoverMatch = /(情侣|夫妻|老婆|老公|爱人|情人|男朋友|女朋友|对象|男友|女友|cp|CP|蜜月)/.test(q);
+  const pairFamilyMatch = /(家人|带娃|小孩|孩子|宝宝|亲子)/.test(q);
+  const pairFriendMatch = /(朋友|哥们|姐妹|室友|同学)/.test(q);
+  const wantBlue = /(蓝眼泪|追泪|荧光)/.test(q);
+  const wantPhoto = /(摄影|拍照|打卡|出片)/.test(q);
+  const wantFood = /(美食|海鲜|吃|餐|苍蝇)/.test(q);
+  const wantSlow = /(慢|休闲|放松|度假|养生|不爱徒步|少走路)/.test(q);
+  const wantDeep = /(深度|文化|学术|方言|石厝|历史)/.test(q);
+
+  if (priceMatch || dayMatch || peopleMatch || pairOldMatch || pairLoverMatch || pairFamilyMatch || wantBlue || wantPhoto){
+    let budget = priceMatch ? parseFloat(priceMatch[1]) : null;
+    if (wanInQ && budget && budget < 100) budget = budget * 10000;  // "1万" → 10000
+    const days = dayMatch ? parseInt(dayMatch[1]) : null;
+    const people = peopleMatch ? parseInt(peopleMatch[1]) : null;
+
+    return generateCustomRoute({budget, days, people, pairOldMatch, pairLoverMatch, pairFamilyMatch, pairFriendMatch, wantBlue, wantPhoto, wantFood, wantSlow, wantDeep, originalQ:q});
+  }
+
+  // —— 6. 方言 ——
+  if (q.indexOf('翻译') >= 0 || q.indexOf('方言') >= 0 || q.indexOf('福州话') >= 0 || q.indexOf('平潭话') >= 0){
+    return RESPONSES['dial-1'].ai;
+  }
+
+  // —— 7. 民宿 ——
+  if (q.indexOf('民宿') >= 0 || q.indexOf('住') >= 0 || q.indexOf('酒店') >= 0 || q.indexOf('哪里睡') >= 0){
+    return RESPONSES['local-1'].ai;
+  }
+
+  // —— 8. 吃 ——
+  if (q.indexOf('吃') >= 0 || q.indexOf('餐') >= 0 || q.indexOf('海鲜') >= 0 || q.indexOf('小馆') >= 0 || q.indexOf('美食') >= 0){
+    return RESPONSES['local-2'].ai;
+  }
+
+  // —— 9. 摄影 ——
+  if (q.indexOf('摄影') >= 0 || q.indexOf('拍照') >= 0 || q.indexOf('打卡') >= 0 || q.indexOf('景点') >= 0 || q.indexOf('好玩') >= 0){
+    return RESPONSES['local-3'].ai;
+  }
+
+  // —— 10. 周边 ——
+  if (q.indexOf('福州') >= 0 || q.indexOf('泉州') >= 0 || q.indexOf('厦门') >= 0 || q.indexOf('周边') >= 0){
+    return `<strong>「68海里 PLUS」海西经济圈联动</strong>
+<div class="card-list">
+<div class="card-it"><strong>福州 · 1 天</strong><small>三坊七巷 + 鼓岭 + 福州话语料拓展</small></div>
+<div class="card-it"><strong>泉州 · 1 天</strong><small>开元寺 + 蟳埔簪花 + 闽南语对照</small></div>
+<div class="card-it"><strong>厦门鼓浪屿 · 1 天</strong><small>建议 4 天以上行程加购</small></div>
+<div class="card-it" style="border-left-color:#c8552d"><strong>★ 智能编排</strong><small>AI 自动为你匹配适配顺序与高铁班次</small></div>
+</div>
+<div class="price-row"><span>3 城联动 · 共 5 天</span><strong>+¥800 起</strong></div>`;
+  }
+
+  // —— 11. 天气/穿搭/安全等轻量旅行问题 ——
+  if (/(天气|下雨|气温|穿什么|穿衣|防晒|台风|风大|安全吗|安全)/.test(q)){
+    return `<strong>我可以先给你一版平潭出行提醒</strong>
+<div class="card-list">
+<div class="card-it"><strong>海岛天气</strong><small>平潭风力变化快，建议带薄外套、防晒帽和轻便雨具；夜间追蓝眼泪要注意海边风浪。</small></div>
+<div class="card-it"><strong>安全提示</strong><small>蓝眼泪夜场不建议独自下礁石；若遇台风/大风预警，系统会切换室内备选路线。</small></div>
+<div class="card-it"><strong>下一步</strong><small>你可以补充出行日期，我会把天气、潮汐和路线一起重新规划。</small></div>
+</div>
+<div class="price-row"><span>可继续问：5月下旬适合追蓝眼泪吗？</span><strong>继续 →</strong></div>`;
+  }
+
+  // —— 12. 谢谢/再见 ——
+  if (/(谢谢|多谢|thanks|thx|再见|拜拜|bye)/.test(lq)){
+    return `<strong>不客气，旅人！</strong> 🙏<br><br>如果你准备出发，可以继续告诉我预算、天数、同行人和偏好，我会帮你生成路线地图。<br><br>愿你看到蓝眼泪。`;
+  }
+
+  // —— 13. 明显不相关问题，也要自然回复并引导回旅行场景 ——
+  const travelHint = /(平潭|旅游|旅行|路线|行程|预算|天|人|民宿|酒店|吃|海鲜|蓝眼泪|方言|交通|高铁|福州|泉州|厦门|拍照|摄影|文创|pass|PASS|门票|景点|海边|父母|情侣|学生)/.test(q);
+  const trimmed = q.substring(0, 42);
+  if (!travelHint){
+    return `<strong>我收到你的消息啦</strong> ✨<br><br>“<em>${trimmed}${q.length>42?'…':''}</em>”和本次平潭旅行规划关系不大，但我可以把话题带回旅行场景。你可以直接点击下面的问题继续：
+${renderQuestionSuggestions()}
+<div class="price-row"><span>选择一个问题即可继续</span><strong>AI 规划 →</strong></div>`;
+  }
+
+  // —— 默认兜底：相关但信息不足 ——
+  return `<strong>蓝朋友收到啦</strong> ✨<br><br>我理解你想咨询平潭旅行相关问题，但条件还不够完整。为了给你生成更准确的路线，请尽量补充：<strong>预算、天数、人数、同行关系、偏好</strong>。
+<div class="card-list">
+<div class="card-it"><strong>模板 1</strong><small>我有 1 万元，和父母玩 6 天，想轻松一点</small></div>
+<div class="card-it"><strong>模板 2</strong><small>情侣 5000 元 4 天，想看蓝眼泪和拍照</small></div>
+<div class="card-it"><strong>模板 3</strong><small>学生党 2 天 800 元，想吃本地小馆</small></div>
+</div>
+<div class="price-row"><span>补充任意两项即可开始规划</span><strong>继续 →</strong></div>`;
+}
+
+
+// ===== 不完整输入处理：不给错误默认值，而是给方向+追问 =====
+function renderMissingQuestion(title, knownHtml, optionsHtml, askText){
+  return `<strong>${title}</strong>
+<div class="card-list">
+${knownHtml}
+${optionsHtml}
+</div>
+<div class="pkg-tip">💡 <strong>还差一个关键信息</strong>：${askText}</div>
+<div class="price-row"><span>可继续输入补充条件</span><strong>继续定制 →</strong></div>`;
+}
+
+function budgetOnlyReply(B, opts){
+  const high = B >= 8000;
+  const mid = B >= 3000 && B < 8000;
+  const options = high ? `
+<div class="card-it"><strong>方案 A · 4 天轻奢平潭</strong><small>福州中转 + 平潭 3 晚海景/石厝民宿 + 蓝眼泪夜场 + 作者带路</small></div>
+<div class="card-it"><strong>方案 B · 6 天海西联动</strong><small>福州 1 天 + 平潭 3 天 + 泉州/厦门 2 天，适合文化深度游</small></div>
+<div class="card-it"><strong>方案 C · 家庭慢游</strong><small>少走路、接送优先、民宿舒适度优先，适合带父母/孩子</small></div>` : mid ? `
+<div class="card-it"><strong>方案 A · 3 天平潭深度</strong><small>龙凤头 + 北港村 + 猴研岛 + 蓝眼泪夜场，住宿控制在舒适型</small></div>
+<div class="card-it"><strong>方案 B · 4 天平潭+福州</strong><small>压缩文创消费，把预算留给住宿与交通</small></div>
+<div class="card-it"><strong>方案 C · 2 天体验加强</strong><small>把预算集中在作者带路、夜场和本地海鲜</small></div>` : `
+<div class="card-it"><strong>方案 A · 1 天轻体验</strong><small>龙凤头 + 海坛古城 + AI 翻译手账</small></div>
+<div class="card-it"><strong>方案 B · 2 天学生党</strong><small>青旅/平价民宿 + 蓝眼泪夜场 + 本地小馆</small></div>
+<div class="card-it"><strong>方案 C · 半日摄影</strong><small>猴研岛/龙凤头两个机位 + PASS 卡小额优惠</small></div>`;
+  return renderMissingQuestion(
+    `已识别预算 ¥${B.toLocaleString()}，先给你 3 个可选方向`,
+    `<div class="card-it"><strong>已知条件</strong><small>预算：¥${B.toLocaleString()}；天数/人数尚未说明</small></div>`,
+    options,
+    '请补充：计划玩几天？几个人同行？偏向亲子/情侣/父母/摄影/美食/蓝眼泪哪一种？'
+  );
+}
+
+function daysOnlyReply(D, opts){
+  const route = D <= 2 ? '平潭主岛短线：龙凤头 → 海坛古城 → 北港村 → 蓝眼泪夜场'
+              : D <= 4 ? '平潭深度线：龙凤头 → 北港村石厝 → 猴研岛 → 东海仙境 → 长江澳风车田'
+              : '海西联动线：福州 → 平潭 → 泉州/厦门，适合把交通成本转化为区域深度体验';
+  const options = `
+<div class="card-it"><strong>${D} 天建议主线</strong><small>${route}</small></div>
+<div class="card-it"><strong>经济版</strong><small>青旅/平价民宿 + 公共交通 + A 档轻体验，适合学生或预算敏感型</small></div>
+<div class="card-it"><strong>舒适版</strong><small>石厝民宿 + 接送 + B 档作者带路，适合初次来平潭</small></div>
+<div class="card-it"><strong>品质版</strong><small>海景住宿 + C 档作者亲带 + 夜场/文创/摄影机位加强</small></div>`;
+  return renderMissingQuestion(
+    `已识别 ${D} 天行程，先按天数生成路线方向`,
+    `<div class="card-it"><strong>已知条件</strong><small>时长：${D} 天；预算/人数尚未说明</small></div>`,
+    options,
+    '请补充：预算大约多少？几个人？希望偏休闲、美食、摄影、文化深度还是蓝眼泪？'
+  );
+}
+
+function peopleOnlyReply(P, opts){
+  const type = opts.pairOldMatch ? '带长辈慢游' : opts.pairLoverMatch ? '情侣轻度假' : opts.pairFamilyMatch ? '亲子家庭' : opts.pairFriendMatch ? '朋友团' : '多人同行';
+  const options = `
+<div class="card-it"><strong>${type}路线倾向</strong><small>${opts.pairOldMatch?'少走路、接送优先、住宿舒适度优先':opts.pairLoverMatch?'黄昏海边、蓝眼泪、海景民宿优先':opts.pairFamilyMatch?'安全、节奏慢、互动体验优先':'合照机位、美食、夜场体验优先'}</small></div>
+<div class="card-it"><strong>2—3 天</strong><small>主打平潭岛内精华，不做大范围周边联动</small></div>
+<div class="card-it"><strong>4—6 天</strong><small>可加入福州/泉州，做海西区域联动</small></div>`;
+  return renderMissingQuestion(
+    `已识别 ${P} 人同行，先按同行关系给路线建议`,
+    `<div class="card-it"><strong>已知条件</strong><small>同行人数/关系：${P} 人 · ${type}</small></div>`,
+    options,
+    '请补充：预算范围和计划天数。我会马上生成地图与每日动线。'
+  );
+}
+
+// ===== 核心：基于多维度参数生成定制旅游路线 =====
+function generateCustomRoute(opts){
+  const {budget, days, people, pairOldMatch, pairLoverMatch, pairFamilyMatch, pairFriendMatch, wantBlue, wantPhoto, wantFood, wantSlow, wantDeep, originalQ} = opts;
+
+  // 不完整输入：不再擅自把预算/天数/人数填死，先给方向或追问
+  const hasBudget = budget !== null && budget !== undefined;
+  const hasDays = days !== null && days !== undefined;
+  const hasPeople = people !== null && people !== undefined;
+
+  if (hasBudget && !hasDays){
+    return budgetOnlyReply(budget, opts);
+  }
+  if (!hasBudget && hasDays){
+    return daysOnlyReply(days, opts);
+  }
+  if (!hasBudget && !hasDays && (hasPeople || pairOldMatch || pairLoverMatch || pairFamilyMatch || pairFriendMatch)){
+    const inferredP = hasPeople ? people : (pairLoverMatch ? 2 : (pairOldMatch || pairFamilyMatch ? 4 : 3));
+    return peopleOnlyReply(inferredP, opts);
+  }
+  if (!hasBudget && !hasDays && !hasPeople){
+    return renderMissingQuestion(
+      '我已经理解你的兴趣方向，但还需要一点信息才能生成准确路线',
+      `<div class="card-it"><strong>已识别偏好</strong><small>${wantBlue?'蓝眼泪 ':''}${wantPhoto?'摄影 ':''}${wantFood?'美食 ':''}${wantSlow?'慢节奏 ':''}${wantDeep?'文化深度 ':'' || '综合体验'}</small></div>`,
+      `<div class="card-it"><strong>你可以这样补充</strong><small>例如："预算 5000，4 天，两个人，想看蓝眼泪"</small></div>`,
+      '请补充预算/天数/人数中的任意两项，我会生成路线地图。'
+    );
+  }
+
+  // 可生成路线的情况：预算+天数已知；人数若未知会明确标注为暂按 1 人估算
+  const D = days;
+  const P = people || (pairLoverMatch ? 2 : pairOldMatch || pairFamilyMatch ? 4 : 1);
+  const B = budget;
+  const inferredPeople = !hasPeople && !pairLoverMatch && !pairOldMatch && !pairFamilyMatch;
+
+  // 标签合成
+  const tags = [];
+  if (pairOldMatch) tags.push('带长辈');
+  if (pairLoverMatch) tags.push('情侣');
+  if (pairFamilyMatch) tags.push('亲子');
+  if (pairFriendMatch) tags.push('朋友团');
+  if (wantBlue) tags.push('追蓝眼泪');
+  if (wantPhoto) tags.push('摄影');
+  if (wantFood) tags.push('美食');
+  if (wantDeep) tags.push('文化深度');
+  if (wantSlow || pairOldMatch) tags.push('慢节奏');
+  if (tags.length === 0) tags.push('综合体验');
+
+  // 路线节点池
+  const POIs = {
+    'shanghai': {name:'上海', x:380, y:50, type:'origin'},
+    'fuzhou':   {name:'福州', x:240, y:140, type:'city'},
+    'pingtan':  {name:'平潭岛', x:285, y:180, type:'main', emphasize:true},
+    'houyan':   {name:'猴研岛', x:330, y:200, type:'view'},
+    'beigang':  {name:'北港村', x:255, y:200, type:'village'},
+    'longfeng': {name:'龙凤头', x:280, y:215, type:'beach'},
+    'east':     {name:'东海仙境', x:310, y:220, type:'view'},
+    'tanck':    {name:'海坛古城', x:265, y:215, type:'culture'},
+    'windmill': {name:'长江澳风车田', x:240, y:195, type:'view'},
+    'quanzhou': {name:'泉州', x:200, y:255, type:'city'},
+    'xiamen':   {name:'厦门', x:175, y:295, type:'city'}
+  };
+
+  // 根据参数选择路线节点
+  let selectedPOIs = ['shanghai','fuzhou','pingtan'];
+  let dayPlans = [];
+
+  if (D === 1){
+    selectedPOIs = ['fuzhou','pingtan','longfeng'];
+    dayPlans = [{day:'D1', t:'平潭一日精华', d:'龙凤头海滨 + 海坛古城非遗 + 阿伯海鲜午餐'}];
+  } else if (D === 2){
+    selectedPOIs = ['shanghai','pingtan','longfeng','beigang'];
+    dayPlans = [
+      {day:'D1', t:wantSlow?'平潭慢生活':'平潭主线开启', d:`龙凤头海滨${wantPhoto?' · 黄昏出片机位':''} + 海坛古城非遗夜场`},
+      {day:'D2', t:wantBlue?'追泪+方言深度':'方言深度日', d:`北港村台青咖啡馆 · ${wantBlue?'夜场猴研岛追蓝眼泪':'石厝建筑 VLM 扫描体验'}`}
+    ];
+  } else if (D === 3){
+    selectedPOIs = ['shanghai','pingtan','longfeng','beigang','houyan','east'];
+    dayPlans = [
+      {day:'D1', t:'抵达平潭', d:'高铁直达 + 龙凤头黄昏 + 阿伯海鲜晚餐'},
+      {day:'D2', t:wantDeep?'方言+建筑深度':'石厝&猴研岛', d:`北港村方言民宿 · ${wantPhoto?'猴研岛黄金机位':'猴研岛日出'} · 中午本地海鲜`},
+      {day:'D3', t:wantBlue?'蓝眼泪夜+返程':'东海仙境+返程', d:`东海仙境海蚀洞 · ${wantBlue?'夜场追蓝眼泪':'沙雕节'} · 返程`}
+    ];
+  } else if (D === 4){
+    selectedPOIs = ['shanghai','fuzhou','pingtan','longfeng','beigang','houyan','east','windmill'];
+    dayPlans = [
+      {day:'D1', t:'上海→福州', d:'高铁傍晚抵达 · 三坊七巷夜游 · 福州话田野'},
+      {day:'D2', t:'福州→平潭', d:'动车 1h10m + 龙凤头海滨 + 海坛古城夜场'},
+      {day:'D3', t:wantDeep?'文化深度日':'石厝&猴研岛', d:`北港村方言民宿 · 猴研岛${wantPhoto?'两小时摄影':'日出+碑文'} · ${wantFood?'阿伯海鲜大餐':'本地老店午餐'}`},
+      {day:'D4', t:wantBlue?'追泪+返程':'东海仙境+返程', d:`东海仙境 · 长江澳风车田 · ${wantBlue?'夜场追蓝眼泪后':'下午返程'}${wantBlue?' · 次日返沪':''}`}
+    ];
+  } else if (D === 5){
+    selectedPOIs = ['shanghai','fuzhou','pingtan','longfeng','beigang','houyan','east','quanzhou'];
+    dayPlans = [
+      {day:'D1', t:'上海→福州', d:'下午高铁 G1637 · 三坊七巷夜游'},
+      {day:'D2', t:'福州→平潭', d:'动车 1h10m + 龙凤头黄昏 + 阿伯海鲜'},
+      {day:'D3', t:wantDeep?'方言深度日':'石厝&猴研岛', d:'北港村方言民宿 · 猴研岛碑文 · 海坛古城非遗夜'},
+      {day:'D4', t:wantBlue?'追泪夜':'东海仙境', d:`东海仙境海蚀洞 · ${wantBlue?'夜场追蓝眼泪':'沙雕节'} · ${pairOldMatch?'温泉养生':'夜钓'}`},
+      {day:'D5', t:'泉州延伸+返沪', d:'平潭→泉州动车 · 蟳埔簪花 · 开元寺 · 厦门返程'}
+    ];
+  } else if (D >= 6){
+    selectedPOIs = ['shanghai','fuzhou','pingtan','longfeng','beigang','houyan','east','windmill','quanzhou','xiamen'];
+    dayPlans = [
+      {day:'D1', t:'上海→福州', d:'下午高铁 G1637 · 三坊七巷夜游 · 福州话语料初遇'},
+      {day:'D2', t:'福州→平潭', d:'动车 1h10m + 龙凤头黄昏 · ' + (pairOldMatch?'温泉酒店养生':'阿伯海鲜大餐')},
+      {day:'D3', t:wantDeep?'方言+建筑深度':'石厝深度日', d:'北港村方言民宿 · 石厝 VLM 扫描 + AR 受力模拟体验'},
+      {day:'D4', t:wantPhoto?'摄影+猴研岛':'猴研岛+海仙境', d:'猴研岛日出 + ' + (wantPhoto?'隐藏机位':'东海仙境') + ' · 中午海鲜'},
+      {day:'D5', t:wantBlue?'追泪夜':'风车田+休闲', d:'长江澳风车田 + ' + (wantBlue?'夜场追蓝眼泪':'非遗夜场') + ' · 海坛古城'},
+      {day:'D6', t:'泉州+厦门+返沪', d:(D>=7?'泉州蟳埔簪花 + 开元寺 + 厦门鼓浪屿一日':'泉州蟳埔簪花 + 厦门动车回沪')}
+    ];
+    if (D >= 7){
+      dayPlans.push({day:'D7', t:'厦门→上海', d:'鼓浪屿+曾厝垵 · 晚高铁返程'});
+    }
+  }
+
+  // 预算分析（让游客看见钱花在哪）
+  const breakdown = computeBudget(B, D, P, opts);
+  const recommendedPkg = (B/P/D >= 800) ? 'C 档作者亲带' : (B/P/D >= 400 ? 'B 档作者带路' : 'A 档轻体验');
+  const pkgPrice = recommendedPkg.startsWith('A') ? 199 : recommendedPkg.startsWith('B') ? 1380 : 3680;
+
+  // 生成 SVG 旅游地图
+  const mapSvg = generateRouteMap(selectedPOIs, POIs);
+
+  // 生成日程列表 HTML
+  const daysHtml = dayPlans.map(p =>
+    `<div class="day-item"><span class="day-tag">${p.day}</span><span class="day-title">${p.t}</span><span class="day-detail">${p.d}</span></div>`
+  ).join('');
+
+  // 拼装最终输出
+  return `<strong>已为你定制专属路线</strong>
+<div style="margin-top:6px;font-size:10.5px;color:#d9c9a8">
+  <span style="display:inline-block;background:rgba(255,204,0,.12);color:#ffcc00;padding:2px 6px;border-radius:10px;margin-right:4px;font-size:9.5px">¥${B.toLocaleString()}</span>
+  <span style="display:inline-block;background:rgba(255,204,0,.12);color:#ffcc00;padding:2px 6px;border-radius:10px;margin-right:4px;font-size:9.5px">${D} 天</span>
+  <span style="display:inline-block;background:rgba(255,204,0,.12);color:#ffcc00;padding:2px 6px;border-radius:10px;margin-right:4px;font-size:9.5px">${inferredPeople ? '暂按 ' : ''}${P} 人</span>
+  ${tags.map(t => `<span style="display:inline-block;background:rgba(200,85,45,.18);color:#ffaa88;padding:2px 6px;border-radius:10px;margin-right:4px;font-size:9.5px">${t}</span>`).join('')}
+</div>${inferredPeople ? '<div class="pkg-tip" style="margin-top:6px">说明：你尚未填写同行人数，以下路线暂按 1 人估算；补充人数后我会重新调整住宿、餐饮和交通预算。</div>' : ''}
+<div class="route-map">
+  <div class="map-title">─ ROUTE MAP · 路线地图 ─</div>
+  ${mapSvg}
+</div>
+<div class="day-list">${daysHtml}</div>
+<div class="budget-bar">
+  <small>预算分配 · 交通 ${breakdown.transport} / 住宿 ${breakdown.hotel} / 餐饮 ${breakdown.food} / 体验 ${breakdown.exp} / 文创 ${breakdown.merch}</small>
+</div>
+<div class="pkg-tip">
+  💡 <strong>套餐辅助建议（可选）</strong>：以上是为你定制的自由路线；如需省事，可考虑 <strong>${recommendedPkg} ¥${pkgPrice}</strong>，但你完全可以按自己节奏走，AI 蓝朋友会一路陪你。
+</div>
+<div class="price-row"><span>已生成完整路线地图</span><strong>预估 ¥${Math.round(B*0.92).toLocaleString()}</strong></div>`;
+}
+
+// 预算分配测算
+function computeBudget(B, D, P, opts){
+  const transport = Math.round(B * 0.22);
+  const hotel = Math.round(B * 0.30);
+  const food = Math.round(B * (opts.wantFood?0.22:0.18));
+  const exp = Math.round(B * 0.15);
+  const merch = Math.round(B * 0.08);
+  const fmt = n => '¥' + n.toLocaleString();
+  return { transport: fmt(transport), hotel: fmt(hotel), food: fmt(food), exp: fmt(exp), merch: fmt(merch) };
+}
+
+// 生成 SVG 路线地图
+function generateRouteMap(ids, POIs){
+  const w = 425, h = 320;
+  // 海洋背景
+  let svg = `<svg class="route-svg" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="seaG" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#0a3a4d"/>
+        <stop offset="100%" stop-color="#072530"/>
+      </linearGradient>
+      <filter id="glow"><feGaussianBlur stdDeviation="2"/></filter>
+    </defs>
+    <rect width="${w}" height="${h}" fill="url(#seaG)"/>
+    <!-- 海岸线示意 -->
+    <path d="M 50 25 Q 100 15 180 35 T 280 30 T 380 50 L 410 80 Q 420 130 400 200 Q 380 280 320 305 Q 220 315 130 280 Q 60 240 40 180 Q 30 100 50 25 Z" fill="rgba(168,146,116,0.08)" stroke="rgba(255,204,0,0.15)" stroke-width="1" stroke-dasharray="3 3"/>
+    <!-- 平潭岛 -->
+    <ellipse cx="285" cy="200" rx="42" ry="28" fill="rgba(255,204,0,0.12)" stroke="#ffcc00" stroke-width="1.2" stroke-dasharray="3 2"/>
+    <text x="285" y="158" text-anchor="middle" fill="#ffcc00" font-size="9" font-family="serif" letter-spacing="2">PINGTAN</text>`;
+
+  // 路径线
+  if (ids.length > 1){
+    const pathPts = ids.map(id => `${POIs[id].x},${POIs[id].y}`).join(' L ');
+    svg += `<path d="M ${pathPts}" fill="none" stroke="#ffcc00" stroke-width="1.6" stroke-dasharray="4 3" opacity="0.85" filter="url(#glow)"/>
+            <path d="M ${pathPts}" fill="none" stroke="#ffcc00" stroke-width="0.8" opacity="1"/>`;
+  }
+
+  // 节点
+  ids.forEach((id, idx) => {
+    const p = POIs[id];
+    const isMain = p.emphasize;
+    const isOrigin = p.type === 'origin';
+    const r = isMain ? 7 : isOrigin ? 5 : 4;
+    const color = isMain ? '#ffcc00' : isOrigin ? '#c8552d' : '#fff';
+    svg += `<circle cx="${p.x}" cy="${p.y}" r="${r}" fill="${color}" stroke="#1a1612" stroke-width="1.5"/>`;
+    // 节点编号
+    if (idx > 0) svg += `<text x="${p.x}" y="${p.y+1.5}" text-anchor="middle" fill="#1a1612" font-size="7" font-weight="700" font-family="serif">${idx}</text>`;
+    // 标签
+    const labelY = p.y < 100 ? p.y - 9 : p.y + 16;
+    svg += `<text x="${p.x}" y="${labelY}" text-anchor="middle" fill="${isMain?'#ffcc00':'#fff'}" font-size="${isMain?10:9}" font-weight="${isMain?700:500}" font-family="'Noto Serif SC',serif">${p.name}</text>`;
+  });
+
+  // 罗盘
+  svg += `<g transform="translate(40,55)" opacity="0.65">
+    <circle r="14" fill="none" stroke="#ffcc00" stroke-width="0.8"/>
+    <line x1="0" y1="-14" x2="0" y2="14" stroke="#ffcc00" stroke-width="0.5"/>
+    <line x1="-14" y1="0" x2="14" y2="0" stroke="#ffcc00" stroke-width="0.5"/>
+    <text y="-17" text-anchor="middle" fill="#ffcc00" font-size="7" font-weight="700">N</text>
+    <polygon points="0,-12 -2.5,2 0,-1 2.5,2" fill="#c8552d"/>
+  </g>`;
+
+  // 比例尺
+  svg += `<g transform="translate(355,295)" opacity="0.75">
+    <line x1="0" y1="0" x2="40" y2="0" stroke="#ffcc00" stroke-width="1"/>
+    <line x1="0" y1="-3" x2="0" y2="3" stroke="#ffcc00" stroke-width="1"/>
+    <line x1="40" y1="-3" x2="40" y2="3" stroke="#ffcc00" stroke-width="1"/>
+    <text x="20" y="12" text-anchor="middle" fill="#d9c9a8" font-size="7" font-family="serif">~ 100 KM</text>
+  </g>`;
+
+  svg += `</svg>`;
+  return svg;
+}
+
+// 绑定预设按钮
+document.querySelectorAll('.preset').forEach(p=>{
+  p.addEventListener('click', ()=>trigger(p.getAttribute('data-cmd')));
+});
+
+// 回车发送
+chatInput.addEventListener('keydown', e=>{ if (e.key === 'Enter') sendMsg(); });
+
+// 自动 demo - 进入页面后自动触发示例
+setTimeout(()=>{
+  if (chatArea.children.length <= 1){
+    trigger('trip-custom-1');
+  }
+}, 1800);
+</script>
+</body>
+</html>

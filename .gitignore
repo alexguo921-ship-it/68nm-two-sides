@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+._*
+
+# Office 临时锁文件
+~$*
+.~$*
+
+# 作者本地私密笔记（不发布到公开网站）
+/_author/
+
+# 临时打包
+/_stage_*
+*.zip
+
+# 编辑器
+.vscode/
+.idea/
+
+# 构建输出（暂时无）
+/dist/
+/build/

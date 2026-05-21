@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>语途·68 · VLM 平潭场景智能解读</title>
+<link rel="stylesheet" href="assets/theme.css">
+<style>
+body { background: var(--paper); padding-top: 80px; padding-bottom: 40px; min-height: 100vh; }
+.app { max-width: 1500px; margin: 0 auto; padding: 0 40px; }
+.demo-header { border-bottom: 3px solid var(--ink); padding-bottom: 16px; margin-bottom: 22px; display: flex; justify-content: space-between; align-items: flex-end; }
+.demo-title h1 { font-size: 36px; font-weight: 800; color: var(--ink); margin-bottom: 6px; line-height: 1.1; }
+.demo-title .en { font-family: var(--serif-en); font-style: italic; color: var(--terracotta); font-size: 16px; }
+.back-link { font-family: var(--sans-en); font-size: 11px; letter-spacing: 3px; color: var(--sepia); text-decoration: none; padding: 8px 16px; border: 1px solid var(--ink); }
+.back-link:hover { background: var(--ink); color: var(--ng-yellow); }
+
+.scene-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 18px; }
+.scene-tab { padding: 14px 16px; background: var(--cream); border: 2px solid transparent; cursor: pointer; transition: all .25s; }
+.scene-tab:hover { background: var(--paper-deep); }
+.scene-tab.active { background: var(--ink); color: var(--paper); border-color: var(--ng-yellow); }
+.scene-tab .num { font-family: var(--serif-en); font-style: italic; font-size: 22px; color: var(--terracotta); font-weight: 700; line-height: 1; }
+.scene-tab.active .num { color: var(--ng-yellow); }
+.scene-tab h4 { font-family: var(--serif-cn); font-size: 14px; font-weight: 700; color: var(--ink); margin-top: 4px; }
+.scene-tab.active h4 { color: var(--paper); }
+.scene-tab .en { font-family: var(--serif-en); font-style: italic; font-size: 11px; color: var(--sepia); margin-top: 2px; }
+.scene-tab.active .en { color: var(--ng-yellow); }
+
+.main-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 22px; }
+.panel { background: var(--cream); padding: 22px; position: relative; }
+.panel::before { content:""; position:absolute; top:0; left:0; width:60px; height:4px; background:var(--ng-yellow); }
+.panel h2 { font-family: var(--serif-cn); font-size: 20px; color: var(--ink); margin-bottom: 6px; font-weight: 700; }
+.panel .panel-en { font-family: var(--serif-en); font-style: italic; color: var(--terracotta); font-size: 13px; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid rgba(74,56,37,.15); }
+
+.camera-view { aspect-ratio: 16/10; background: #000; position: relative; overflow: hidden; border: 1px solid var(--ink); }
+.camera-view img { width: 100%; height: 100%; object-fit: cover; display: block; filter: contrast(1.05) saturate(1.05); }
+
+.cam-ui { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
+.cam-corner { position: absolute; width: 28px; height: 28px; border: 2px solid var(--ng-yellow); }
+.cam-corner.tl { top: 10px; left: 10px; border-right: none; border-bottom: none; }
+.cam-corner.tr { top: 10px; right: 10px; border-left: none; border-bottom: none; }
+.cam-corner.bl { bottom: 10px; left: 10px; border-right: none; border-top: none; }
+.cam-corner.br { bottom: 10px; right: 10px; border-left: none; border-top: none; }
+.cam-info { position: absolute; top: 12px; left: 46px; font-family: var(--sans-en); font-size: 10px; letter-spacing: 2px; color: var(--ng-yellow); background: rgba(0,0,0,.5); padding: 4px 10px; }
+.cam-rec { position: absolute; top: 12px; right: 46px; font-family: var(--sans-en); font-size: 10px; letter-spacing: 2px; color: var(--paper); background: rgba(0,0,0,.5); padding: 4px 10px; display: flex; align-items: center; gap: 6px; }
+.cam-rec::before { content:""; width:7px; height:7px; background: #ff4444; border-radius:50%; animation: blink 1.2s infinite; }
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:.3;} }
+
+/* 扫描线 - 修复关键 */
+.scan-line {
+  position: absolute; left: 12px; right: 12px; height: 3px; top: 0;
+  background: linear-gradient(90deg, transparent 0%, var(--ng-yellow) 50%, transparent 100%);
+  box-shadow: 0 0 24px var(--ng-yellow), 0 0 8px var(--ng-yellow);
+  display: none; pointer-events: none;
+}
+.scan-line.active {
+  display: block;
+  animation: scanMove 2.4s ease-in-out forwards;
+}
+@keyframes scanMove {
+  0% { top: 0; opacity: 0; }
+  10% { opacity: 1; }
+  50% { top: 100%; opacity: 1; }
+  60% { top: 100%; opacity: 0; }
+  60.01% { top: 0; opacity: 0; }
+  70% { opacity: 1; }
+  100% { top: 100%; opacity: 1; }
+}
+
+/* 扫描覆盖网格 */
+.scan-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,210,0,.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,210,0,.15) 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: 0; transition: opacity .3s;
+  pointer-events: none;
+}
+.scan-grid.active { opacity: 1; }
+
+.ar-marker {
+  position: absolute; width: 28px; height: 28px;
+  border-radius: 50%; border: 2px solid var(--ng-yellow);
+  background: rgba(255,210,0,.35); color: var(--paper);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--serif-en); font-size: 12px; font-weight: 700;
+  opacity: 0; transform: scale(0); transition: all .35s;
+  text-shadow: 0 1px 2px rgba(0,0,0,.6);
+}
+.ar-marker.show { opacity: 1; transform: scale(1); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{box-shadow: 0 0 0 0 rgba(255,210,0,.6);} 50%{box-shadow: 0 0 0 14px rgba(255,210,0,0);} }
+.ar-label {
+  position: absolute; transform: translate(-50%, calc(-100% - 38px));
+  background: var(--ink); color: var(--ng-yellow);
+  padding: 4px 10px; font-family: var(--sans-en);
+  font-size: 10px; letter-spacing: 1px; white-space: nowrap;
+  opacity: 0; transition: opacity .3s;
+}
+.ar-label.show { opacity: 1; }
+
+.steps { display: flex; gap: 8px; margin: 14px 0; }
+.step { flex: 1; padding: 9px 10px; background: var(--paper); border-left: 3px solid rgba(74,56,37,.2); font-family: var(--serif-cn); font-size: 11px; color: var(--sepia); transition: all .3s; }
+.step.active { border-left-color: var(--terracotta); background: rgba(194,86,42,.08); color: var(--ink); }
+.step.done { border-left-color: var(--moss); color: var(--ink-soft); }
+.step .num-s { font-family: var(--serif-en); font-size: 10px; color: var(--terracotta); letter-spacing: 1px; }
+.step .name { font-weight: 700; margin-top: 2px; font-size: 12px; }
+
+.actions-cam { display: flex; gap: 10px; margin-top: 12px; }
+.act-cam { padding: 12px 22px; font-family: var(--sans-en); font-size: 11px; letter-spacing: 3px; font-weight: 700; border: none; cursor: pointer; text-transform: uppercase; }
+.act-cam.primary { background: var(--ink); color: var(--ng-yellow); }
+.act-cam.primary:hover { background: var(--terracotta); }
+.act-cam.secondary { background: transparent; border: 2px solid var(--ink); color: var(--ink); }
+.act-cam.secondary:hover { background: var(--ink); color: var(--ng-yellow); }
+.act-cam:disabled { opacity:.4; cursor: not-allowed; }
+
+.output-panel { max-height: 760px; overflow-y: auto; }
+.placeholder-out { text-align: center; padding: 80px 20px; color: var(--sepia-light); font-family: var(--serif-en); font-style: italic; }
+.placeholder-out .icon-ph { font-size: 60px; opacity: .3; margin-bottom: 12px; }
+
+.section { display: none; margin-bottom: 18px; }
+.section.show { display: block; animation: fadeIn .5s; }
+@keyframes fadeIn { from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+
+.section h3 { font-family: var(--sans-en); font-size: 11px; letter-spacing: 3px; color: var(--terracotta); text-transform: uppercase; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--terracotta); }
+
+.detect-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--paper); margin-bottom: 6px; border-left: 3px solid var(--moss); font-size: 13px; color: var(--ink-soft); }
+.detect-item .conf { color: var(--moss); font-family: var(--serif-en); font-weight: 700; font-size: 14px; }
+
+.ar-data { background: var(--ink); color: var(--paper); padding: 14px 18px; border-left: 4px solid var(--ng-yellow); margin-bottom: 12px; }
+.ar-data .title { font-family: var(--sans-en); font-size: 11px; letter-spacing: 2px; color: var(--ng-yellow); margin-bottom: 10px; font-weight: 700; }
+.ar-data .stat { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed rgba(247,241,227,.15); font-size: 12px; }
+.ar-data .stat:last-child { border: none; }
+.ar-data .stat strong { color: var(--ng-yellow); font-family: var(--serif-en); font-size: 14px; font-weight: 700; }
+
+.culture-card { padding: 16px; background: var(--paper); border-left: 4px solid var(--moss); margin-bottom: 12px; }
+.culture-card .quote { font-family: var(--serif-cn); font-size: 16px; color: var(--ink); font-weight: 700; line-height: 1.5; margin-bottom: 10px; }
+.culture-card .desc { font-size: 13px; line-height: 1.7; color: var(--ink-soft); font-family: var(--serif-cn); }
+
+.merch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.merch { padding: 12px; background: var(--paper); border: 1px solid rgba(74,56,37,.15); cursor: pointer; transition: all .2s; }
+.merch:hover { border-color: var(--terracotta); transform: translateY(-2px); box-shadow: 0 6px 12px rgba(194,86,42,.1); }
+.merch .img-ph { aspect-ratio: 1; background: var(--paper-deep); display: flex; align-items: center; justify-content: center; font-size: 36px; margin-bottom: 8px; }
+.merch .name { font-family: var(--serif-cn); font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+.merch .price { font-family: var(--serif-en); font-size: 16px; color: var(--terracotta); font-weight: 700; }
+.merch .tag-m { display: inline-block; padding: 2px 6px; background: var(--ng-yellow); color: var(--ink); font-size: 9px; letter-spacing: 1px; font-family: var(--sans-en); font-weight: 700; margin-top: 4px; }
+
+.cta-buy { margin-top: 14px; padding: 14px; background: var(--ink); color: var(--ng-yellow); border: none; font-family: var(--sans-en); font-size: 12px; font-weight: 700; letter-spacing: 3px; cursor: pointer; width: 100%; text-transform: uppercase; }
+.cta-buy:hover { background: var(--terracotta); }
+
+.lang-switcher{ top:32px!important; right:32px!important; }
+</style>
+</head>
+<body>
+<div style="position:fixed;top:18px;left:18px;z-index:999;display:flex;gap:8px">
+  <a href="javascript:window.location.href='ppt.html#slide-'+(parseInt(localStorage.getItem('ppt_last_slide')||'0',10)+1)" style="background:#1a1612;color:#ffcc00;border:1.5px solid #ffcc00;padding:7px 14px;font-size:11px;letter-spacing:2px;text-decoration:none;font-family:'Cormorant Garamond',serif;font-weight:700;border-radius:2px">← BACK</a>
+  <a href="index.html" style="background:rgba(248,243,230,.95);color:#1a1612;border:1.5px solid #1a1612;padding:7px 14px;font-size:11px;letter-spacing:2px;text-decoration:none;font-family:'Cormorant Garamond',serif;font-weight:700;border-radius:2px">⌂ HOME</a>
+</div>
+
+<div class="ng-frame"></div>
+<div class="app">
+  <div class="demo-header">
+    <div class="demo-title">
+      <h1 data-i18n="vlm.title">VLM 平潭场景智能解读</h1>
+      <div class="en">YUTU·68 · See it · Understand it · Buy it</div>
+    </div>
+    <a href="index.html" class="back-link" data-i18n="vlm.back">← 返回</a>
+  </div>
+
+  <div class="scene-tabs" id="sceneTabs"></div>
+
+  <div class="main-grid">
+    <div class="panel">
+      <h2 data-i18n="vlm.cam.h">📸 实时摄像头视图</h2>
+      <div class="panel-en">Powered by VLM · Click "Start Scanning" to begin</div>
+
+      <div class="camera-view">
+        <img src="assets/real/donghai.jpg" id="sceneImg" alt="Scene">
+        <div class="cam-ui">
+          <div class="cam-corner tl"></div>
+          <div class="cam-corner tr"></div>
+          <div class="cam-corner bl"></div>
+          <div class="cam-corner br"></div>
+          <div class="cam-info" id="camInfo">● PINGTAN · 25.5°N 119.7°E</div>
+          <div class="cam-rec">REC · 4K</div>
+          <div class="scan-grid" id="scanGrid"></div>
+          <div class="scan-line" id="scanLine"></div>
+          <div id="markerLayer"></div>
+        </div>
+      </div>
+
+      <div class="steps">
+        <div class="step" id="s1"><div class="num-s">STEP 01</div><div class="name" data-i18n="vlm.s1">视觉识别</div></div>
+        <div class="step" id="s2"><div class="num-s">STEP 02</div><div class="name" data-i18n="vlm.s2">AR 可视化</div></div>
+        <div class="step" id="s3"><div class="num-s">STEP 03</div><div class="name" data-i18n="vlm.s3">文化讲解</div></div>
+        <div class="step" id="s4"><div class="num-s">STEP 04</div><div class="name" data-i18n="vlm.s4">一键购买</div></div>
+      </div>
+
+      <div class="actions-cam">
+        <button class="act-cam primary" id="startBtn" type="button">▶ <span data-i18n="vlm.btn.start">开始扫描解读</span></button>
+        <button class="act-cam secondary" id="resetBtn" type="button">↻ <span data-i18n="vlm.btn.reset">重置</span></button>
+      </div>
+    </div>
+
+    <div class="panel output-panel">
+      <h2 data-i18n="vlm.out.h">🧠 AI 解读输出</h2>
+      <div class="panel-en" id="sceneTitle">Pick a scene above and click "Start Scanning"</div>
+
+      <div class="placeholder-out" id="phOut">
+        <div class="icon-ph">🌊</div>
+        <p data-i18n="vlm.placeholder">选择场景并点击「开始扫描」</p>
+      </div>
+
+      <div class="section" id="sec1">
+        <h3>▌ <span data-i18n="vlm.sec1">视觉识别结果</span></h3>
+        <div id="detectList"></div>
+      </div>
+      <div class="section" id="sec2">
+        <h3>▌ <span data-i18n="vlm.sec2">AR 物理学/历史模拟</span></h3>
+        <div class="ar-data" id="arData"></div>
+      </div>
+      <div class="section" id="sec3">
+        <h3>▌ <span data-i18n="vlm.sec3">文化叙事讲解</span></h3>
+        <div class="culture-card" id="cultureCard"></div>
+      </div>
+      <div class="section" id="sec4">
+        <h3>▌ <span data-i18n="vlm.sec4">一键文创购买</span></h3>
+        <div class="merch-grid" id="merchGrid"></div>
+        <button class="cta-buy" type="button" onclick="alert('🎉 已加入漫游护照消费车 · 持数字护照享立减¥30 + 免邮服务')">
+          ⚡ <span data-i18n="vlm.cta">加入漫游护照 · 立减¥30</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/i18n.js"></script>
+<script>
+I18N.register({
+  'vlm.title': { 'zh-CN': 'VLM 平潭场景智能解读', 'en': 'VLM Pingtan Scene Reader', 'zh-TW': 'VLM 平潭場景智能解讀' },
+  'vlm.back': { 'zh-CN': '← 返回', 'en': '← BACK', 'zh-TW': '← 返回' },
+  'vlm.cam.h': { 'zh-CN': '📸 实时摄像头视图', 'en': '📸 Live Camera View', 'zh-TW': '📸 實時攝像頭視圖' },
+  'vlm.s1': { 'zh-CN': '视觉识别', 'en': 'Detect', 'zh-TW': '視覺識別' },
+  'vlm.s2': { 'zh-CN': 'AR 可视化', 'en': 'AR Overlay', 'zh-TW': 'AR 可視化' },
+  'vlm.s3': { 'zh-CN': '文化讲解', 'en': 'Audio', 'zh-TW': '文化講解' },
+  'vlm.s4': { 'zh-CN': '一键购买', 'en': 'Buy', 'zh-TW': '一鍵購買' },
+  'vlm.btn.start': { 'zh-CN': '开始扫描解读', 'en': 'START SCANNING', 'zh-TW': '開始掃描解讀' },
+  'vlm.btn.reset': { 'zh-CN': '重置', 'en': 'RESET', 'zh-TW': '重置' },
+  'vlm.out.h': { 'zh-CN': '🧠 AI 解读输出', 'en': '🧠 AI Decoded Output', 'zh-TW': '🧠 AI 解讀輸出' },
+  'vlm.placeholder': { 'zh-CN': '选择场景并点击「开始扫描」', 'en': 'Select a scene & click "Start Scanning"', 'zh-TW': '選擇場景並點擊「開始掃描」' },
+  'vlm.sec1': { 'zh-CN': '视觉识别结果', 'en': 'Detection Results', 'zh-TW': '視覺識別結果' },
+  'vlm.sec2': { 'zh-CN': 'AR 物理学/历史模拟', 'en': 'AR Physics/History Simulation', 'zh-TW': 'AR 物理學/歷史模擬' },
+  'vlm.sec3': { 'zh-CN': '文化叙事讲解', 'en': 'Cultural Narrative', 'zh-TW': '文化敘事講解' },
+  'vlm.sec4': { 'zh-CN': '一键文创购买', 'en': 'One-Click Merchandise', 'zh-TW': '一鍵文創購買' },
+  'vlm.cta': { 'zh-CN': '加入漫游护照 · 立减¥30', 'en': 'ADD TO PASSPORT · ¥30 OFF', 'zh-TW': '加入漫遊護照 · 立減¥30' }
+});
+
+// 4个场景 - 用真实平潭照片
+const SCENES = [
+  {
+    id: 'donghai',
+    img: 'assets/real/donghai.jpg',
+    name_zh: '东海仙境海蚀洞', name_en: 'Donghai Sea Cave', name_tw: '東海仙境海蝕洞',
+    en: 'East Sea Fairyland',
+    region_zh: '东海仙境 · 25.6°N 119.8°E', region_en: 'Donghai Xianjing',
+    title_en: '10,000-Year Wave Erosion Replay',
+    markers: [
+      { x: 50, y: 45, n: '①', label_zh: '海蚀竖井', label_en: 'Erosion Shaft' },
+      { x: 35, y: 65, n: '②', label_zh: '岩壁纹理', label_en: 'Wall Texture' },
+      { x: 65, y: 70, n: '③', label_zh: '海浪冲击层', label_en: 'Wave Impact' }
+    ],
+    detect: [
+      { name_zh: '🕳️ 仙人井（海蚀竖井）', name_en: '🕳️ Immortal\'s Well (Sea Cave)', conf: '99.4%' },
+      { name_zh: '📏 深度·40+ 米', name_en: '📏 Depth · 40+ m', conf: '95.8%' },
+      { name_zh: '🌀 螺旋型水流痕迹', name_en: '🌀 Spiral Water Marks', conf: '93.2%' },
+      { name_zh: '⛰️ 火山岩+花岗岩复合', name_en: '⛰️ Volcanic+Granite Composite', conf: '97.1%' }
+    ],
+    ar: {
+      title_zh: '⏳ 海浪万年雕刻历史回放',
+      title_en: '⏳ 10,000-Year Wave Erosion Replay',
+      stats: [
+        { l_zh: '雕刻年限', l_en: 'Carving Duration', v: '≈ 10,000 years' },
+        { l_zh: '日均冲击', l_en: 'Daily Impacts', v: '~ 86,400 waves' },
+        { l_zh: '总冲击次数', l_en: 'Total Impacts', v: '> 31.5 billion' },
+        { l_zh: '当前深度', l_en: 'Current Depth', v: '40 m · ↓ 0.4mm/year' },
+        { l_zh: '地质等级', l_en: 'Geo Rating', v: '★ Class 1 Wonder' }
+      ]
+    },
+    culture: {
+      quote_zh: '"语言无法描述——你只能站在井沿，把耳朵交给海浪万年的回响。"',
+      quote_en: '"Words fall short — you can only stand at the rim, surrendering your ears to ten thousand years of echoes."',
+      desc_zh: '东海仙境的"仙人井"是海浪用万年时间雕刻的天然海蚀竖井，深达40余米。当游客站在井沿向下看，海浪涌入的瞬间能感受到"地质级时间"的沉重——这是一种文字与摄影都无法传递的"在场感"。',
+      desc_en: 'The "Immortal\'s Well" is a natural sea-erosion shaft carved by waves over ten millennia, more than 40 meters deep. Standing at the rim looking down, one feels the gravity of geological time — a presence neither words nor photographs can transmit.'
+    },
+    merch: [
+      { icon: '🌊', name_zh: '海蚀洞 AR 立体卡片', name_en: 'Sea Cave AR Card', price: '¥58', tag_zh: 'AR重现', tag_en: 'AR Replay' },
+      { icon: '⏳', name_zh: '万年沙漏文创', name_en: 'Ten-Millennia Hourglass', price: '¥168', tag_zh: '联名', tag_en: 'Collab' },
+      { icon: '📷', name_zh: '海蚀地貌摄影集', name_en: 'Erosion Landscape Album', price: '¥98', tag_zh: '精装', tag_en: 'Hardcover' },
+      { icon: '🎙️', name_zh: '海浪白噪音专辑', name_en: 'Wave Sound Album', price: '¥39', tag_zh: '数字版', tag_en: 'Digital' }
+    ]
+  },
+  {
+    id: 'shipai',
+    img: 'assets/real/shipaiyang.jpg',
+    name_zh: '半洋石帆（石牌洋）', name_en: 'Double Sail Rock', name_tw: '半洋石帆',
+    en: 'Double Sail Rock',
+    region_zh: '半洋石帆 · 25.5°N 119.6°E', region_en: 'Banyangshipfan',
+    title_en: 'Granite Sea Stack · Geological Wonder',
+    markers: [
+      { x: 35, y: 40, n: '①', label_zh: '主石帆', label_en: 'Main Sail' },
+      { x: 65, y: 45, n: '②', label_zh: '副石帆', label_en: 'Side Sail' },
+      { x: 50, y: 70, n: '③', label_zh: '海蚀基座', label_en: 'Eroded Base' }
+    ],
+    detect: [
+      { name_zh: '⛵ 石牌洋（双帆石）', name_en: '⛵ Double Sail Rock', conf: '99.1%' },
+      { name_zh: '📏 高度·33 米 / 17 米', name_en: '📏 Height · 33m / 17m', conf: '98.5%' },
+      { name_zh: '🪨 花岗岩巨型海蚀柱', name_en: '🪨 Granite Sea Stack', conf: '96.8%' },
+      { name_zh: '🌊 国家地质公园 5A 景区', name_en: '🌊 Class 5A Geological Park', conf: '99.9%' }
+    ],
+    ar: {
+      title_zh: '🗺️ 地质成因实时模拟',
+      title_en: '🗺️ Geological Formation Replay',
+      stats: [
+        { l_zh: '主帆高度', l_en: 'Main Sail Height', v: '33 m' },
+        { l_zh: '副帆高度', l_en: 'Side Sail Height', v: '17 m' },
+        { l_zh: '形成年代', l_en: 'Formation', v: '~ 1 million years' },
+        { l_zh: '岩性', l_en: 'Rock Type', v: 'Granite (Mesozoic)' },
+        { l_zh: '保护等级', l_en: 'Protection', v: '★ National 5A' }
+      ]
+    },
+    culture: {
+      quote_zh: '"两片石帆在海中并立 — 像是凝固千年的渡海者剪影。"',
+      quote_en: '"Two stone sails stand side by side at sea — like silhouettes of voyagers frozen for a thousand years."',
+      desc_zh: '半洋石帆是平潭岛的标志性地质景观，两座巨型花岗岩海蚀柱在海平面上拔地而起。在闽人航海记忆中，这是出海远行的天然航标——也是这座岛"被海定义"的最直观证据。',
+      desc_en: 'Double Sail Rock is Pingtan\'s iconic geological landmark — two giant granite sea stacks rising from the sea. In Fujian\'s maritime memory, they are natural beacons for ocean voyages — direct evidence of how this island is defined by the sea.'
+    },
+    merch: [
+      { icon: '⛵', name_zh: '石帆主题文创书签', name_en: 'Sail Bookmark', price: '¥48', tag_zh: '黄铜', tag_en: 'Brass' },
+      { icon: '🪨', name_zh: '花岗岩压仓石文镇', name_en: 'Granite Paperweight', price: '¥98', tag_zh: '本岛石', tag_en: 'Native Stone' },
+      { icon: '🗺️', name_zh: '海洋航线主题地图', name_en: 'Maritime Route Map', price: '¥68', tag_zh: '复古印', tag_en: 'Vintage Print' },
+      { icon: '🎬', name_zh: '半洋石帆纪录短片', name_en: 'Sail Rock Documentary', price: '¥39', tag_zh: '数字版', tag_en: 'Digital' }
+    ]
+  },
+  {
+    id: 'beach',
+    img: 'assets/real/longfengtou.jpg',
+    name_zh: '龙凤头海滨浴场', name_en: 'Longfengtou Beach', name_tw: '龍鳳頭海濱浴場',
+    en: 'Longfengtou Beach',
+    region_zh: '龙凤头海滨 · 25.5°N 119.8°E', region_en: 'Longfengtou Beach',
+    title_en: 'Tonight\'s Blue Tears Probability',
+    markers: [
+      { x: 30, y: 70, n: '①', label_zh: '荧光区域', label_en: 'Glow Zone' },
+      { x: 60, y: 75, n: '②', label_zh: '浪花边界', label_en: 'Wave Edge' },
+      { x: 50, y: 50, n: '③', label_zh: '夜空观测', label_en: 'Sky Watch' }
+    ],
+    detect: [
+      { name_zh: '🌊 夜光藻活动迹象', name_en: '🌊 Bioluminescence Detected', conf: '76.3%' },
+      { name_zh: '💧 海水温度·19.2°C', name_en: '💧 Water Temp · 19.2°C', conf: '99.0%' },
+      { name_zh: '🌑 月光强度·中等', name_en: '🌑 Moonlight · Medium', conf: '92.1%' },
+      { name_zh: '💨 风向·东南3级', name_en: '💨 Wind · SE Force 3', conf: '97.5%' }
+    ],
+    ar: {
+      title_zh: '🔮 蓝眼泪今晚出现概率预测',
+      title_en: '🔮 Tonight\'s Blue Tears Probability',
+      stats: [
+        { l_zh: '今晚概率', l_en: 'Tonight Probability', v: '38% · Medium-Low' },
+        { l_zh: '适合观测窗', l_en: 'Best Window', v: '22:30 — 23:45' },
+        { l_zh: '推荐位置', l_en: 'Recommended Spot', v: 'South Beach' },
+        { l_zh: '盲盒保险', l_en: 'Mystery Box', v: '✨ AUTO-PREPARED' },
+        { l_zh: '替代体验', l_en: 'Alternative', v: 'Sea Wind Listening' }
+      ]
+    },
+    culture: {
+      quote_zh: '"蓝眼泪不能预约——但海风一定到达。这是平潭对算法时代富有诗意的回答。"',
+      quote_en: '"Blue Tears can\'t be booked — but the sea wind always arrives."',
+      desc_zh: '在被算法、攻略、预约统治的旅游时代，蓝眼泪保持着高傲的不可控——它需要水温、洋流、月相、风向同时巧合。我们把"看不到"变成了一种到达：今晚条件不达标？AI 已自动激活盲盒补偿券。',
+      desc_en: 'In an era ruled by algorithms and bookings, Blue Tears keep their arrogance of uncontrollability. We turn "not seeing" into a form of arrival.'
+    },
+    merch: [
+      { icon: '🔦', name_zh: '黄光手电（夜观）', name_en: 'Yellow Flashlight', price: '¥60', tag_zh: '租赁', tag_en: 'Rental' },
+      { icon: '🎟️', name_zh: '盲盒补偿券', name_en: 'Mystery-Box Voucher', price: 'AUTO', tag_zh: '已激活', tag_en: 'Activated' },
+      { icon: '🌌', name_zh: '蓝眼泪长曝光摄影集', name_en: 'Long-Exposure Album', price: '¥168', tag_zh: '限定', tag_en: 'Limited' },
+      { icon: '🥢', name_zh: '海鲜大排档7折券', name_en: 'Seafood 30%-Off', price: 'AUTO', tag_zh: '盲盒触发', tag_en: 'Triggered' }
+    ]
+  },
+  {
+    id: 'fishport',
+    img: 'assets/real/fishport.jpg',
+    name_zh: '澳前渔港 · 方言现场', name_en: 'Aoqian Fishing Port', name_tw: '澳前漁港',
+    en: 'Aoqian Fishing Port',
+    region_zh: '澳前镇 · 25.4°N 119.8°E', region_en: 'Aoqian Town',
+    title_en: 'Min-dong Dialect Living Field',
+    markers: [
+      { x: 40, y: 50, n: '①', label_zh: '渔民对话', label_en: 'Fishermen Talk' },
+      { x: 65, y: 45, n: '②', label_zh: '海鲜叫卖', label_en: 'Market Calls' },
+      { x: 30, y: 70, n: '③', label_zh: '渔船作业', label_en: 'Boat Activity' }
+    ],
+    detect: [
+      { name_zh: '🚢 平潭澳前镇渔港', name_en: '🚢 Aoqian Fishing Port', conf: '99.0%' },
+      { name_zh: '🗣️ 平潭话对话现场', name_en: '🗣️ Pingtan Dialect Live', conf: '94.5%' },
+      { name_zh: '🐟 海鲜交易场景', name_en: '🐟 Seafood Trading Scene', conf: '96.2%' },
+      { name_zh: '⚓ 闽东渔业文化区', name_en: '⚓ Min-dong Fishery Culture', conf: '98.8%' }
+    ],
+    ar: {
+      title_zh: '🎤 方言现场实时识别',
+      title_en: '🎤 Live Dialect Recognition',
+      stats: [
+        { l_zh: '语种识别', l_en: 'Language', v: 'Min-dong (Fuzhou)' },
+        { l_zh: '方言子系', l_en: 'Sub-dialect', v: 'Pingtan-Fuqing' },
+        { l_zh: '今日录音', l_en: 'Today\'s Recordings', v: '23 samples' },
+        { l_zh: '可触发体验', l_en: 'Triggerable Experience', v: '🎙️ Field Workshop' },
+        { l_zh: '关联消费节点', l_en: 'Linked Spend', v: '¥45—¥80' }
+      ]
+    },
+    culture: {
+      quote_zh: '"码头的吆喝里，藏着这座岛更具生活感的语法。"',
+      quote_en: '"In the cries of the wharf lies this island\'s oldest grammar."',
+      desc_zh: '澳前渔港是平潭话的活态现场——清晨卸货时的吆喝、市集间的讨价、老渔民间的寒暄，都是闽东语保留中古汉语的真实标本。游客在这里可以触发"声音田野工作坊"，由本地讲解员引导录制属于自己的方言切片。',
+      desc_en: 'Aoqian is a living archive of Pingtan dialect — early-morning shouts at the dock, market bargaining, fishermen\'s chats — all authentic specimens of how Min-dong preserves Middle Chinese. Travelers can trigger the "Sound-Field Workshop" here.'
+    },
+    merch: [
+      { icon: '🎙️', name_zh: '声音田野工作坊参与券', name_en: 'Sound-Field Workshop', price: '¥80', tag_zh: '含转录', tag_en: 'With Transcript' },
+      { icon: '💿', name_zh: '《68海里·声音田野笔记》', name_en: 'Sound-Field Notes Album', price: '¥98', tag_zh: '黑胶', tag_en: 'Vinyl' },
+      { icon: '🐟', name_zh: '当日海鲜大排档套餐', name_en: 'Daily Seafood Set', price: '¥68', tag_zh: '现捕现做', tag_en: 'Fresh' },
+      { icon: '📒', name_zh: '方言罗马拼音笔记本', name_en: 'BUC Romanization Notebook', price: '¥48', tag_zh: '学术', tag_en: 'Academic' }
+    ]
+  }
+];
+
+const CONFIG = { curId: 'donghai' };
+
+function renderTabs() {
+  const lang = I18N.getLang();
+  const wrap = document.getElementById('sceneTabs');
+  wrap.innerHTML = SCENES.map((s, i) => {
+    const name = lang === 'en' ? s.name_en : (lang === 'zh-TW' ? s.name_tw : s.name_zh);
+    return '<div class="scene-tab ' + (s.id===CONFIG.curId?'active':'') + '" data-id="' + s.id + '">' +
+      '<div class="num">0' + (i+1) + '</div>' +
+      '<h4>' + name + '</h4>' +
+      '<div class="en">' + s.en + '</div>' +
+    '</div>';
+  }).join('');
+  wrap.querySelectorAll('.scene-tab').forEach(t => {
+    t.addEventListener('click', () => switchScene(t.dataset.id));
+  });
+}
+
+function switchScene(id) {
+  CONFIG.curId = id;
+  reset();
+  renderTabs();
+  const s = SCENES.find(x => x.id === id);
+  document.getElementById('sceneImg').src = s.img;
+  const lang = I18N.getLang();
+  document.getElementById('camInfo').textContent = '● ' + (lang==='en' ? s.region_en : s.region_zh);
+  document.getElementById('sceneTitle').textContent = s.title_en;
+
+  // 渲染 markers
+  const ml = document.getElementById('markerLayer');
+  ml.innerHTML = s.markers.map((m, i) =>
+    '<div class="ar-marker" data-idx="' + i + '" style="left:' + m.x + '%; top:' + m.y + '%;">' + m.n + '</div>' +
+    '<div class="ar-label" data-idx="' + i + '" style="left:' + m.x + '%; top:' + m.y + '%;">' + (lang==='en'?m.label_en:m.label_zh) + '</div>'
+  ).join('');
+}
+
+document.addEventListener('langchange', () => {
+  renderTabs();
+  switchScene(CONFIG.curId);
+});
+
+renderTabs();
+switchScene('donghai');
+
+const startBtn = document.getElementById('startBtn');
+const resetBtn = document.getElementById('resetBtn');
+const phOut = document.getElementById('phOut');
+const steps = ['s1','s2','s3','s4'].map(id => document.getElementById(id));
+const sections = ['sec1','sec2','sec3','sec4'].map(id => document.getElementById(id));
+
+function reset() {
+  const sl = document.getElementById('scanLine');
+  sl.classList.remove('active');
+  document.getElementById('scanGrid').classList.remove('active');
+  document.querySelectorAll('.ar-marker').forEach(m => m.classList.remove('show'));
+  document.querySelectorAll('.ar-label').forEach(m => m.classList.remove('show'));
+  steps.forEach(s => s.classList.remove('active','done'));
+  sections.forEach(s => s.classList.remove('show'));
+  if (phOut) phOut.style.display = 'block';
+  if (startBtn) {
+    startBtn.disabled = false;
+    startBtn.innerHTML = '▶ <span data-i18n="vlm.btn.start">' + (I18N.getLang()==='en'?'START SCANNING':'开始扫描解读') + '</span>';
+  }
+}
+
+resetBtn.addEventListener('click', reset);
+
+startBtn.addEventListener('click', () => {
+  const s = SCENES.find(x => x.id === CONFIG.curId);
+  if (!s) return;
+  const lang = I18N.getLang();
+  startBtn.disabled = true;
+  startBtn.innerHTML = '🔍 ' + (lang==='en'?'AI ANALYZING…':'AI 正在解读…');
+  phOut.style.display = 'none';
+
+  // Step 1: 扫描动画 + 网格
+  document.getElementById('scanGrid').classList.add('active');
+  // 重置扫描线动画
+  const sl = document.getElementById('scanLine');
+  sl.classList.remove('active');
+  void sl.offsetWidth; // 强制重flow
+  sl.classList.add('active');
+
+  setTimeout(() => {
+    steps[0].classList.add('active');
+    sections[0].classList.add('show');
+    document.querySelectorAll('.ar-marker').forEach((m, i) => {
+      setTimeout(() => {
+        m.classList.add('show');
+        const lbl = document.querySelector('.ar-label[data-idx="'+i+'"]');
+        if (lbl) lbl.classList.add('show');
+      }, i * 250);
+    });
+    document.getElementById('detectList').innerHTML = s.detect.map(d =>
+      '<div class="detect-item">' +
+        '<span>' + (lang==='en'?d.name_en:d.name_zh) + '</span>' +
+        '<span class="conf">' + d.conf + '</span>' +
+      '</div>'
+    ).join('');
+  }, 2400);
+
+  setTimeout(() => {
+    steps[0].classList.remove('active'); steps[0].classList.add('done');
+    steps[1].classList.add('active');
+    sections[1].classList.add('show');
+    document.getElementById('arData').innerHTML =
+      '<div class="title">' + (lang==='en'?s.ar.title_en:s.ar.title_zh) + '</div>' +
+      s.ar.stats.map(st =>
+        '<div class="stat"><span>' + (lang==='en'?st.l_en:st.l_zh) + '</span><strong>' + st.v + '</strong></div>'
+      ).join('');
+  }, 4500);
+
+  setTimeout(() => {
+    steps[1].classList.remove('active'); steps[1].classList.add('done');
+    steps[2].classList.add('active');
+    sections[2].classList.add('show');
+    document.getElementById('cultureCard').innerHTML =
+      '<div class="quote">' + (lang==='en'?s.culture.quote_en:s.culture.quote_zh) + '</div>' +
+      '<div class="desc">' + (lang==='en'?s.culture.desc_en:s.culture.desc_zh) + '</div>';
+  }, 6500);
+
+  setTimeout(() => {
+    steps[2].classList.remove('active'); steps[2].classList.add('done');
+    steps[3].classList.add('active');
+    sections[3].classList.add('show');
+    document.getElementById('merchGrid').innerHTML = s.merch.map(m =>
+      '<div class="merch">' +
+        '<div class="img-ph">' + m.icon + '</div>' +
+        '<div class="name">' + (lang==='en'?m.name_en:m.name_zh) + '</div>' +
+        '<div class="price">' + m.price + '</div>' +
+        '<div class="tag-m">' + (lang==='en'?m.tag_en:m.tag_zh) + '</div>' +
+      '</div>'
+    ).join('');
+    startBtn.innerHTML = '✅ ' + (lang==='en'?'COMPLETE':'解读完成');
+  }, 8500);
+});
+</script>
+</body>
+</html>

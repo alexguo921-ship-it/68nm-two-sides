@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>68海里 · 快节奏旅游宣传片</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;700&family=Noto+Serif+SC:wght@600;800;900&family=Noto+Sans+SC:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#020406;height:100vh;overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:'Noto Serif SC',serif;color:#fff}
+.stage{position:relative;width:min(96vw,1440px);aspect-ratio:16/9;background:#000;overflow:hidden;box-shadow:0 35px 90px rgba(0,0,0,.55)}
+.scene{position:absolute;inset:0;opacity:0;transition:opacity .55s ease;overflow:hidden}
+.scene.on{opacity:1;z-index:2}
+.bg,.clip{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background-size:cover;background-position:center;transform-origin:center;filter:saturate(1.08) contrast(1.04)}
+.scene.on .bg{animation:move 5.8s ease-out forwards}
+.scene.pan .bg{animation:pan 5.8s ease-out forwards}.scene.zoomout .bg{animation:zoomout 5.8s ease-out forwards}.scene.rot .bg{animation:rot 5.8s ease-out forwards}
+@keyframes move{from{transform:scale(1.05)}to{transform:scale(1.22) translate(-1.5%,-1%)}}
+@keyframes pan{from{transform:scale(1.14) translateX(-2%)}to{transform:scale(1.18) translateX(2%)}}
+@keyframes zoomout{from{transform:scale(1.28)}to{transform:scale(1.04)}}
+@keyframes rot{from{transform:scale(1.16) rotate(-.8deg)}to{transform:scale(1.24) rotate(.8deg)}}
+.overlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.78),rgba(0,0,0,.18) 55%,rgba(0,0,0,.62));z-index:4}
+.vignette{position:absolute;inset:0;box-shadow:inset 0 0 180px 70px rgba(0,0,0,.75);z-index:7;pointer-events:none}
+.grain{position:absolute;inset:-30%;z-index:8;opacity:.14;mix-blend-mode:overlay;pointer-events:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence baseFrequency='.8' numOctaves='3'/></filter><rect width='180' height='180' filter='url(%23n)' opacity='.45'/></svg>");animation:grain 6s steps(8) infinite}@keyframes grain{to{transform:translate(8%,6%)}}
+.flare{position:absolute;width:240px;height:240px;border-radius:50%;right:16%;top:18%;background:radial-gradient(circle,rgba(255,204,0,.42),rgba(255,204,0,.14) 35%,transparent 66%);filter:blur(18px);z-index:6;mix-blend-mode:screen;animation:flare 8s ease-in-out infinite}@keyframes flare{50%{transform:translate(-40px,28px) scale(1.12)}}
+.copy{position:absolute;left:82px;bottom:86px;z-index:10;max-width:800px}.copy.center{left:50%;top:50%;bottom:auto;transform:translate(-50%,-50%);text-align:center}.copy.right{left:auto;right:74px;text-align:right}
+.k{font-family:'Cormorant Garamond',serif;font-size:16px;letter-spacing:5px;color:#ffcc00;margin-bottom:14px;font-weight:700;text-transform:uppercase;text-shadow:0 3px 14px rgba(0,0,0,.55)}.copy h2{font-size:58px;line-height:1.06;font-weight:900;text-shadow:0 6px 28px rgba(0,0,0,.55)}.copy h2 em{font-style:normal;color:#ffcc00}.copy p{margin-top:16px;font-family:'Noto Sans SC',sans-serif;font-size:22px;line-height:1.6;color:#f4ead2;max-width:780px;text-shadow:0 4px 18px rgba(0,0,0,.55)}.chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.chip{background:rgba(255,204,0,.16);border:1px solid rgba(255,204,0,.55);color:#ffcc00;padding:9px 14px;font:800 15px 'Noto Sans SC';border-radius:999px;backdrop-filter:blur(8px);text-shadow:0 2px 10px rgba(0,0,0,.5)}
+.split{position:absolute;right:70px;top:76px;bottom:78px;width:500px;z-index:9;display:grid;gap:16px}.panel{background:rgba(10,28,35,.86);border:1.5px solid rgba(255,204,0,.5);padding:24px 26px;backdrop-filter:blur(12px);transform:translateX(35px);opacity:0;display:flex;flex-direction:column;justify-content:center}.scene.on .panel{animation:slideIn .45s ease forwards}.scene.on .panel:nth-child(2){animation-delay:.12s}.scene.on .panel:nth-child(3){animation-delay:.24s}.panel strong{display:block;color:#ffcc00;font-size:24px;margin-bottom:12px;letter-spacing:1px;line-height:1.2;text-shadow:0 3px 12px rgba(0,0,0,.55)}.panel span{font:600 19px/1.55 'Noto Sans SC';color:#f4ead2;text-shadow:0 3px 12px rgba(0,0,0,.55)}@keyframes slideIn{to{transform:translateX(0);opacity:1}}
+.mapline{position:absolute;right:86px;bottom:90px;width:440px;height:270px;z-index:11;background:rgba(5,20,28,.78);border:1.5px solid rgba(255,204,0,.5);padding:16px;backdrop-filter:blur(10px)}.route-dot{position:absolute;width:12px;height:12px;border-radius:50%;background:#ffcc00;box-shadow:0 0 18px #ffcc00}.dot1{left:280px;top:30px}.dot2{left:145px;top:94px}.dot3{left:205px;top:122px}.dot4{left:105px;top:172px}.route-path{position:absolute;inset:0}.route-path svg{width:100%;height:100%}.mapline .label{position:absolute;color:#fff;font-size:16px;font-weight:700;text-shadow:0 3px 12px rgba(0,0,0,.75)}.l1{left:295px;top:18px}.l2{left:98px;top:80px}.l3{left:218px;top:108px;color:#ffcc00!important}.l4{left:62px;top:160px}
+.product-grid{position:absolute;right:62px;top:70px;width:560px;z-index:10;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.product-grid img{width:100%;aspect-ratio:1/1;object-fit:cover;border:1px solid rgba(255,204,0,.4);box-shadow:0 14px 28px rgba(0,0,0,.3);opacity:0;transform:scale(.96)}.scene.on .product-grid img{animation:pop .45s ease forwards}.scene.on .product-grid img:nth-child(2){animation-delay:.08s}.scene.on .product-grid img:nth-child(3){animation-delay:.16s}.scene.on .product-grid img:nth-child(4){animation-delay:.24s}.scene.on .product-grid img:nth-child(5){animation-delay:.32s}.scene.on .product-grid img:nth-child(6){animation-delay:.4s}@keyframes pop{to{opacity:1;transform:scale(1)}}
+.topbar{position:absolute;left:42px;right:42px;top:30px;z-index:12;display:flex;justify-content:space-between;align-items:center;font:700 15px 'Cormorant Garamond';letter-spacing:4px;color:rgba(255,255,255,.88);text-shadow:0 3px 12px rgba(0,0,0,.7)}.topbar b{color:#ffcc00}.progress{position:absolute;left:0;bottom:0;height:4px;background:#ffcc00;width:0;z-index:20;transition:width .18s linear}.flash{position:absolute;inset:0;background:#fff;z-index:30;opacity:0;pointer-events:none}.flash.on{animation:flash .38s ease}@keyframes flash{0%,100%{opacity:0}40%{opacity:.92}}
+.opening,.ending{position:absolute;inset:0;z-index:15;background:radial-gradient(circle at 50% 44%,#143b48,#020406 70%);display:flex;align-items:center;justify-content:center;text-align:center}.opening.hide{opacity:0;pointer-events:none;transition:opacity .6s}.opening .pre,.ending .pre{font:700 13px 'Cormorant Garamond';letter-spacing:7px;color:#ffcc00;margin-bottom:24px}.opening h1,.ending h1{font-size:88px;letter-spacing:2px}.opening h1 em,.ending h1 em{font-style:normal;color:#ffcc00}.opening .sub,.ending .sub{margin-top:22px;font:500 18px 'Noto Sans SC';letter-spacing:4px;color:#f4ead2}.ending{opacity:0;pointer-events:none}.ending.on{opacity:1;z-index:25;transition:opacity .8s}.ctrl{position:fixed;right:18px;bottom:18px;z-index:50;display:flex;gap:8px;opacity:.72;transition:opacity .25s}.ctrl:hover{opacity:1}.ctrl button{background:rgba(0,0,0,.74);color:#ffcc00;border:1px solid #ffcc00;padding:9px 14px;font:700 12px 'Cormorant Garamond';letter-spacing:2px;cursor:pointer}
+@media(max-width:900px){.copy{left:38px;bottom:58px}.copy h2{font-size:36px}.copy p{font-size:14px}.split,.product-grid,.mapline{display:none}}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <div class="topbar"><span><b>68NM</b> · PINGTAN ISLAND FILM</span><span>AI TOURISM PRODUCT · FUDAN 2026</span></div>
+  <div class="grain"></div><div class="vignette"></div><div class="flare"></div><div class="flash" id="flash"></div>
+
+  <div class="opening" id="opening"><div><div class="pre">A FAST-PACED TOURISM PRODUCT FILM</div><h1>68 海里 <em>·</em> 两面</h1><div class="sub">用 AI 与方言连续体，重新翻译一座岛</div></div></div>
+
+  <section class="scene pan" data-clip="assets/clips/pingtan_sea.mp4"><div class="bg" style="background-image:url('assets/real/longfengtou.jpg')"></div><video class="clip" muted playsinline loop></video><div class="overlay"></div><div class="copy"><div class="k">WHY PINGTAN</div><h2>走过近 200 座城市后，<br>我选择了<em>平潭</em>。</h2><p>这里有特殊的海峡地理坐标，也有方言、石厝、蓝眼泪与青年旅行消费之间的连接点。</p></div></section>
+  <section class="scene zoomout" data-clip="assets/clips/pingtan_aerial.mp4"><div class="bg" style="background-image:url('assets/houyan_aerial.png')"></div><video class="clip" muted playsinline loop></video><div class="overlay"></div><div class="copy right"><div class="k">THE ISLAND</div><h2>68 海里，<br>是一条<em>可被讲述</em>的距离。</h2><div class="chips"><span class="chip">猴研岛</span><span class="chip">北港石厝</span><span class="chip">龙凤头海滨</span><span class="chip">蓝眼泪海岸</span></div></div></section>
+  <section class="scene" data-clip="assets/clips/blue_tears.mp4"><div class="bg" style="background-image:url('assets/bluetears_real.png')"></div><video class="clip" muted playsinline loop></video><div class="overlay"></div><div class="copy center"><div class="k">NIGHT WONDER</div><h2>把不可预约的蓝眼泪，<br>做成<em>可运营的体验机制</em>。</h2><p>实时概率、追泪点位、补偿权益，让天气不确定性不再只是遗憾。</p></div></section>
+  <section class="scene pan"><div class="bg" style="background-image:url('assets/stonehouse_golden.png')"></div><div class="overlay"></div><div class="copy"><div class="k">CULTURE</div><h2>石厝不是背景板，<br>它是<em>海岛生活的结构</em>。</h2><p>VLM 扫描石墙，AR 叠加台风受力模拟，把建筑美学变成可互动的文化讲解。</p></div></section>
+  <section class="scene rot"><div class="bg" style="background-image:url('assets/pingtan_map.png')"></div><div class="overlay"></div><div class="copy"><div class="k">AI ROUTE ENGINE</div><h2>输入预算、天数、同行人，<br>生成<em>路线地图</em>。</h2><p>不是只推套餐，而是先给游客一条看得懂、走得通、可调整的旅行路线。</p></div><div class="mapline"><div class="route-path"><svg viewBox="0 0 360 220"><path d="M280 30 C210 45 180 80 145 94 S190 125 205 122 S150 160 105 172" fill="none" stroke="#ffcc00" stroke-width="2" stroke-dasharray="6 4"/></svg></div><i class="route-dot dot1"></i><i class="route-dot dot2"></i><i class="route-dot dot3"></i><i class="route-dot dot4"></i><span class="label l1">上海</span><span class="label l2">福州</span><span class="label l3">平潭</span><span class="label l4">泉州/厦门</span></div></section>
+  <section class="scene zoomout"><div class="bg" style="background-image:url('assets/pass_card.png')"></div><div class="overlay"></div><div class="copy"><div class="k">PASS CARD</div><h2><em>通行 PASS</em>，<br>把一次旅行变成长期连接。</h2><p>酒店、民宿、餐饮、交通、文创与夜游船形成优惠网络，帮助游客留下，也帮助商户分润。</p></div></section>
+  <section class="scene"><div class="bg" style="background-image:url('assets/real/fishport.jpg')"></div><div class="overlay"></div><div class="copy"><div class="k">ONE-STOP PLATFORM</div><h2>网站、小程序、数字人，<br>形成<em>一站式入口</em>。</h2></div><div class="split"><div class="panel"><strong>游客端</strong><span>路线定制 / 套餐预订 / PASS 卡 / 文创商城</span></div><div class="panel"><strong>运营端</strong><span>客流热区 / 分润对账 / 舆情与应急</span></div><div class="panel"><strong>传播端</strong><span>AI 游记 / 明信片 / 小红书式 UGC</span></div></div></section>
+  <section class="scene pan"><div class="bg" style="background-image:url('assets/merch_flatlay.png')"></div><div class="overlay"></div><div class="copy"><div class="k">MERCHANDISE</div><h2>文创不是纪念品陈列，<br>而是<em>故事的延长线</em>。</h2><p>护照、黑胶、文镇、明信片、手账与礼盒共享统一视觉语言，支撑二次消费。</p></div><div class="product-grid"><img src="assets/passport.png"><img src="assets/merch_vinyl.png"><img src="assets/merch_paperweight.png"><img src="assets/postcard.png"><img src="assets/merch_tote.png"><img src="assets/merch_giftbox.png"></div></section>
+  <section class="scene zoomout"><div class="bg" style="background-image:url('assets/windmill.png')"></div><div class="overlay"></div><div class="copy center"><div class="k">REGIONAL SYNERGY</div><h2>从平潭出发，<br>连接<em>福州、泉州与厦门</em>。</h2><p>把上海到平潭的交通现实，转化为海西区域联动的旅行方案。</p></div></section>
+  <section class="scene"><div class="bg" style="background-image:url('assets/islands_aerial.png')"></div><div class="overlay"></div><div class="copy"><div class="k">BUSINESS & RISK</div><h2>商业模型要可持续，<br>风险预案也要<em>可执行</em>。</h2><p>自然不确定、服务承载、安全突发、口碑波动与合规问题，都在小程序和运营端预先处理。</p></div><div class="split"><div class="panel"><strong>收入结构</strong><span>路线套餐 + PASS 卡 + 文创 + 体验门票 + B 端定制</span></div><div class="panel"><strong>应急机制</strong><span>蓝眼泪补偿 / 台风改期 / 医疗绿色通道</span></div><div class="panel"><strong>社会价值</strong><span>带动民宿、餐饮、交通、非遗与青年就业</span></div></div></section>
+
+  <div class="ending" id="ending"><div><div class="pre">THE SEA IS NOT ONLY SEEN, BUT UNDERSTOOD</div><h1>让 68 海里，<br><em>成为被听见的距离</em></h1><div class="sub">68 海里 · 两面 · AI 文旅产品方案</div></div></div>
+  <div class="progress" id="progress"></div>
+</div>
+<div class="ctrl"><button id="replay">↻ REPLAY</button><button onclick="window.location.href='ppt.html#slide-'+(parseInt(localStorage.getItem('ppt_last_slide')||'0',10)+1)">← BACK</button><button onclick="window.location.href='index.html'">⌂ HOME</button></div>
+<audio id="bgmAudio" preload="auto" loop></audio>
+<script>
+const TOTAL=68000, OPEN=2600, END_AT=61000;
+const scenes=[...document.querySelectorAll('.scene')];
+const starts=[2600,7600,12600,17600,22600,27600,32600,38200,44600,51200];
+let timer=null, startTime=0, raf=null, audio=null;
+async function setupClips(){
+  for(const s of scenes){
+    const url=s.dataset.clip; if(!url) continue;
+    try{ const r=await fetch(url,{method:'HEAD'}); if(!r.ok) continue; const v=s.querySelector('video'); v.src=url; v.style.display='block'; }
+    catch(e){}
+  }
+}
+function showScene(i){scenes.forEach((s,k)=>{s.classList.toggle('on',k===i); const v=s.querySelector('video'); if(v){ if(k===i){v.currentTime=0; v.play().catch(()=>{});} else v.pause(); }}); if([2,4,7].includes(i)){const f=document.getElementById('flash'); f.classList.remove('on'); void f.offsetWidth; f.classList.add('on');}}
+function tick(){const t=Date.now()-startTime; document.getElementById('progress').style.width=Math.min(t/TOTAL*100,100)+'%'; let cur=-1; for(let i=0;i<starts.length;i++){if(t>=starts[i]) cur=i;} if(cur>=0) showScene(cur); if(t>=OPEN) document.getElementById('opening').classList.add('hide'); if(t>=END_AT) document.getElementById('ending').classList.add('on'); if(t<TOTAL) raf=requestAnimationFrame(tick);}
+function loadAudio(){audio=document.getElementById('bgmAudio'); audio.volume=.55; const candidates=['assets/a_beautiful_life.mp3','assets/bgm_fallback.mp3']; let i=0; function next(){ if(i>=candidates.length) return; audio.src=candidates[i++]; audio.play().catch(()=>{}); audio.onerror=next;} next();}
+function play(){clearTimeout(timer); cancelAnimationFrame(raf); document.getElementById('opening').classList.remove('hide'); document.getElementById('ending').classList.remove('on'); scenes.forEach(s=>s.classList.remove('on')); document.getElementById('progress').style.width='0'; startTime=Date.now(); loadAudio(); raf=requestAnimationFrame(tick);}
+document.getElementById('replay').onclick=play; setupClips(); setTimeout(play,450);
+</script>
+</body>
+</html>
