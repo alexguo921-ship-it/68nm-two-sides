@@ -1,8 +1,3 @@
 name = "68nm-two-sides"
 pages_build_output_dir = "."
 compatibility_date = "2026-05-21"
-
-# 兼容 Cloudflare 后台误填 `npx wrangler deploy` 的情况：
-# 正确的 Pages 部署仍应使用 `npx wrangler pages deploy . --project-name=68nm-two-sides` 或后台静态 Pages 配置。
-[assets]
-directory = "."
