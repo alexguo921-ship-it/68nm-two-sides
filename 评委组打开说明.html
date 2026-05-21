@@ -8,57 +8,125 @@
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   body{font-family:'Noto Sans SC',sans-serif;background:#f8f3e6;color:#1a1612;line-height:1.7;padding:50px 30px}
-  .wrap{max-width:860px;margin:0 auto}
+  .wrap{max-width:880px;margin:0 auto}
   .head{border-bottom:3px solid #1a1612;padding-bottom:20px;margin-bottom:36px}
   .head .en{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;letter-spacing:6px;color:#c8552d;margin-bottom:10px}
   h1{font-family:'Noto Serif SC',serif;font-size:42px;font-weight:900;letter-spacing:-1px}
   h1 em{font-style:normal;color:#c8552d;background:linear-gradient(180deg,transparent 60%,#ffcc0040 60%)}
   h2{font-family:'Noto Serif SC',serif;font-size:24px;font-weight:700;margin:36px 0 14px;padding-left:14px;border-left:5px solid #ffcc00;color:#1a1612}
+  h3{font-family:'Noto Serif SC',serif;font-size:17px;font-weight:700;margin:18px 0 8px;color:#1a1612}
   p{margin-bottom:12px;font-size:15px;color:#2c2418}
   p strong{color:#c8552d}
   .btn{display:inline-flex;align-items:center;gap:10px;padding:18px 26px;background:#1a1612;color:#ffcc00;text-decoration:none;font-family:'Noto Serif SC',serif;font-size:17px;font-weight:700;letter-spacing:2px;border-radius:2px;margin:6px 12px 6px 0;transition:transform .15s,background .15s}
   .btn:hover{transform:translateY(-2px);background:#c8552d}
   .btn.primary{background:#ffcc00;color:#1a1612;font-size:20px;padding:22px 36px;box-shadow:0 8px 24px rgba(255,204,0,.45)}
   .btn.primary:hover{background:#c8552d;color:#fff}
+  .btn.online{background:linear-gradient(135deg,#0e5267 0%,#1a1612 100%);color:#fff;font-size:18px;padding:20px 30px}
+  .btn.online:hover{background:linear-gradient(135deg,#c8552d 0%,#7a2d10 100%)}
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:18px 0}
   .card{background:#fff;border:1.5px solid #d9c9a8;border-left:5px solid #c8552d;padding:18px}
-  .card h3{font-family:'Noto Serif SC',serif;font-size:16px;color:#c8552d;margin-bottom:6px;font-weight:700}
+  .card h3{font-family:'Noto Serif SC',serif;font-size:16px;color:#c8552d;margin:0 0 6px;font-weight:700;padding:0;border:none}
   .card p{font-size:13px;color:#5a4a32;line-height:1.6;margin:0}
   .step{counter-reset:step;padding:0;margin:0;list-style:none}
   .step li{position:relative;padding:14px 18px 14px 56px;background:#fff;border:1.5px solid #d9c9a8;margin-bottom:10px;counter-increment:step}
   .step li::before{content:counter(step,decimal-leading-zero);position:absolute;left:14px;top:14px;width:30px;height:30px;background:#1a1612;color:#ffcc00;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:700;letter-spacing:1px}
   .step li strong{color:#c8552d;font-weight:700}
-  .tip{background:#fff8df;border-left:5px solid #ffcc00;padding:18px 22px;margin:20px 0;font-size:14px;line-height:1.75;color:#7a5a3a}
-  .foot{margin-top:50px;padding-top:24px;border-top:1.5px solid #d9c9a8;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:#7a5a3a;letter-spacing:1.5px;line-height:1.7}
+  .tip{background:#fff8e1;border-left:5px solid #ffcc00;padding:16px 20px;margin:24px 0;font-size:14px;color:#5a4a32}
+  .tip strong{color:#c8552d}
+  .foot{margin-top:50px;padding-top:24px;border-top:1px solid #d9c9a8;font-family:'Cormorant Garamond',serif;font-size:12px;color:#7a5a3a;letter-spacing:1.5px;line-height:1.9}
+
+  .online-banner{
+    background:linear-gradient(135deg,#0e5267 0%,#1a1612 100%);
+    color:#fff;padding:30px 32px;margin:0 0 32px;border-radius:4px;
+    box-shadow:0 14px 30px rgba(14,82,103,.3);
+    position:relative;overflow:hidden;
+  }
+  .online-banner::before{content:'';position:absolute;right:-40px;top:-40px;width:160px;height:160px;background:radial-gradient(circle,#ffcc0040 0%,transparent 70%);pointer-events:none}
+  .online-banner .lab{font-family:'Cormorant Garamond',serif;font-style:italic;letter-spacing:5px;font-size:13px;color:#ffcc00;margin-bottom:8px}
+  .online-banner .url{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:700;color:#fff;letter-spacing:1px;word-break:break-all;margin-bottom:6px}
+  .online-banner .url a{color:#ffcc00;text-decoration:none;border-bottom:2px solid #ffcc00}
+  .online-banner .desc{font-size:14px;color:#d9c9a8;line-height:1.7}
+
+  .pros-cons{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:18px 0}
+  .pros-cons > div{padding:22px;background:#fff;border:1.5px solid #d9c9a8}
+  .pros-cons .pros{border-left:5px solid #2a8c4a}
+  .pros-cons .cons{border-left:5px solid #c8552d}
+  .pros-cons h3{font-family:'Noto Serif SC',serif;font-size:18px;font-weight:700;margin-bottom:14px;padding:0;border:none}
+  .pros-cons .pros h3{color:#2a8c4a}
+  .pros-cons .cons h3{color:#c8552d}
+  .pros-cons ul{list-style:none;padding:0}
+  .pros-cons ul li{padding:8px 0 8px 22px;position:relative;font-size:14px;line-height:1.7;color:#2c2418;border-bottom:1px dashed #e8dfc8}
+  .pros-cons ul li:last-child{border-bottom:none}
+  .pros-cons .pros li::before{content:'✓';position:absolute;left:0;color:#2a8c4a;font-weight:700}
+  .pros-cons .cons li::before{content:'△';position:absolute;left:0;color:#c8552d;font-weight:700}
+  .pros-cons li strong{color:#1a1612}
+
+  .intent{background:#fff;border:1.5px solid #d9c9a8;border-left:6px solid #c8552d;padding:24px 28px;margin:18px 0}
+  .intent .quote{font-family:'Noto Serif SC',serif;font-size:18px;line-height:1.85;color:#1a1612;font-weight:500;margin-bottom:14px}
+  .intent .quote em{font-style:normal;color:#c8552d;background:linear-gradient(180deg,transparent 70%,#ffcc0050 70%);padding:0 2px}
+  .intent .who{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:#7a5a3a;letter-spacing:2px}
+
+  @media (max-width:640px){
+    body{padding:30px 16px}
+    h1{font-size:30px}
+    h2{font-size:20px}
+    .online-banner .url{font-size:20px}
+    .pros-cons{grid-template-columns:1fr}
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
-
   <div class="head">
-    <div class="en">FOR THE JURY · OPENING GUIDE</div>
+    <div class="en">REVIEWER PACKAGE · OPENING GUIDE</div>
     <h1>68海里 · <em>两面</em><br><span style="font-size:24px;font-weight:500;color:#7a5a3a;letter-spacing:1px">评委组评审材料 · 打开说明</span></h1>
   </div>
 
   <p>尊敬的评委老师，您好！</p>
-  <p>感谢您审阅本届 <strong>复旦大学青春文旅设计大赛</strong>参赛作品《68 海里 · 两面 — 平潭跨海峡数字人文文旅产品方案》。本资料包内一切内容均可<strong>双击直接在浏览器中打开</strong>，无需安装任何额外软件。</p>
+  <p>感谢您审阅本届 <strong>复旦大学青春文旅设计大赛</strong>参赛作品《68 海里 · 两面 — 平潭跨海峡数字人文文旅产品方案》。本资料包提供 <strong>线上网页 + 本地双击</strong> 两种浏览方式，您可以根据偏好任选。</p>
 
-  <h2>一、最快路径 · 一键浏览</h2>
-  <p>如果您只想用 <strong>5 分钟</strong>快速了解作品全貌，请直接点击下方主按钮，进入产品官网首页 (`index.html`)。</p>
-  <p style="margin:24px 0">
-    <a href="index.html" class="btn primary">▶ 打开产品官网首页（推荐起点）</a>
+  <!-- ============== 一、线上访问（最快） ============== -->
+  <div class="online-banner">
+    <div class="lab">RECOMMENDED · ONLINE PREVIEW</div>
+    <div class="url">🌐 <a href="https://68nm-two-sides.netlify.app" target="_blank">68nm-two-sides.netlify.app</a></div>
+    <div class="desc">推荐使用手机或电脑浏览器直接打开线上版（响应式适配，支持简/英/繁三语切换、背景音乐、沉浸式动效）。</div>
+  </div>
+
+  <p style="margin:6px 0 24px">
+    <a href="https://68nm-two-sides.netlify.app" target="_blank" class="btn online">▶ 打开线上版（最佳体验）</a>
+    <a href="index.html" class="btn primary">▶ 打开本地版首页</a>
   </p>
 
-  <h2>二、完整评审路径 · 建议顺序</h2>
+  <!-- ============== 二、项目初心 ============== -->
+  <h2>一、项目初心 · 我为什么做这件事</h2>
+  <div class="intent">
+    <p class="quote">我是潮汕人，从小听着<em>闽南语—潮汕话—福佬话</em>之间无法精确切割的"语言连续体"长大；后来成为复旦大学外国语言文学学院的翻译硕士。</p>
+    <p class="quote">当我站在猴研岛的礁石上，听到福州话与台湾闽南语在同一张桌上对话——<em>潮汕人对"南方语言连续体"的本能敏感被瞬间唤醒</em>。我意识到，平潭离台湾只有 68 海里，但<em>我们一直在拍它的"风景"，没有人翻译它的"声音"</em>。</p>
+    <p class="quote">这套方案不是普通的"看海三日游"，而是把<em>翻译硕士的文本敏感、潮汕人的方言耳朵、近 200 城产品视野</em>整合成一个能落地的文旅产品——把<em>"听不懂"变成"听透"</em>，把<em>"两岸距离"变成"两面体验"</em>。</p>
+    <p class="who">— GUO JIA · 复旦大学外国语言文学学院 · 翻译硕士 MTI · 25210120088</p>
+  </div>
+
+  <!-- ============== 三、最快路径 ============== -->
+  <h2>二、最快路径 · 5 分钟速览</h2>
+  <p>若您只想用 <strong>5 分钟</strong>快速了解作品全貌：</p>
+  <ol class="step" style="margin-top:10px">
+    <li>打开 <strong>线上网址 → </strong><code>68nm-two-sides.netlify.app</code>（手机/电脑均可）</li>
+    <li>页面顶部"缘起 / 蓝眼泪 / PASS 卡 / 套餐 / AI 平台 / 文创"等导航直接跳转，约 <strong>3 分钟</strong>滚完</li>
+    <li>右上角点 <strong>DECK</strong> 按钮 → 进入答辩 PPT（24 页，方向键翻页，约 5 分钟）</li>
+  </ol>
+
+  <!-- ============== 四、完整评审路径 ============== -->
+  <h2>三、完整评审路径 · 建议顺序</h2>
   <ol class="step">
     <li><strong>产品官网</strong>（<code>index.html</code>）— 浏览总览，约 3 分钟。右上角支持 <strong>简体 / English / 繁體</strong> 三语切换。</li>
-    <li><strong>答辩 PPT</strong>（<code>ppt.html</code>）— 24 页可翻页幻灯片，方向键 / 空格翻页，约 5 分钟。</li>
+    <li><strong>答辩 PPT</strong>（<code>ppt.html</code> / <code>ppt.pptx</code>）— 24 页可翻页幻灯片，方向键 / 空格翻页，约 5 分钟。</li>
     <li><strong>产品介绍片</strong>（<code>video.html</code>）— 60 秒动态分镜片，可全屏播放。</li>
     <li><strong>小程序原型</strong>（<code>wxapp_demo.html</code> / <code>wxapp.html</code>）— 模拟真实小程序操作界面。</li>
     <li><strong>3 个 AI 演示原型</strong>—— 方言情绪翻译器、VLM 场景解读、运营大屏。</li>
   </ol>
 
-  <h2>三、各 Demo 一键直达</h2>
+  <!-- ============== 五、各 Demo 一键直达 ============== -->
+  <h2>四、各 Demo 一键直达（本地）</h2>
   <div style="margin:14px 0 6px">
     <a href="index.html" class="btn">官网首页</a>
     <a href="ppt.html" class="btn">答辩 PPT</a>
@@ -71,7 +139,8 @@
     <a href="demo_dashboard.html" class="btn">运营大屏</a>
   </div>
 
-  <h2>四、操作要点 · 一图速查</h2>
+  <!-- ============== 六、操作要点 ============== -->
+  <h2>五、操作要点 · 一图速查</h2>
   <div class="grid">
     <div class="card">
       <h3>翻页 · 答辩 PPT</h3>
@@ -89,20 +158,56 @@
       <h3>跨页跳转</h3>
       <p>所有页面右上角带 <strong>← 网站 / DECK</strong> 按钮，可随时返回主入口。</p>
     </div>
+    <div class="card">
+      <h3>沉浸式动效</h3>
+      <p>首页全屏海浪粒子、方言区音频波形、特殊汉字（厝/鼎/箸/泪/听）悬停发光，建议鼠标轻悬感受细节。</p>
+    </div>
+    <div class="card">
+      <h3>背景音乐</h3>
+      <p>右下角 <strong>音符按钮</strong>可启停 BGM；首次需用户点击页面任意位置自动播放（浏览器策略）。</p>
+    </div>
+  </div>
+
+  <!-- ============== 七、自评优缺点 ============== -->
+  <h2>六、作者自评 · 优缺点坦言</h2>
+  <p>以下为本人对作品的<strong>自我审视</strong>，希望能为评委老师提供更立体的判断维度。</p>
+  <div class="pros-cons">
+    <div class="pros">
+      <h3>✓ 自认优势</h3>
+      <ul>
+        <li><strong>叙事独特性</strong>：把"翻译硕士+潮汕方言耳"嫁接到文旅产品，市场上没有同款角度</li>
+        <li><strong>商业闭环完整</strong>：3 档套餐 + ¥99 PASS 卡 + 蓝眼泪盲盒保险，每一笔风险都有变现接口</li>
+        <li><strong>AI 不流于噱头</strong>：方言翻译器 / VLM 石厝扫描 / 运营大屏，三个原型都给出可落地的接口设想</li>
+        <li><strong>视觉一体化</strong>：官网 / PPT / 介绍片 / 小程序使用同一套设计语言（Noto Serif SC + 鹅黄主色 + 海岛色板）</li>
+        <li><strong>可即时验证</strong>：所有材料都已部署到 Netlify，评委可手机扫码即看，不依赖本地软件</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h3>△ 自认不足</h3>
+      <ul>
+        <li><strong>蓝眼泪保险机制</strong>需要与持牌保险公司联合开发，目前停留在产品形态描述阶段</li>
+        <li><strong>AI 原型为前端模拟</strong>：方言翻译/VLM 扫描尚未接入真实模型，量产需要算法团队介入</li>
+        <li><strong>实地田野不够厚</strong>：基于一次平潭考察 + 潮汕语感经验，尚未做大样本游客访谈验证客单价</li>
+        <li><strong>合作机构未实质对接</strong>：B 端报价表为类比定价，签订意向书需运营团队推进</li>
+        <li><strong>文创衍生品成本</strong>：黑胶/压仓石文镇定价 ¥58—168，初期 SKU 库存压力需联合本地工坊摊薄</li>
+      </ul>
+    </div>
   </div>
 
   <div class="tip">
-    <strong>温馨提示：</strong>建议使用 <strong>Chrome、Edge、Safari</strong> 最新版本浏览器打开以获得最佳体验。若图片或字体加载稍慢，请等待 1-2 秒；本资料已尽量优化离线可访问性。
+    <strong>温馨提示：</strong>建议使用 <strong>Chrome、Edge、Safari</strong> 最新版本浏览器打开以获得最佳体验。<strong>线上版本会持续迭代</strong>，本地资料包为评审定版快照——若发现两者细节有差异，以线上版为准。
   </div>
 
-  <h2>五、附录 · 操作演示视频</h2>
-  <p>若您希望先观看一遍 <strong>"如何浏览整套材料"</strong> 的动态引导，请点击下方按钮，进入操作演示页面。</p>
+  <!-- ============== 八、附录 ============== -->
+  <h2>七、附录 · 操作演示视频</h2>
+  <p>若您希望先观看一遍 <strong>"如何浏览整套材料"</strong> 的动态引导，请点击下方按钮。</p>
   <p style="margin-top:14px">
     <a href="操作演示.html" class="btn">▶ 观看操作演示（约 90 秒）</a>
   </p>
 
   <div class="foot">
     PROJECT · 68 NM TWO SIDES &nbsp;|&nbsp; AUTHOR · GUO JIA · FUDAN MTI · 25210120088<br>
+    ONLINE · https://68nm-two-sides.netlify.app<br>
     复旦大学外国语言文学学院 · 翻译硕士 MTI · 2026 复旦大学青春文旅设计大赛参赛作品
   </div>
 </div>
