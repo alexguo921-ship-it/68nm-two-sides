@@ -1,66 +1,18 @@
 /* ================================================================
-   字符特效 + 方言连续体音频波形背景
-   - 自动扫描："厝、鼎、箸、泪、听"包裹为 .glyph[data-char]
-   - "泪"悬停底部三点水蓝光滴落
-   - #dialect 区背景画一条横贯潮汕暖橙→福州冷青的音频波形
+   方言连续体 · 音频波形背景（v2 - 不再触碰 textNode 与 i18n）
+   注：原"厝/鼎/箸/泪/听"字符特效因为会拆分 textNode 与 i18n 收集冲突，
+   导致切换语言卡顿、不刷新就不生效，已彻底移除该功能。
+   保留方言连续体板块的滚动响应式音频波形背景。
    ================================================================ */
 (function () {
   'use strict';
 
-  // ---------- 1. 包裹特殊汉字 ----------
-  var TARGET = ['厝', '鼎', '箸', '泪', '听'];
-  function wrapGlyphs(root) {
-    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
-      acceptNode: function (n) {
-        if (!n.nodeValue || !n.parentNode) return NodeFilter.FILTER_REJECT;
-        var p = n.parentNode;
-        if (!p || p.nodeType !== 1) return NodeFilter.FILTER_REJECT;
-        var tag = p.tagName;
-        if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT' || tag === 'CANVAS') return NodeFilter.FILTER_REJECT;
-        if (p.classList && p.classList.contains('glyph')) return NodeFilter.FILTER_REJECT;
-        // 跳过导航栏 / footer / sec-head 的英文等纯英文区
-        if (p.closest && p.closest('.lang-switcher')) return NodeFilter.FILTER_REJECT;
-        var hasTarget = TARGET.some(function (c) { return n.nodeValue.indexOf(c) !== -1; });
-        return hasTarget ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
-      }
-    });
-    var nodes = [], cur;
-    while ((cur = walker.nextNode())) nodes.push(cur);
-    nodes.forEach(function (textNode) {
-      var txt = textNode.nodeValue;
-      var frag = document.createDocumentFragment();
-      var buf = '';
-      for (var i = 0; i < txt.length; i++) {
-        var ch = txt[i];
-        if (TARGET.indexOf(ch) !== -1) {
-          if (buf) { frag.appendChild(document.createTextNode(buf)); buf = ''; }
-          var span = document.createElement('span');
-          span.className = 'glyph';
-          span.setAttribute('data-char', ch);
-          span.textContent = ch;
-          // 「泪」加水滴层
-          if (ch === '泪') {
-            var drops = document.createElement('span');
-            drops.className = 'glyph-drops';
-            drops.setAttribute('aria-hidden', 'true');
-            drops.innerHTML =
-              '<i class="d d1"></i><i class="d d2"></i><i class="d d3"></i>';
-            span.appendChild(drops);
-          }
-          frag.appendChild(span);
-        } else {
-          buf += ch;
-        }
-      }
-      if (buf) frag.appendChild(document.createTextNode(buf));
-      textNode.parentNode.replaceChild(frag, textNode);
-    });
-  }
-
-  // ---------- 2. 方言连续体音频波形背景 ----------
   function setupDialectWave() {
     var sect = document.querySelector('#dialect');
     if (!sect) return;
+    // 防重入
+    if (sect.querySelector(':scope > .dialect-wave')) return;
+
     var canvas = document.createElement('canvas');
     canvas.className = 'dialect-wave';
     canvas.setAttribute('aria-hidden', 'true');
@@ -68,7 +20,7 @@
     var ctx = canvas.getContext('2d');
     var W = 0, H = 0, DPR = Math.min(window.devicePixelRatio || 1, 2);
     var t = 0;
-    var visibility = 0; // 0~1，根据 IntersectionObserver
+    var visibility = 0;
 
     function resize() {
       var rect = sect.getBoundingClientRect();
@@ -83,7 +35,6 @@
     resize();
     window.addEventListener('resize', resize);
 
-    // IntersectionObserver：根据可见比例驱动振幅
     if ('IntersectionObserver' in window) {
       var io = new IntersectionObserver(function (entries) {
         entries.forEach(function (e) { visibility = e.intersectionRatio; });
@@ -93,7 +44,6 @@
       visibility = 1;
     }
 
-    // 多谐波叠加生成柔和波形
     function waveY(x, baseY, amp) {
       var k1 = 0.012, k2 = 0.026, k3 = 0.005;
       return baseY +
@@ -102,7 +52,6 @@
         Math.sin(x * k3 - t * 0.5 + 2.1) * amp * 0.7;
     }
 
-    // 颜色：从潮汕暖橙 #ff8a3d -> 中段紫 #b06ad8 -> 福州冷青 #1f7a8c
     function buildGradient(alpha) {
       var g = ctx.createLinearGradient(0, 0, W, 0);
       g.addColorStop(0, 'rgba(255,138,61,' + alpha + ')');
@@ -111,11 +60,11 @@
       return g;
     }
 
+    var rafId = null;
     function draw() {
       t += 0.018;
       ctx.clearRect(0, 0, W, H);
 
-      // 背景渐变（柔和暖→冷的横向晕染）
       var bg = ctx.createLinearGradient(0, 0, W, 0);
       bg.addColorStop(0, 'rgba(255,138,61,0.08)');
       bg.addColorStop(0.5, 'rgba(176,106,216,0.05)');
@@ -125,9 +74,8 @@
 
       var baseY = H * 0.5;
       var ampMax = Math.min(H * 0.18, 90);
-      var amp = ampMax * (0.35 + visibility * 0.65); // 进入视口越多振幅越大
+      var amp = ampMax * (0.35 + visibility * 0.65);
 
-      // 4 条波，递减透明度
       var lines = [
         { off: 0, alpha: 0.55, w: 2.2, scale: 1.0 },
         { off: 18, alpha: 0.32, w: 1.6, scale: 0.85 },
@@ -151,7 +99,6 @@
         ctx.shadowBlur = 0;
       });
 
-      // 主波下方：填充淡晕（模拟频谱下沉）
       ctx.beginPath();
       var step2 = 6;
       for (var x2 = 0; x2 <= W; x2 += step2) {
@@ -168,49 +115,18 @@
       ctx.fillStyle = fillG;
       ctx.fill();
 
-      requestAnimationFrame(draw);
+      rafId = requestAnimationFrame(draw);
     }
-    draw();
+    rafId = requestAnimationFrame(draw);
   }
 
-  // ---------- 启动 ----------
-  function isCN() {
-    var ls = (function () { try { return localStorage.getItem('lang_68nm'); } catch (e) { return null; } })();
-    if (ls) return ls === 'zh-CN';
-    var active = document.querySelector('[data-lang-switch].active');
-    if (active) return active.getAttribute('data-lang-switch') === 'zh-CN';
-    return true;
-  }
-  function unwrapGlyphs(root) {
-    root.querySelectorAll('.glyph').forEach(function (g) {
-      var ch = g.getAttribute('data-char') || g.textContent;
-      var tn = document.createTextNode(ch);
-      if (g.parentNode) g.parentNode.replaceChild(tn, g);
-    });
-  }
-  function refreshGlyphs() {
-    unwrapGlyphs(document.body);
-    if (isCN()) {
-      try { wrapGlyphs(document.body); } catch (e) { /* ignore */ }
-    }
-    // 通知 i18n 重新收集 textNode
-    if (window.I18N && typeof window.I18N.refresh === 'function') {
-      try { window.I18N.refresh(); } catch (e) { /* ignore */ }
-    }
-  }
+  /* -------- 字符特效（仅 hover 视觉，不拆 textNode）--------
+     用 CSS-only 方案：data-glyph 属性触发；本脚本仅作为占位，不再 wrap textNode。
+     如需字符艺术特效，请在 HTML 中手动给关键字符加 <span class="glyph" data-char="泪">泪</span>。
+  */
+
   function init() {
-    // 等 i18n 完成首次 apply 之后再包，给它一帧时间
-    setTimeout(function () {
-      refreshGlyphs();
-      try { setupDialectWave(); } catch (e) { /* ignore */ }
-    }, 50);
-
-    // 语言切换：每次点切换按钮 250ms 后重建
-    document.querySelectorAll('[data-lang-switch]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        setTimeout(refreshGlyphs, 60);
-      });
-    });
+    try { setupDialectWave(); } catch (e) { /* ignore */ }
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
