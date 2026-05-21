@@ -117,10 +117,10 @@
   function initBGM() {
     if (document.getElementById('site-bgm')) return;
 
-    const SRC = 'assets/site_bgm.mp3';
-    const SILENCE_KEY = 'bgm_silence_offset';   // 缓存检测到的前导静音长度（秒）
-    const VOLUME = 0.32;
-    const MUTE_KEY = 'bgm_muted';
+    const SRC = 'assets/site_bgm.mp3?v=20260521-2220';
+    const SILENCE_KEY = 'bgm_silence_offset_v3';   // v3：物理裁剪后重新检测，不读旧缓存
+    const VOLUME = 0.36;
+    const MUTE_KEY = 'bgm_muted_v3';
 
     const audio = document.createElement('audio');
     audio.id = 'site-bgm';
@@ -147,12 +147,13 @@
     tip.textContent = '点击页面任意处启动 BGM ♫';
     document.body.appendChild(tip);
 
+    // 使用新 KEY，避免旧版本误把用户锁在静音状态；默认不静音。
     let userMuted = localStorage.getItem(MUTE_KEY) === '1';
     let unlocked = false;
     let watchdogTimer = null;
-    // 起始 offset（跳过前导静音）：先用缓存的，否则默认 0；解码后会更新
+    // 起始 offset：mp3 已物理裁剪，默认 0；若后续检测到极小前导静音再自动更新。
     let startOffset = parseFloat(localStorage.getItem(SILENCE_KEY) || '0') || 0;
-    if (!isFinite(startOffset) || startOffset < 0 || startOffset > 30) startOffset = 0;
+    if (!isFinite(startOffset) || startOffset < 0 || startOffset > 3) startOffset = 0;
     let endOffset = 0;          // 末尾"静音/淡出"裁剪点；0 = 自动用 audio.duration
 
     function syncFabUI() {
@@ -282,9 +283,20 @@
         .catch(() => { /* 静默失败，不影响播放 */ });
     }
 
-    // 1. 初始尝试：muted 自动播放（合规）
-    audio.muted = true;
-    safePlay();
+    // 1. 初始尝试：先尝试有声自动播放（桌面端/已授权环境可直接响）。
+    // 若浏览器拦截，再降级为静音预加载，等待首次用户手势立即解锁。
+    audio.muted = userMuted;
+    seekToStart();
+    safePlay().then(() => {
+      if (!audio.paused && !audio.muted) {
+        unlocked = true;
+        startWatchdog();
+        syncFabUI();
+      } else if (audio.paused) {
+        audio.muted = true;
+        safePlay();
+      }
+    });
 
     // 2. 用户手势解锁
     function tryUnlock() {
@@ -304,7 +316,7 @@
       });
     }
 
-    const unlockEvents = ['click', 'touchstart', 'pointerdown', 'keydown'];
+    const unlockEvents = ['click', 'touchstart', 'touchend', 'pointerdown', 'keydown'];
     unlockEvents.forEach(ev =>
       document.addEventListener(ev, tryUnlock, { capture: true, passive: true })
     );

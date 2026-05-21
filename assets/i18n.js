@@ -1,33 +1,88 @@
-/* 三语切换 v6 - 纯查表 · 预翻译字典模式 · 异步分批切换防卡顿
- * 所有简体中文文本节点都已在 assets/translations.js 中预先翻译为 EN / 繁体；
- * 切换语言时仅做"查表 → 直接替换"，绝不做子串拼接或运行时 fallback，杜绝混杂。
+/* 三语切换 v7 - 稳定同步版
+ * 目标：
+ * 1) 永远以页面初始中文 textNode 为 source of truth；
+ * 2) 切换语言同步完成，不排队、不异步残留，快速连点以最后一次点击为准；
+ * 3) 字典未命中时保留原文，绝不输出任何统一占位文案。
  */
 (function(){
+  'use strict';
+
   const STORAGE_KEY = 'lang_68nm';
-  const BATCH_SIZE = 60;             // 每帧处理的 textNode 数量
-  let dict = {};                     // 由页面通过 register({...}) 注入的 data-i18n 字典
-  let cur = localStorage.getItem(STORAGE_KEY) || 'zh-CN';
-  let textNodes = [];                // {node, original}
+  const VALID = new Set(['zh-CN', 'en', 'zh-TW']);
+
+  let dict = {};                  // data-i18n 字典
+  let cur = VALID.has(localStorage.getItem(STORAGE_KEY)) ? localStorage.getItem(STORAGE_KEY) : 'zh-CN';
+  let textNodes = [];             // { node, original }
   let textNodesCollected = false;
-  let applying = false;              // 切换中标志
-  let pendingLang = null;            // 排队中的下一个目标语言
 
   function getTrans(){
-    return (window.__TRANSLATIONS__ || {});
+    return window.__TRANSLATIONS__ || { en:{}, 'zh-TW':{} };
   }
 
-  /* -------------- data-i18n 处理 -------------- */
   function t(key){
     const e = dict[key];
     if (!e) return key;
     return e[cur] || e['zh-CN'] || key;
   }
 
+  function isInsideExcluded(node){
+    let p = node.parentElement;
+    while (p){
+      if (
+        p.tagName === 'SCRIPT' ||
+        p.tagName === 'STYLE' ||
+        p.tagName === 'NOSCRIPT' ||
+        p.hasAttribute('data-i18n-skip') ||
+        p.classList.contains('lang-switcher') ||
+        p.classList.contains('glyph') ||
+        p.id === 'site-bgm'
+      ) return true;
+      p = p.parentElement;
+    }
+    return false;
+  }
+
+  function collectTextNodes(){
+    textNodes = [];
+    if (!document.body) return;
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+      acceptNode(node){
+        if (isInsideExcluded(node)) return NodeFilter.FILTER_REJECT;
+        const txt = node.textContent;
+        if (!txt || !txt.trim()) return NodeFilter.FILTER_REJECT;
+        // 只收中文原文节点：英文/数字/装饰符跳过
+        if (!/[\u4e00-\u9fff]/.test(txt)) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    let n;
+    while ((n = walker.nextNode())){
+      // 这里必须记录页面初始中文，后续永远不重写 original
+      textNodes.push({ node: n, original: n.textContent });
+    }
+    textNodesCollected = true;
+  }
+
+  function translateText(original, lang){
+    if (lang === 'zh-CN') return original;
+    const table = lang === 'en' ? getTrans().en : getTrans()['zh-TW'];
+    if (!table) return original;
+
+    const lead = (original.match(/^\s*/) || [''])[0];
+    const tail = (original.match(/\s*$/) || [''])[0];
+    const trimmed = original.trim();
+
+    if (Object.prototype.hasOwnProperty.call(table, trimmed)){
+      return lead + table[trimmed] + tail;
+    }
+    // 绝不使用统一英文占位；漏翻译时保留原中文，避免展示事故。
+    return lead + trimmed + tail;
+  }
+
   function applyDataI18n(){
     document.documentElement.setAttribute('lang', cur);
     document.querySelectorAll('[data-i18n]').forEach(el=>{
-      const key = el.getAttribute('data-i18n');
-      const val = t(key);
+      const val = t(el.getAttribute('data-i18n'));
       if (val.indexOf('<') >= 0) el.innerHTML = val;
       else el.textContent = val;
     });
@@ -36,176 +91,70 @@
     });
     document.querySelectorAll('[data-lang-switch]').forEach(b=>{
       b.classList.toggle('active', b.getAttribute('data-lang-switch') === cur);
+      b.removeAttribute('aria-busy');
     });
   }
 
-  /* -------------- 文本节点收集 -------------- */
-  function isInsideExcluded(node){
-    let p = node.parentElement;
-    while (p){
-      if (p.tagName === 'SCRIPT' || p.tagName === 'STYLE' ||
-          p.hasAttribute('data-i18n-skip') ||
-          p.classList.contains('lang-switcher') ||
-          p.classList.contains('glyph')) return true;        // .glyph 内不翻译
-      p = p.parentElement;
-    }
-    return false;
-  }
-
-  function collectTextNodes(){
-    textNodes = [];
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
-      acceptNode: function(node){
-        if (isInsideExcluded(node)) return NodeFilter.FILTER_REJECT;
-        const txt = node.textContent;
-        if (!txt.trim()) return NodeFilter.FILTER_REJECT;
-        if (!/[\u4e00-\u9fa5]/.test(txt)) return NodeFilter.FILTER_REJECT;
-        return NodeFilter.FILTER_ACCEPT;
-      }
-    });
-    let n;
-    while (n = walker.nextNode()){
-      textNodes.push({ node: n, original: n.textContent });
-    }
-    textNodesCollected = true;
-  }
-
-  /* -------------- 纯查表翻译 -------------- */
-  function translateText(original, lang){
-    if (lang === 'zh-CN') return original;
-    const trans = getTrans();
-    const table = lang === 'en' ? trans.en : trans['zh-TW'];
-    if (!table) return original;
-
-    const lead = original.match(/^\s*/)[0];
-    const tail = original.match(/\s*$/)[0];
-    const trimmed = original.trim();
-
-    // 命中预翻译字典：直接替换
-    if (Object.prototype.hasOwnProperty.call(table, trimmed)){
-      return lead + table[trimmed] + tail;
-    }
-    // 未命中：保留原文（杜绝兜底英文乱串）。
-    // 哪怕这一段在英文模式下还是中文，也比"Cultural Narrative & Service Detail"重复刷屏好得多。
-    return lead + trimmed + tail;
-  }
-
-  /* -------------- 同步首次应用（DOM Ready 用） -------------- */
-  function applyTextNodeTranslationSync(){
+  function applyTextNodes(){
     if (!textNodesCollected) collectTextNodes();
-    textNodes.forEach(({node, original}) => {
-      // 节点可能已脱离 DOM（被其它脚本替换），跳过
-      if (!node.parentNode) return;
-      node.textContent = translateText(original, cur);
-    });
-  }
-
-  /* -------------- 异步分批应用（切换时用，避免卡顿） -------------- */
-  function applyTextNodeTranslationAsync(targetLang, done){
-    if (!textNodesCollected) collectTextNodes();
-    const list = textNodes;
-    const total = list.length;
-    let i = 0;
-    function step(){
-      const end = Math.min(i + BATCH_SIZE, total);
-      for (; i < end; i++){
-        const item = list[i];
-        if (!item.node.parentNode) continue;
-        item.node.textContent = translateText(item.original, targetLang);
-      }
-      if (i < total){
-        requestAnimationFrame(step);
-      } else {
-        done && done();
-      }
+    for (const item of textNodes){
+      if (!item.node || !item.node.parentNode) continue;
+      item.node.textContent = translateText(item.original, cur);
     }
-    requestAnimationFrame(step);
-  }
-
-  /* -------------- 切换主流程 -------------- */
-  function setLang(lang){
-    if (lang === cur && textNodesCollected){
-      // 已经是当前语言，仅刷新 active 高亮
-      applyDataI18n();
-      return;
-    }
-    // 若正在切换中，把请求放入队列，结束后再处理最后一次
-    if (applying){
-      pendingLang = lang;
-      return;
-    }
-    applying = true;
-    cur = lang;
-    try { localStorage.setItem(STORAGE_KEY, lang); } catch (e) {}
-
-    // 立即更新按钮高亮 + html lang，给用户即时反馈
-    document.documentElement.setAttribute('lang', cur);
-    document.querySelectorAll('[data-lang-switch]').forEach(b=>{
-      b.classList.toggle('active', b.getAttribute('data-lang-switch') === cur);
-      b.setAttribute('aria-busy', 'true');
-    });
-
-    // data-i18n（导航等少量元素）同步处理
-    applyDataI18n();
-
-    // textNode（量大）异步分批
-    applyTextNodeTranslationAsync(cur, function(){
-      document.querySelectorAll('[data-lang-switch]').forEach(b=>{
-        b.removeAttribute('aria-busy');
-      });
-      applying = false;
-      // 触发自定义事件，供其它模块（如 glyph_dialect）监听
-      try {
-        window.dispatchEvent(new CustomEvent('i18nchanged', { detail: { lang: cur } }));
-      } catch (e) {}
-      // 处理排队请求
-      if (pendingLang && pendingLang !== cur){
-        const next = pendingLang;
-        pendingLang = null;
-        setLang(next);
-      } else {
-        pendingLang = null;
-      }
-    });
   }
 
   function apply(){
     applyDataI18n();
-    applyTextNodeTranslationSync();
+    applyTextNodes();
+  }
+
+  function setLang(lang){
+    if (!VALID.has(lang)) lang = 'zh-CN';
+    cur = lang;
+    try { localStorage.setItem(STORAGE_KEY, cur); } catch(e) {}
+    // 同步完成，快速切换不会留下上一语言的异步任务
+    apply();
+    try { window.dispatchEvent(new CustomEvent('i18nchanged', { detail:{ lang: cur } })); } catch(e) {}
   }
 
   function register(d){
-    Object.assign(dict, d);
-    if (textNodesCollected) apply();
-    else applyDataI18n();
+    Object.assign(dict, d || {});
+    applyDataI18n();
   }
 
-  // 兼容老接口
-  function registerTranslations(){ /* no-op */ }
+  function registerTranslations(){ /* 保留兼容老调用；主字典来自 translations.js */ }
 
   window.I18N = {
-    setLang, register, registerTranslations, apply,
+    setLang,
+    register,
+    registerTranslations,
+    apply,
+    refresh(){
+      // 只在 DOM 结构大变时主动调用；会以当前 DOM 中文节点重建 source。
+      // 正常语言切换不调用 refresh，避免把英文当 source。
+      textNodesCollected = false;
+      collectTextNodes();
+      apply();
+    },
     get current(){ return cur; },
-    t,
-    refresh: function(){ collectTextNodes(); apply(); }
+    t
   };
 
-  // 语言切换按钮：事件委托
   document.addEventListener('click', function(e){
     const btn = e.target.closest('[data-lang-switch]');
-    if (btn){
-      e.preventDefault();
-      setLang(btn.getAttribute('data-lang-switch'));
-    }
+    if (!btn) return;
+    e.preventDefault();
+    // 不 stopPropagation：让 BGM 解锁监听也能收到同一次点击。
+    setLang(btn.getAttribute('data-lang-switch'));
   }, true);
 
-  // DOM Ready 时收集文本节点 + 初次应用
   function init(){
     collectTextNodes();
     apply();
   }
+
   if (document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', init, { once:true });
   } else {
     init();
   }

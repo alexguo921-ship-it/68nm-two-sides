@@ -325,7 +325,12 @@ window.__TRANSLATIONS__ = {
   "两个入口": "Two Entrances",
   "同一片海。": "One Sea.",
   "项目缘起": "Origin",
-  "从潮汕到平潭。": "From Chaoshan to Pingtan."
+  "从潮汕到平潭。": "From Chaoshan to Pingtan.",
+  "这是一段被海风翻译过的距离。": "This is a distance translated by sea wind.",
+  "在方言连续体与 AI 之间，重新听懂那座离台湾最近的中国岛屿。": "Between the dialect continuum and AI, we learn to truly hear the Chinese island closest to Taiwan.",
+  "出发 · DEPART": "Depart",
+  "SCROLL · 让海浪带你下沉": "SCROLL · Let the waves pull you in",
+  "✨ 试试在这片夜海上点击 — 你会看到蓝眼泪发光": "✨ Try clicking on this night sea — you will see Blue Tears glow"
 },
   'zh-TW': {
   "68海里·两面 — 平潭跨海峡数字人文文旅产品": "68海里·兩面 — 平潭跨海峽數位人文文旅產品",
@@ -492,6 +497,7 @@ window.__TRANSLATIONS__ = {
   "猴研岛/龙凤头等 5 个观测点 24 小时直播——云追泪。": "猴研島／龍鳳頭等 5 個觀測點 24 小時直播——雲端追淚。",
   "盲盒保险触发": "盲盒保險觸發",
   "概率 &lt; 30% 自动派发四选一补偿券——劣势天气也变消费转化。": "概率 &lt; 30% 自動派發四選一補償券——劣勢天氣也變消費轉化。",
+  "概率 < 30% 自动派发四选一补偿券——劣势天气也变消费转化。": "概率 < 30% 自動派發四選一補償券——劣勢天氣也變消費轉化。",
   "4 类": "4 類",
   "文创衍生品": "文創衍生品",
   "68海里·漫游护照": "68海里·漫遊護照",
@@ -626,6 +632,11 @@ window.__TRANSLATIONS__ = {
   "两个入口": "兩個入口",
   "同一片海。": "同一片海。",
   "项目缘起": "專案緣起",
-  "从潮汕到平潭。": "從潮汕到平潭。"
+  "从潮汕到平潭。": "從潮汕到平潭。",
+  "这是一段被海风翻译过的距离。": "這是一段被海風翻譯過的距離。",
+  "在方言连续体与 AI 之间，重新听懂那座离台湾最近的中国岛屿。": "在方言連續體與 AI 之間，重新聽懂那座離台灣最近的中國島嶼。",
+  "出发 · DEPART": "出發 · DEPART",
+  "SCROLL · 让海浪带你下沉": "SCROLL · 讓海浪帶你下沉",
+  "✨ 试试在这片夜海上点击 — 你会看到蓝眼泪发光": "✨ 試試在這片夜海上點擊 — 你會看到藍眼淚發光"
 }
 };
