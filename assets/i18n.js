@@ -85,9 +85,9 @@
     if (Object.prototype.hasOwnProperty.call(table, trimmed)){
       return lead + table[trimmed] + tail;
     }
-    // 未命中（理论上不会发生，因为字典已覆盖全量）
-    if (lang === 'en') return lead + 'Cultural Narrative & Service Detail' + tail;
-    return lead + trimmed + tail; // 繁体兜底：保留原文
+    // 未命中：保留原文（杜绝兜底英文乱串）。
+    // 哪怕这一段在英文模式下还是中文，也比"Cultural Narrative & Service Detail"重复刷屏好得多。
+    return lead + trimmed + tail;
   }
 
   /* -------------- 同步首次应用（DOM Ready 用） -------------- */
