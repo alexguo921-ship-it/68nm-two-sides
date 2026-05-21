@@ -363,6 +363,95 @@
     backdrop-filter:saturate(180%) blur(20px);
   }
 
+  /* ============== Tab 切换视图（同 URL 不同视觉） ============== */
+  /* JS 加载前 body 没 data-view，所有 section 正常显示，避免白屏 */
+  /* JS 加载后 body 有 data-view 属性，按 .match-view 过滤显隐 */
+  body[data-view] section[data-view-group]:not(.match-view){display:none!important}
+  body[data-view] .b-block[data-view-group]:not(.match-view){display:none!important}
+  /* 平滑切换动画 */
+  section.match-view, .b-block.match-view{animation:viewIn .45s cubic-bezier(.2,.7,.2,1) both}
+  @keyframes viewIn{
+    0%{opacity:0;transform:translateY(20px)}
+    100%{opacity:1;transform:none}
+  }
+  /* 非 home view 时，hero 缩小一点（视觉提示这是子页） */
+  body[data-view]:not([data-view="home"]) .hero{
+    min-height:50vh!important;
+  }
+  body[data-view]:not([data-view="home"]) .hero h1{
+    font-size:72px;
+  }
+  @media (max-width:980px){
+    body[data-view]:not([data-view="home"]) .hero h1{font-size:48px}
+  }
+  @media (max-width:640px){
+    body[data-view]:not([data-view="home"]) .hero h1{font-size:36px}
+    body[data-view]:not([data-view="home"]) .hero{min-height:42vh!important}
+  }
+  /* nav 当前 active 视觉 */
+  .nav .links a.view-active{
+    color:var(--terracotta)!important;
+    background:rgba(200,85,45,.08);
+    border-radius:3px;
+    font-weight:700;
+  }
+
+  /* ============== 中文标题排版均衡 - 杜绝最后一字孤行 ============== */
+  h1, h2, h3, .hero h1, .sec-head h2, .role-card h3, .pkg h3{
+    text-wrap: balance;          /* 现代浏览器：自动均衡各行长度 */
+    -webkit-hyphens: none;
+    hyphens: none;
+    word-break: keep-all;        /* 中文不拆分单字 */
+    overflow-wrap: break-word;
+  }
+  /* 长正文用 pretty 防止段尾孤字 */
+  p, .role-card .lead, .pkg p, .num-it .l{
+    text-wrap: pretty;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+  /* AI 卡片等窄列容器特别处理 - 标题用 keep-all 保持词组完整，正文允许换行 */
+  .ai-card h3, .b-card h3{text-wrap: balance;word-break: keep-all}
+  .ai-card p, .b-card p{text-wrap: pretty;word-break: normal}
+
+  /* ============== 回顶部浮窗按钮 ============== */
+  .back-top-fab{
+    position:fixed;left:18px;bottom:18px;
+    width:44px;height:44px;border-radius:50%;
+    background:rgba(20,25,35,.78);color:#ffcc00;
+    border:1.5px solid rgba(255,204,0,.5);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;z-index:9999;
+    -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+    box-shadow:0 8px 24px rgba(0,0,0,.25);
+    opacity:0;pointer-events:none;
+    transform:translateY(8px);
+    transition:opacity .3s, transform .3s, background .2s;
+    font-family:'Cormorant Garamond',serif;font-weight:700;font-size:18px;
+  }
+  .back-top-fab.show{opacity:1;pointer-events:auto;transform:none}
+  .back-top-fab:hover{background:#1a1612;color:#fff}
+  .back-top-fab svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+  @media (max-width:640px){
+    .back-top-fab{left:12px;bottom:12px;width:38px;height:38px}
+    .back-top-fab svg{width:15px;height:15px}
+  }
+
+  /* hero 标题在手机上更激进的均衡（避免 "近 200 座城市" 之类拆字） */
+  @media (max-width:640px){
+    .hero h1{text-wrap: balance; word-break: keep-all; line-break: strict}
+    .sec-head h2{text-wrap: balance; word-break: keep-all}
+    /* AI 三列卡 -> 1 列时单字纵列问题 */
+    .ai-grid{grid-template-columns:1fr!important;gap:14px!important}
+    .ai-card h3{text-wrap: balance}
+    /* 文创区 4 卡 / 蓝眼泪 4 卡 / B 端 6 卡：当宽度太小时强制更宽容的换行 */
+    section#bluetears .container > div[style*="grid-template-columns"] > div h3,
+    section#yutu .b-card h3,
+    section#yutu div[style*="grid-template-columns"] > div h3{
+      text-wrap:balance;word-break:keep-all;font-size:14px!important
+    }
+  }
+
   /* ============== 特殊汉字 .glyph 字符特效 ============== */
   .glyph{
     position:relative;display:inline-block;
@@ -467,7 +556,7 @@
 </nav>
 
 <!-- HERO -->
-<section class="hero">
+<section class="hero" data-view-group="home">
   <div class="frame"></div>
   <div class="inner">
     <div class="vol">PINGTAN · 2026 · VOL.01</div>
@@ -483,7 +572,7 @@
 </section>
 
 <!-- 双角色入口 -->
-<section class="sect" id="entry">
+<section class="sect" id="entry" data-view-group="home">
   <div class="container">
     <div class="sec-head">
       <div class="left">
@@ -528,7 +617,7 @@
 </section>
 
 <!-- 项目缘起 -->
-<section class="sect" id="story" style="background:var(--paper-d)">
+<section class="sect" id="story" data-view-group="story" style="background:var(--paper-d)">
   <div class="container">
     <div class="sec-head">
       <div class="left">
@@ -987,6 +1076,7 @@
 <script src="assets/i18n.js"></script>
 <script src="assets/immersive.js" defer></script>
 <script src="assets/glyph_dialect.js" defer></script>
+<script src="assets/view_router.js" defer></script>
 <script>
 I18N.register({
   'nav.story': { 'zh-CN':'缘起', 'en':'Story', 'zh-TW':'緣起' },

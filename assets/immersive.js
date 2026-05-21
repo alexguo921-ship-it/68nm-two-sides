@@ -113,18 +113,23 @@
   style.textContent = css;
   document.head.appendChild(style);
 
-  // ============ 1. BGM 控制器（v2 · 高可靠 · 修复 autoplay 解锁失败 / 切换语言断流）============
+  // ============ 1. BGM 控制器（v3 · 静音段自动跳过 + 高可靠循环 + 跨平台）============
   function initBGM() {
-    // 防重入：如果 boot 被调用了多次（极少），不重复创建
     if (document.getElementById('site-bgm')) return;
+
+    const SRC = 'assets/site_bgm.mp3';
+    const SILENCE_KEY = 'bgm_silence_offset';   // 缓存检测到的前导静音长度（秒）
+    const VOLUME = 0.32;
+    const MUTE_KEY = 'bgm_muted';
 
     const audio = document.createElement('audio');
     audio.id = 'site-bgm';
-    audio.src = 'assets/site_bgm.mp3';
-    audio.loop = true;
-    audio.volume = 0.32;
+    audio.src = SRC;
+    audio.loop = false;                // ⚠ 关键：不用原生 loop（会回到 0 触发静音段），改手动 seek
+    audio.volume = VOLUME;
     audio.preload = 'auto';
-    audio.setAttribute('playsinline', '');           // iOS 必备
+    audio.crossOrigin = 'anonymous';   // 允许 Web Audio 解码（同源不影响）
+    audio.setAttribute('playsinline', '');
     audio.setAttribute('webkit-playsinline', '');
     audio.setAttribute('x-webkit-airplay', 'allow');
     document.body.appendChild(audio);
@@ -142,14 +147,15 @@
     tip.textContent = '点击页面任意处启动 BGM ♫';
     document.body.appendChild(tip);
 
-    // 状态读取
-    const KEY = 'bgm_muted';
-    let userMuted = localStorage.getItem(KEY) === '1';
-    let unlocked = false;        // 是否已通过用户手势解锁过
+    let userMuted = localStorage.getItem(MUTE_KEY) === '1';
+    let unlocked = false;
     let watchdogTimer = null;
+    // 起始 offset（跳过前导静音）：先用缓存的，否则默认 0；解码后会更新
+    let startOffset = parseFloat(localStorage.getItem(SILENCE_KEY) || '0') || 0;
+    if (!isFinite(startOffset) || startOffset < 0 || startOffset > 30) startOffset = 0;
+    let endOffset = 0;          // 末尾"静音/淡出"裁剪点；0 = 自动用 audio.duration
 
     function syncFabUI() {
-      // FAB 的"播放/静音"视觉状态：以"是否在响"为准
       const playing = !audio.paused && !audio.muted && audio.currentTime > 0;
       fab.classList.toggle('muted', !playing);
     }
@@ -161,7 +167,6 @@
       showTip._t = setTimeout(() => tip.classList.remove('show'), duration || 2800);
     }
 
-    // 安全播放：返回 Promise；调用失败时不抛异常
     function safePlay() {
       const p = audio.play();
       if (p && typeof p.then === 'function') {
@@ -170,66 +175,166 @@
       return Promise.resolve(true);
     }
 
-    // 1. 首次尝试：muted 自动播放（所有现代浏览器允许）
+    // 跳到起始位置（跳过前导静音）
+    function seekToStart() {
+      try {
+        // 加一个小余量 0.05s，避免 seek 卡在 buffer 边界
+        const target = startOffset > 0 ? startOffset + 0.02 : 0;
+        if (Math.abs(audio.currentTime - target) > 0.1) {
+          audio.currentTime = target;
+        }
+      } catch (e) {}
+    }
+
+    // 核心：手动循环 - 接近末尾时 seek 回起始
+    function setupSmartLoop() {
+      audio.addEventListener('timeupdate', () => {
+        const dur = endOffset > 0 ? endOffset : (audio.duration || 0);
+        if (!dur || !isFinite(dur)) return;
+        // 距末尾 0.25s 内提前 seek 回起始（避免触发 ended 后短暂停顿）
+        if (audio.currentTime >= dur - 0.25) {
+          seekToStart();
+          if (audio.paused && !userMuted) safePlay();
+        }
+      });
+      // 兜底：如果还是 ended 了，立即 seek + 重播
+      audio.addEventListener('ended', () => {
+        seekToStart();
+        if (!userMuted) safePlay();
+      });
+      // canplay 时立即 seek 到起始（不要从 0 开始播放静音）
+      audio.addEventListener('loadedmetadata', () => {
+        seekToStart();
+      });
+    }
+    setupSmartLoop();
+
+    // ============ Web Audio 静音段检测 ============
+    // 仅在第一次没缓存或缓存为 0 时执行；解码完成后写 localStorage
+    function detectSilenceOffset() {
+      if (startOffset > 0) return;     // 已经有缓存，跳过
+      if (!window.AudioContext && !window.webkitAudioContext) return;
+
+      // 采用 fetch + decodeAudioData
+      fetch(SRC)
+        .then(r => r.ok ? r.arrayBuffer() : Promise.reject('fetch fail'))
+        .then(buf => {
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          const ctx = new Ctx();
+          // decodeAudioData 在某些浏览器需要 Promise 风格
+          return new Promise((resolve, reject) => {
+            try {
+              const p = ctx.decodeAudioData(buf, resolve, reject);
+              if (p && typeof p.then === 'function') p.then(resolve, reject);
+            } catch (e) { reject(e); }
+          }).then(decoded => {
+            // 算前导静音
+            const sr = decoded.sampleRate;
+            const ch0 = decoded.getChannelData(0);
+            const ch1 = decoded.numberOfChannels > 1 ? decoded.getChannelData(1) : null;
+            // 阈值：-50dB ≈ amplitude 0.003
+            const THRESH = 0.005;
+            const WINDOW = Math.floor(sr * 0.02);   // 20ms 窗口的 RMS
+            let leadSec = 0;
+            for (let i = 0; i + WINDOW < ch0.length; i += WINDOW) {
+              let sum = 0;
+              for (let j = 0; j < WINDOW; j++) {
+                const a = ch0[i + j];
+                const b = ch1 ? ch1[i + j] : a;
+                sum += (a * a + b * b) * 0.5;
+              }
+              const rms = Math.sqrt(sum / WINDOW);
+              if (rms > THRESH) {
+                leadSec = i / sr;
+                break;
+              }
+            }
+            // 算尾部静音（避免循环时尾部空白）
+            let tailSec = decoded.duration;
+            for (let i = ch0.length - WINDOW; i > 0; i -= WINDOW) {
+              let sum = 0;
+              for (let j = 0; j < WINDOW; j++) {
+                const a = ch0[i + j] || 0;
+                const b = ch1 ? (ch1[i + j] || 0) : a;
+                sum += (a * a + b * b) * 0.5;
+              }
+              const rms = Math.sqrt(sum / WINDOW);
+              if (rms > THRESH) {
+                tailSec = (i + WINDOW) / sr;
+                break;
+              }
+            }
+            // 应用结果
+            if (leadSec >= 0.1 && leadSec < 30) {
+              startOffset = Math.max(0, leadSec - 0.05);   // 留 50ms 余量避免削掉真起音
+              try { localStorage.setItem(SILENCE_KEY, String(startOffset)); } catch (e) {}
+              // 如果当前还在静音段播放，立即跳过去
+              if (!audio.paused && audio.currentTime < startOffset) seekToStart();
+              else if (audio.currentTime < startOffset) seekToStart();
+            }
+            if (tailSec > 0 && tailSec < decoded.duration - 0.05) {
+              endOffset = tailSec + 0.05;
+            }
+            // 关闭 ctx 释放内存
+            if (ctx.close) ctx.close().catch(() => {});
+          });
+        })
+        .catch(() => { /* 静默失败，不影响播放 */ });
+    }
+
+    // 1. 初始尝试：muted 自动播放（合规）
     audio.muted = true;
     safePlay();
 
-    // 2. 用户手势解锁：尝试取消静音并播放
+    // 2. 用户手势解锁
     function tryUnlock() {
       if (unlocked) return;
-      // 尝试解除静音并 play
-      audio.muted = userMuted;            // 用户希望静音就保持
-      audio.currentTime = audio.currentTime || 0;
-      safePlay().then((ok) => {
-        // 关键判定：play 是否真的让音频"在响"
-        const reallyPlaying = !audio.paused;
-        if (reallyPlaying) {
+      audio.muted = userMuted;
+      seekToStart();
+      safePlay().then(() => {
+        if (!audio.paused) {
           unlocked = true;
           syncFabUI();
           if (!userMuted) showTip('♫ BGM 已启动 · 点击右下角可静音', 3200);
-          // 移除监听
           unlockEvents.forEach(ev => document.removeEventListener(ev, tryUnlock, true));
-          // 启动 watchdog（持续监控，意外暂停就重启）
           startWatchdog();
+          // 解锁后才执行静音段检测（避免不必要的网络/CPU 开销）
+          detectSilenceOffset();
         }
-        // 没成功就保留监听，等下一次用户手势
       });
     }
 
-    // 浏览器 autoplay 解锁的合法手势：必须是 click/touchstart/keydown/pointerdown
-    // ⚠ 不再监听 scroll —— scroll 不被浏览器视为有效"用户激活"，会让 unlocked=true 但 play 实际失败
     const unlockEvents = ['click', 'touchstart', 'pointerdown', 'keydown'];
     unlockEvents.forEach(ev =>
       document.addEventListener(ev, tryUnlock, { capture: true, passive: true })
     );
 
-    // 3. Watchdog：每 1.5s 检查一次音频状态，意外暂停（页面切回前台/语言切换/audio 元素被摧毁等）自动恢复
+    // 3. Watchdog
     function startWatchdog() {
       if (watchdogTimer) return;
       watchdogTimer = setInterval(() => {
-        // 用户主动静音 → 不强制
         if (userMuted) { syncFabUI(); return; }
-        // audio 节点意外丢失（极少，但有些脚本会 innerHTML 大段 DOM）
         if (!document.body.contains(audio)) {
           document.body.appendChild(audio);
         }
-        // ended 状态（loop 失败）→ 重置时间
         if (audio.ended) {
-          try { audio.currentTime = 0; } catch (e) {}
+          seekToStart();
         }
-        // 暂停了 → 尝试恢复
         if (audio.paused) {
           audio.muted = false;
           safePlay();
+        }
+        // 极端情况：currentTime 卡在 0 或静音段（如某些浏览器 seek 失败）
+        if (!audio.paused && startOffset > 0 && audio.currentTime < startOffset - 0.1) {
+          seekToStart();
         }
         syncFabUI();
       }, 1500);
     }
 
-    // 4. 页面可见性切换（切后台→切回）兜底
+    // 4. visibility
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) return;
-      // 回到前台：若用户没静音、且已解锁过，就尝试恢复播放
       if (unlocked && !userMuted && audio.paused) {
         audio.muted = false;
         safePlay();
@@ -237,36 +342,35 @@
       syncFabUI();
     });
 
-    // 5. FAB 点击：切换"用户主动静音"
+    // 5. FAB 点击
     fab.addEventListener('click', (e) => {
       e.stopPropagation();
-      // 如果还没解锁过（autoplay 没成功），第一次点击 = 解锁
       if (!unlocked) {
         userMuted = false;
-        localStorage.setItem(KEY, '0');
+        localStorage.setItem(MUTE_KEY, '0');
         audio.muted = false;
+        seekToStart();
         safePlay().then(() => {
           unlocked = !audio.paused;
           syncFabUI();
           if (unlocked) {
             showTip('♫ BGM 已启动 · 再次点击可静音', 3000);
             startWatchdog();
+            detectSilenceOffset();
           }
         });
         return;
       }
-      // 已解锁：切换静音
       userMuted = !userMuted;
-      localStorage.setItem(KEY, userMuted ? '1' : '0');
+      localStorage.setItem(MUTE_KEY, userMuted ? '1' : '0');
       audio.muted = userMuted;
       if (!userMuted) safePlay();
       showTip(userMuted ? '🔇 BGM 已静音' : '♫ BGM 恢复播放', 1800);
       syncFabUI();
     });
 
-    // 6. 监听 i18n 切换：切换后立即重新对齐播放状态（部分浏览器在大量 DOM 修改后会暂停 media）
+    // 6. i18n 切换钩子
     window.addEventListener('i18nchanged', () => {
-      // 等 DOM 写入完成后再恢复
       requestAnimationFrame(() => {
         if (unlocked && !userMuted && audio.paused) {
           audio.muted = false;
@@ -276,19 +380,17 @@
       });
     });
 
-    // 7. 容错：audio 报错（如网络中断）时 3 秒后重试
+    // 7. 网络错误重试
     audio.addEventListener('error', () => {
       setTimeout(() => {
-        try { audio.load(); safePlay(); } catch (e) {}
+        try { audio.load(); seekToStart(); safePlay(); } catch (e) {}
       }, 3000);
     });
 
-    // 8. 状态稳定后再同步一次 UI
     audio.addEventListener('playing', syncFabUI);
     audio.addEventListener('pause', syncFabUI);
     audio.addEventListener('volumechange', syncFabUI);
 
-    // 初始 UI
     syncFabUI();
   }
 
