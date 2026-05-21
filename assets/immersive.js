@@ -113,14 +113,20 @@
   style.textContent = css;
   document.head.appendChild(style);
 
-  // ============ 1. BGM 控制器 ============
+  // ============ 1. BGM 控制器（v2 · 高可靠 · 修复 autoplay 解锁失败 / 切换语言断流）============
   function initBGM() {
+    // 防重入：如果 boot 被调用了多次（极少），不重复创建
+    if (document.getElementById('site-bgm')) return;
+
     const audio = document.createElement('audio');
     audio.id = 'site-bgm';
     audio.src = 'assets/site_bgm.mp3';
     audio.loop = true;
-    audio.volume = 0.32;        // 适中音量
+    audio.volume = 0.32;
     audio.preload = 'auto';
+    audio.setAttribute('playsinline', '');           // iOS 必备
+    audio.setAttribute('webkit-playsinline', '');
+    audio.setAttribute('x-webkit-airplay', 'allow');
     document.body.appendChild(audio);
 
     // 浮动按钮
@@ -133,46 +139,157 @@
     // 提示气泡
     const tip = document.createElement('div');
     tip.className = 'bgm-tip';
-    tip.textContent = '点击右下角可静音 ♫';
+    tip.textContent = '点击页面任意处启动 BGM ♫';
     document.body.appendChild(tip);
 
     // 状态读取
     const KEY = 'bgm_muted';
-    const muted = localStorage.getItem(KEY) === '1';
+    let userMuted = localStorage.getItem(KEY) === '1';
+    let unlocked = false;        // 是否已通过用户手势解锁过
+    let watchdogTimer = null;
 
-    function applyMute(m) {
-      audio.muted = m;
-      fab.classList.toggle('muted', m);
-      localStorage.setItem(KEY, m ? '1' : '0');
+    function syncFabUI() {
+      // FAB 的"播放/静音"视觉状态：以"是否在响"为准
+      const playing = !audio.paused && !audio.muted && audio.currentTime > 0;
+      fab.classList.toggle('muted', !playing);
     }
-    applyMute(muted);
 
-    // 浏览器 autoplay 限制：先尝试静音播放，第一次用户交互时再恢复音量
+    function showTip(text, duration) {
+      tip.textContent = text || '♫ BGM 已启动';
+      tip.classList.add('show');
+      clearTimeout(showTip._t);
+      showTip._t = setTimeout(() => tip.classList.remove('show'), duration || 2800);
+    }
+
+    // 安全播放：返回 Promise；调用失败时不抛异常
+    function safePlay() {
+      const p = audio.play();
+      if (p && typeof p.then === 'function') {
+        return p.catch(() => false).then(() => true);
+      }
+      return Promise.resolve(true);
+    }
+
+    // 1. 首次尝试：muted 自动播放（所有现代浏览器允许）
     audio.muted = true;
-    audio.play().catch(() => { /* 忽略 */ });
+    safePlay();
 
-    let unlocked = false;
-    function unlock() {
+    // 2. 用户手势解锁：尝试取消静音并播放
+    function tryUnlock() {
       if (unlocked) return;
-      unlocked = true;
-      const m = localStorage.getItem(KEY) === '1';
-      audio.muted = m;
-      audio.play().catch(() => {});
-      // 提示
-      setTimeout(() => { tip.classList.add('show'); }, 600);
-      setTimeout(() => { tip.classList.remove('show'); }, 4400);
-      ['click','touchstart','keydown','scroll'].forEach(ev =>
-        document.removeEventListener(ev, unlock, true));
+      // 尝试解除静音并 play
+      audio.muted = userMuted;            // 用户希望静音就保持
+      audio.currentTime = audio.currentTime || 0;
+      safePlay().then((ok) => {
+        // 关键判定：play 是否真的让音频"在响"
+        const reallyPlaying = !audio.paused;
+        if (reallyPlaying) {
+          unlocked = true;
+          syncFabUI();
+          if (!userMuted) showTip('♫ BGM 已启动 · 点击右下角可静音', 3200);
+          // 移除监听
+          unlockEvents.forEach(ev => document.removeEventListener(ev, tryUnlock, true));
+          // 启动 watchdog（持续监控，意外暂停就重启）
+          startWatchdog();
+        }
+        // 没成功就保留监听，等下一次用户手势
+      });
     }
-    ['click','touchstart','keydown','scroll'].forEach(ev =>
-      document.addEventListener(ev, unlock, true));
 
+    // 浏览器 autoplay 解锁的合法手势：必须是 click/touchstart/keydown/pointerdown
+    // ⚠ 不再监听 scroll —— scroll 不被浏览器视为有效"用户激活"，会让 unlocked=true 但 play 实际失败
+    const unlockEvents = ['click', 'touchstart', 'pointerdown', 'keydown'];
+    unlockEvents.forEach(ev =>
+      document.addEventListener(ev, tryUnlock, { capture: true, passive: true })
+    );
+
+    // 3. Watchdog：每 1.5s 检查一次音频状态，意外暂停（页面切回前台/语言切换/audio 元素被摧毁等）自动恢复
+    function startWatchdog() {
+      if (watchdogTimer) return;
+      watchdogTimer = setInterval(() => {
+        // 用户主动静音 → 不强制
+        if (userMuted) { syncFabUI(); return; }
+        // audio 节点意外丢失（极少，但有些脚本会 innerHTML 大段 DOM）
+        if (!document.body.contains(audio)) {
+          document.body.appendChild(audio);
+        }
+        // ended 状态（loop 失败）→ 重置时间
+        if (audio.ended) {
+          try { audio.currentTime = 0; } catch (e) {}
+        }
+        // 暂停了 → 尝试恢复
+        if (audio.paused) {
+          audio.muted = false;
+          safePlay();
+        }
+        syncFabUI();
+      }, 1500);
+    }
+
+    // 4. 页面可见性切换（切后台→切回）兜底
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) return;
+      // 回到前台：若用户没静音、且已解锁过，就尝试恢复播放
+      if (unlocked && !userMuted && audio.paused) {
+        audio.muted = false;
+        safePlay();
+      }
+      syncFabUI();
+    });
+
+    // 5. FAB 点击：切换"用户主动静音"
     fab.addEventListener('click', (e) => {
       e.stopPropagation();
-      const next = !audio.muted;
-      applyMute(next);
-      if (!next) audio.play().catch(() => {});
+      // 如果还没解锁过（autoplay 没成功），第一次点击 = 解锁
+      if (!unlocked) {
+        userMuted = false;
+        localStorage.setItem(KEY, '0');
+        audio.muted = false;
+        safePlay().then(() => {
+          unlocked = !audio.paused;
+          syncFabUI();
+          if (unlocked) {
+            showTip('♫ BGM 已启动 · 再次点击可静音', 3000);
+            startWatchdog();
+          }
+        });
+        return;
+      }
+      // 已解锁：切换静音
+      userMuted = !userMuted;
+      localStorage.setItem(KEY, userMuted ? '1' : '0');
+      audio.muted = userMuted;
+      if (!userMuted) safePlay();
+      showTip(userMuted ? '🔇 BGM 已静音' : '♫ BGM 恢复播放', 1800);
+      syncFabUI();
     });
+
+    // 6. 监听 i18n 切换：切换后立即重新对齐播放状态（部分浏览器在大量 DOM 修改后会暂停 media）
+    window.addEventListener('i18nchanged', () => {
+      // 等 DOM 写入完成后再恢复
+      requestAnimationFrame(() => {
+        if (unlocked && !userMuted && audio.paused) {
+          audio.muted = false;
+          safePlay();
+        }
+        syncFabUI();
+      });
+    });
+
+    // 7. 容错：audio 报错（如网络中断）时 3 秒后重试
+    audio.addEventListener('error', () => {
+      setTimeout(() => {
+        try { audio.load(); safePlay(); } catch (e) {}
+      }, 3000);
+    });
+
+    // 8. 状态稳定后再同步一次 UI
+    audio.addEventListener('playing', syncFabUI);
+    audio.addEventListener('pause', syncFabUI);
+    audio.addEventListener('volumechange', syncFabUI);
+
+    // 初始 UI
+    syncFabUI();
   }
 
   // ============ 2. 首屏海浪 Canvas（全屏分层动态） ============
