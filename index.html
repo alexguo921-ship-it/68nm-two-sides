@@ -244,70 +244,140 @@
     .nav .lang-switcher button{padding:4px 7px!important;font-size:9px!important}
     .cta{padding:6px 12px!important;font-size:10px!important;letter-spacing:1px!important}
 
+    /* === 全局兜底：所有标题强制不超出屏幕宽度 === */
+    h1, h2, h3, h4{
+      max-width:100%;
+      /* 中文允许在任意位置换行（避免单行撑爆），同时 text-wrap:balance 让两行均衡 */
+      word-break:normal;
+      overflow-wrap:break-word;
+      text-wrap:balance;
+      line-break:auto;
+    }
+    /* 内联 style 标题强制覆盖 */
+    h1[style], h2[style], h3[style]{font-size:inherit}
+
     .hero{padding:78px 14px 64px;min-height:84vh}
     .hero .frame{inset:60px 8px 8px;border-width:2px}
     .hero .inner{padding:20px 16px;border-left-width:3px}
-    .hero h1{font-size:46px;letter-spacing:-1px;margin-bottom:14px}
-    .hero .lead{font-size:16px;margin-bottom:10px}
-    .hero .desc{font-size:14px;line-height:1.6;margin-bottom:22px}
+    .hero h1{font-size:38px;letter-spacing:-1px;margin-bottom:14px;line-height:1.05}
+    .hero .lead{font-size:15px;margin-bottom:10px}
+    .hero .desc{font-size:13.5px;line-height:1.6;margin-bottom:22px}
     .hero .vol{font-size:10px;letter-spacing:3px;margin-bottom:14px}
     .hero .ctas{gap:10px}
     .hero .ctas a{padding:12px 18px;font-size:11px;letter-spacing:1.5px}
     .hero .scroll-tip{font-size:10px;letter-spacing:2px}
 
-    section.sect,.b-block{padding:48px 16px}
-    .sec-head h2{font-size:24px}
-    .sec-head .en{font-size:11px;letter-spacing:3px}
+    section.sect, .b-block{padding:42px 16px}
+    /* 主标题：所有 h2 限制最大 26px（同时覆盖 .left h2 高优先级） */
+    .sec-head h2,
+    .sec-head .left h2,
+    section.sect h2,
+    section.sect h2[style],
+    .b-block h2{
+      font-size:26px!important;
+      line-height:1.25!important;
+      letter-spacing:0!important;
+    }
+    .b-block .sec-head h2,
+    .b-block .sec-head .left h2{
+      font-size:24px!important;
+      line-height:1.25!important;
+    }
+    .sec-head .en{font-size:10px!important;letter-spacing:2.5px!important}
+    /* sec-head 在手机端禁用 flex 横排，避免英文挤占空间 */
+    .sec-head{
+      flex-direction:column!important;
+      align-items:flex-start!important;
+      gap:6px!important;
+      padding-bottom:14px!important;
+      margin-bottom:22px!important;
+    }
+    .sec-head .right{
+      font-size:10px!important;letter-spacing:1.5px!important;
+      word-break:break-word;overflow-wrap:anywhere;
+      max-width:100%;text-align:left!important;
+    }
 
     /* 大数字 */
-    .nums{grid-template-columns:repeat(2,1fr)!important;gap:12px!important}
+    .nums{grid-template-columns:repeat(2,1fr)!important;gap:10px!important}
     .num-it{padding:14px 12px!important}
-    .num-it .v{font-size:34px!important}
-    .num-it .l{font-size:11px!important}
+    .num-it .v{font-size:30px!important}
+    .num-it .l{font-size:11px!important;line-height:1.45!important}
 
-    /* 角色卡 / 套餐卡 / AI 卡 */
+    /* 角色卡 / 套餐卡 */
     .role-card{padding:24px 18px}
-    .role-card h3{font-size:22px}
+    .role-card h3{font-size:22px;line-height:1.3}
+    .role-card .lead{font-size:13px}
     .role-card ul li{font-size:13px}
     .pkg{padding:22px 18px}
-    .pkg h3{font-size:20px}
-    .pkg .price{font-size:28px}
+    .pkg h3{font-size:20px;line-height:1.3}
+    .pkg .price{font-size:26px}
+    .pkg .feats, .pkg p{font-size:12.5px;line-height:1.7}
 
-    /* 文创区 */
+    /* 文创区：4 卡 → 1 列 */
     #merch [style*="grid-template-columns"]{grid-template-columns:1fr!important;gap:14px!important}
 
-    /* 蓝眼泪 4 卡 → 2 卡（高特异性强制覆盖内联） */
+    /* 蓝眼泪 4 卡 → 2 卡 */
     #bluetears > div[style*="grid-template-columns"]{grid-template-columns:repeat(2,1fr)!important;gap:10px!important}
     section#bluetears .container > div[style*="grid-template-columns"]{grid-template-columns:repeat(2,1fr)!important;gap:10px!important}
     #bluetears .container > div[style*="grid-template-columns"] > div{padding:14px!important}
     #bluetears .container > div[style*="grid-template-columns"] > div > div:first-child{font-size:30px!important}
-    #bluetears .container > div[style*="grid-template-columns"] > div h3{font-size:14px!important}
-    #bluetears .container > div[style*="grid-template-columns"] > div p{font-size:11.5px!important;line-height:1.55!important}
-    #bluetears h2{font-size:22px!important}
-    #bluetears p[style]{font-size:14px!important}
+    #bluetears .container > div[style*="grid-template-columns"] > div h3{font-size:14px!important;line-height:1.3!important}
+    #bluetears .container > div[style*="grid-template-columns"] > div p{font-size:11.5px!important;line-height:1.55!important;word-break:keep-all}
+    #bluetears h2, section#bluetears h2[style]{font-size:22px!important}
+    #bluetears p[style]{font-size:13.5px!important}
 
-    /* 通行 PASS 卡：左右堆叠（已在 980 处理）+ 6 卡 2 列保持 */
-    section#pass .container > div[style*="grid-template-columns"]{grid-template-columns:1fr!important;gap:20px!important}
+    /* 通行 PASS 卡：左右堆叠 + 6 卡 2 列 */
+    section#pass .container > div[style*="grid-template-columns"]{grid-template-columns:1fr!important;gap:18px!important}
     section#pass .container div[style*="grid-template-columns:repeat(2,1fr)"]{grid-template-columns:repeat(2,1fr)!important;gap:8px!important}
     section#pass .container div[style*="grid-template-columns:repeat(2,1fr)"] > div{padding:10px!important}
     section#pass .container div[style*="grid-template-columns:repeat(2,1fr)"] > div strong{font-size:12px!important}
-    section#pass .container div[style*="grid-template-columns:repeat(2,1fr)"] > div p{font-size:11px!important;line-height:1.5!important}
-    section#pass h3{font-size:22px!important;line-height:1.3!important;margin-bottom:10px!important}
-    section#pass h2{font-size:22px!important;line-height:1.25!important}
-    section#pass p[style]{font-size:14px!important;line-height:1.7!important}
+    section#pass .container div[style*="grid-template-columns:repeat(2,1fr)"] > div p{font-size:11px!important;line-height:1.5!important;word-break:keep-all}
+    section#pass h3, section#pass h3[style]{font-size:22px!important;line-height:1.3!important;margin-bottom:10px!important}
+    section#pass h2, section#pass h2[style]{font-size:22px!important;line-height:1.25!important}
+    section#pass p[style]{font-size:13.5px!important;line-height:1.7!important}
 
-    /* sec-head 右侧英文不再溢出 */
-    .sec-head .right{font-size:10px!important;letter-spacing:1.5px!important;word-break:break-word;overflow-wrap:anywhere;max-width:100%}
-    .sec-head{gap:6px!important;padding-bottom:14px!important;margin-bottom:24px!important}
+    /* === AI 平台 (yutu) - 重新设计 === */
+    /* 6 大智能模块 ABCDEF：3 列 → 2 列 */
+    section#yutu .ai-modules-grid{
+      grid-template-columns:repeat(2,1fr)!important;gap:10px!important
+    }
+    section#yutu .ai-modules-grid > div{padding:14px!important}
+    section#yutu .ai-modules-grid h3{font-size:14px!important;line-height:1.3!important}
+    section#yutu .ai-modules-grid p{font-size:11.5px!important;line-height:1.55!important;word-break:normal}
+    /* AI 字标小方块 A/B/C/D/E/F：缩小 */
+    section#yutu .ai-modules-grid > div > div:first-child{
+      width:32px!important;height:32px!important;font-size:14px!important;margin-bottom:8px!important
+    }
+
+    /* 3 个 AI 原型：3 列 → 1 列堆叠（避免每列窄到单字纵排） */
+    section#yutu .ai-prototypes-grid{
+      grid-template-columns:1fr!important;gap:14px!important
+    }
+    section#yutu .ai-prototypes-grid > div{padding:18px!important}
+    section#yutu .ai-prototypes-grid h3{font-size:18px!important;line-height:1.3!important}
+    section#yutu .ai-prototypes-grid p{font-size:13px!important;line-height:1.7!important;word-break:normal}
+
+    section#yutu h2, section#yutu h2[style]{font-size:22px!important;line-height:1.25!important}
+    section#yutu h3{word-break:normal}
+    section#yutu p{word-break:normal}
+
+    /* B 端模块（运营机构）section.b-block */
+    .b-block .sec-head h2{font-size:22px!important;line-height:1.25!important}
+    .b-grid{grid-template-columns:1fr!important;gap:12px!important}
+    .b-card{padding:18px!important}
+    .b-card .h{font-size:11px!important;letter-spacing:2.5px!important}
+    .b-card h3{font-size:16px!important;line-height:1.3!important}
+    .b-card p{font-size:13px!important;line-height:1.6!important}
 
     /* 表格图册 */
-    .gallery{grid-auto-rows:160px}
+    .gallery{grid-auto-rows:140px;gap:6px}
 
     /* footer */
     footer{padding:36px 16px 20px}
     footer .brand{font-size:22px}
     footer h4{font-size:12px;letter-spacing:2px}
-    footer p,footer a{font-size:12px}
+    footer p, footer a{font-size:12px}
 
     /* 滚动条 */
     ::-webkit-scrollbar{width:4px}
@@ -321,13 +391,24 @@
 
   /* 超小屏（≤380px） */
   @media (max-width:380px){
-    .hero h1{font-size:38px}
-    .hero .lead{font-size:14px}
-    .hero .desc{font-size:13px}
-    .sec-head h2{font-size:20px}
-    /* 蓝眼泪 + PASS 权益：超小屏强制 1 列，避免文字纵向断字 */
-    section#bluetears .container > div[style*="grid-template-columns"]{grid-template-columns:1fr!important}
+    .hero h1{font-size:32px}
+    .hero .lead{font-size:13px}
+    .hero .desc{font-size:12.5px}
+    .sec-head h2,
+    .sec-head .left h2,
+    section.sect h2,
+    section.sect h2[style],
+    .b-block h2,
+    .b-block .sec-head h2,
+    .b-block .sec-head .left h2{font-size:22px!important}
+    /* 蓝眼泪 4 卡：超小屏仍保 2 列（避免单字纵列），但字号再缩 */
+    #bluetears .container > div[style*="grid-template-columns"] > div{padding:12px!important}
+    #bluetears .container > div[style*="grid-template-columns"] > div > div:first-child{font-size:24px!important}
+    #bluetears .container > div[style*="grid-template-columns"] > div h3{font-size:13px!important}
+    /* PASS 6 卡：超小屏 1 列 */
     section#pass .container div[style*="grid-template-columns:repeat(2,1fr)"]{grid-template-columns:1fr!important}
+    /* AI 6 卡：超小屏 1 列 */
+    section#yutu .ai-modules-grid{grid-template-columns:1fr!important}
   }
 
   .lang-switcher button.active{background:var(--ink)!important;color:var(--ng-yellow)!important}
@@ -401,8 +482,9 @@
     text-wrap: balance;          /* 现代浏览器：自动均衡各行长度 */
     -webkit-hyphens: none;
     hyphens: none;
-    word-break: keep-all;        /* 中文不拆分单字 */
+    word-break: normal;          /* 中文允许任意位置断行（防止单行撑爆容器） */
     overflow-wrap: break-word;
+    line-break: auto;
   }
   /* 长正文用 pretty 防止段尾孤字 */
   p, .role-card .lead, .pkg p, .num-it .l{
@@ -411,8 +493,8 @@
     overflow-wrap: break-word;
   }
   /* AI 卡片等窄列容器特别处理 - 标题用 keep-all 保持词组完整，正文允许换行 */
-  .ai-card h3, .b-card h3{text-wrap: balance;word-break: keep-all}
-  .ai-card p, .b-card p{text-wrap: pretty;word-break: normal}
+  .ai-card h3, .b-card h3{text-wrap: balance; word-break: normal; overflow-wrap: break-word}
+  .ai-card p, .b-card p{text-wrap: pretty; word-break: normal}
 
   /* ============== 回顶部浮窗按钮 ============== */
   .back-top-fab{
@@ -437,18 +519,17 @@
     .back-top-fab svg{width:15px;height:15px}
   }
 
-  /* hero 标题在手机上更激进的均衡（避免 "近 200 座城市" 之类拆字） */
+  /* hero 标题在手机上的特殊处理 - 允许中文换行 + balance 均衡 */
   @media (max-width:640px){
-    .hero h1{text-wrap: balance; word-break: keep-all; line-break: strict}
-    .sec-head h2{text-wrap: balance; word-break: keep-all}
-    /* AI 三列卡 -> 1 列时单字纵列问题 */
+    .hero h1{text-wrap: balance; word-break: normal; line-break: auto; overflow-wrap: break-word}
+    .sec-head h2{text-wrap: balance; word-break: normal; overflow-wrap: break-word}
     .ai-grid{grid-template-columns:1fr!important;gap:14px!important}
-    .ai-card h3{text-wrap: balance}
-    /* 文创区 4 卡 / 蓝眼泪 4 卡 / B 端 6 卡：当宽度太小时强制更宽容的换行 */
+    .ai-card h3{text-wrap: balance; word-break: normal}
     section#bluetears .container > div[style*="grid-template-columns"] > div h3,
     section#yutu .b-card h3,
-    section#yutu div[style*="grid-template-columns"] > div h3{
-      text-wrap:balance;word-break:keep-all;font-size:14px!important
+    section#yutu .ai-modules-grid h3,
+    section#yutu .ai-prototypes-grid h3{
+      text-wrap:balance;word-break:normal
     }
   }
 
@@ -894,7 +975,7 @@
     <p style="font-size:16px;line-height:1.85;color:var(--sand);margin-bottom:30px;max-width:900px">借鉴行业领先的智慧文旅产品形态——<strong style="color:var(--ng-yellow)">景点探索 / 美食推荐 / 文化体验 / 行程规划 / 游记分享</strong>一站式整合。深度对接平潭综合实验区"智慧文旅大脑"。</p>
 
     <h3 style="font-family:'Noto Serif SC',serif;font-size:20px;color:#fff;margin-bottom:16px;font-weight:700">一站式 6 大智能模块</h3>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:36px">
+    <div class="ai-modules-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:36px">
       <div style="padding:22px;background:rgba(255,204,0,.06);border:1px solid #3a342b;border-left:4px solid var(--ng-yellow)"><div style="width:42px;height:42px;background:var(--ng-yellow);color:var(--ink);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;margin-bottom:10px">A</div><h3 style="font-family:'Noto Serif SC',serif;font-size:17px;color:#fff;margin-bottom:6px;font-weight:700">AI 景点探索</h3><p style="font-size:12.5px;line-height:1.7;color:var(--sand);margin:0">68 海里全岛地图 + AI 排序 + AR 增强讲解。</p></div>
       <div style="padding:22px;background:rgba(255,204,0,.06);border:1px solid #3a342b;border-left:4px solid var(--ng-yellow)"><div style="width:42px;height:42px;background:var(--ng-yellow);color:var(--ink);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;margin-bottom:10px">B</div><h3 style="font-family:'Noto Serif SC',serif;font-size:17px;color:#fff;margin-bottom:6px;font-weight:700">AI 美食推荐</h3><p style="font-size:12.5px;line-height:1.7;color:var(--sand);margin:0">50+ 苍蝇小馆按<strong style="color:var(--ng-yellow)">翻台率+本地评分+距离</strong>排序，避开网红坑。</p></div>
       <div style="padding:22px;background:rgba(255,204,0,.06);border:1px solid #3a342b;border-left:4px solid var(--ng-yellow)"><div style="width:42px;height:42px;background:var(--ng-yellow);color:var(--ink);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;margin-bottom:10px">C</div><h3 style="font-family:'Noto Serif SC',serif;font-size:17px;color:#fff;margin-bottom:6px;font-weight:700">AI 文化体验</h3><p style="font-size:12.5px;line-height:1.7;color:var(--sand);margin:0">方言情绪翻译 + VLM 扫描 + 非遗夜场。</p></div>
@@ -904,7 +985,7 @@
     </div>
 
     <h3 style="font-family:'Noto Serif SC',serif;font-size:20px;color:#fff;margin-bottom:16px;font-weight:700">3 个可现场演示的 AI 原型</h3>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:22px">
+    <div class="ai-prototypes-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:22px">
       <div style="background:#fff;border-left:5px solid var(--ng-yellow);padding:24px;display:flex;flex-direction:column;color:var(--ink)">
         <div style="font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:5px;color:var(--terracotta);font-weight:700">AI · 01</div>
         <h3 style="font-family:'Noto Serif SC',serif;font-size:20px;margin:8px 0 10px;font-weight:700">方言情绪翻译器</h3>
