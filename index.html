@@ -609,6 +609,45 @@
   @media (max-width:640px){
     #dialect .sells .text{padding:18px}
   }
+
+  /* ============== English mobile overflow fixes ============== */
+  @media (max-width:640px){
+    html[lang="en"] body{overflow-x:hidden}
+    html[lang="en"] .container{max-width:100%;overflow:hidden}
+    html[lang="en"] .sells .text h3{
+      font-size:30px!important;
+      line-height:1.18!important;
+      letter-spacing:-.8px!important;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+    html[lang="en"] .sec-head .left h2,
+    html[lang="en"] .sec-head h2,
+    html[lang="en"] section.sect h2,
+    html[lang="en"] .b-block .sec-head h2{
+      font-size:24px!important;
+      line-height:1.2!important;
+      letter-spacing:-.4px!important;
+      overflow-wrap:anywhere;
+    }
+    html[lang="en"] .role-card h3{
+      font-size:28px!important;
+      line-height:1.2!important;
+      letter-spacing:-.5px!important;
+      overflow-wrap:anywhere;
+    }
+    html[lang="en"] .sells .text p,
+    html[lang="en"] section#yutu p,
+    html[lang="en"] .role-card .lead,
+    html[lang="en"] .role-card li{
+      font-size:14px!important;
+      line-height:1.65!important;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+    html[lang="en"] strong,
+    html[lang="en"] em{white-space:normal}
+  }
 </style>
 </head>
 <body>
@@ -632,7 +671,7 @@
       <button data-lang-switch="en" style="background:transparent;color:var(--ink);border:none;padding:6px 10px;font-size:11px;letter-spacing:1px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-weight:600;border-right:1px solid var(--ink)">EN</button>
       <button data-lang-switch="zh-TW" style="background:transparent;color:var(--ink);border:none;padding:6px 10px;font-size:11px;letter-spacing:1px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-weight:600">TC</button>
     </div>
-    <a href="ppt.html" class="cta">DECK</a>
+    <a href="deck_mobile.html" class="cta">DECK</a>
   </div>
 </nav>
 
@@ -689,7 +728,7 @@
           <li>海西经济圈协同 · 福·泉·厦联动</li>
         </ul>
         <div class="cta-row">
-          <a href="ppt.html" class="solid">完整方案 PPT</a>
+          <a href="deck_mobile.html" class="solid">完整方案 PPT</a>
           <a href="demo_dashboard.html" class="line" target="_blank">运营大屏</a>
         </div>
       </div>
@@ -1117,7 +1156,7 @@
     </div>
     <div>
       <h4>合作伙伴</h4>
-      <a href="ppt.html">完整方案</a>
+      <a href="deck_mobile.html">完整方案</a>
       <a href="demo_dashboard.html" target="_blank">运营大屏</a>
       <a href="#operator">B 端能力</a>
       <a href="video.html" target="_blank">产品介绍片</a>
@@ -1153,11 +1192,11 @@
 </footer>
 
 
-<script src="assets/translations.js?v=20260521-2220"></script>
-<script src="assets/i18n.js?v=20260521-2220"></script>
-<script src="assets/immersive.js?v=20260521-2220" defer></script>
-<script src="assets/glyph_dialect.js?v=20260521-2220" defer></script>
-<script src="assets/view_router.js?v=20260521-2220" defer></script>
+<script src="assets/translations.js?v=20260521-2233"></script>
+<script src="assets/i18n.js?v=20260521-2233"></script>
+<script src="assets/immersive.js?v=20260521-2233" defer></script>
+<script src="assets/glyph_dialect.js?v=20260521-2233" defer></script>
+<script src="assets/view_router.js?v=20260521-2233" defer></script>
 <script>
 I18N.register({
   'nav.story': { 'zh-CN':'缘起', 'en':'Story', 'zh-TW':'緣起' },

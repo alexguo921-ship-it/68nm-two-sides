@@ -50,8 +50,8 @@
         if (isInsideExcluded(node)) return NodeFilter.FILTER_REJECT;
         const txt = node.textContent;
         if (!txt || !txt.trim()) return NodeFilter.FILTER_REJECT;
-        // 只收中文原文节点：英文/数字/装饰符跳过
-        if (!/[\u4e00-\u9fff]/.test(txt)) return NodeFilter.FILTER_REJECT;
+        // 收中文原文节点 + 中文标点节点（如 strong 后单独的“。”），英文/数字装饰符跳过
+        if (!/[\u4e00-\u9fff]|[。，“”‘’]/.test(txt)) return NodeFilter.FILTER_REJECT;
         return NodeFilter.FILTER_ACCEPT;
       }
     });
