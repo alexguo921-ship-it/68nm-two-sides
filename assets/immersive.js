@@ -63,9 +63,9 @@
   @keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 
   /* 海浪 canvas 全屏 */
-  #wave-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+  #wave-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;mix-blend-mode:screen;opacity:.85}
   .hero{position:relative;isolation:isolate}
-  .hero .frame, .hero .inner, .hero .scroll-tip{position:relative;z-index:2}
+  .hero .frame, .hero .inner, .hero .scroll-tip{position:relative;z-index:3}
 
   /* 蓝眼泪粒子 */
   .tears-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:auto;cursor:crosshair}
@@ -117,7 +117,7 @@
   function initBGM() {
     const audio = document.createElement('audio');
     audio.id = 'site-bgm';
-    audio.src = 'assets/bgm/site_bgm.mp3';
+    audio.src = 'assets/site_bgm.mp3';
     audio.loop = true;
     audio.volume = 0.32;        // 适中音量
     audio.preload = 'auto';
@@ -215,20 +215,22 @@
     function draw() {
       ctx.clearRect(0, 0, w, h);
 
-      // 背景渐变（沙色 → 海雾蓝）
+      // 深海渐变背景
       const g = ctx.createLinearGradient(0, 0, 0, h);
-      g.addColorStop(0, '#f8f3e6');
-      g.addColorStop(0.55, '#ebe2c9');
-      g.addColorStop(1.0, '#9bb8c5');
+      g.addColorStop(0, 'rgba(8, 16, 28, 0)');
+      g.addColorStop(0.55, 'rgba(14, 60, 90, 0.55)');
+      g.addColorStop(1.0, 'rgba(8, 28, 50, 0.85)');
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, w, h);
 
-      // 海平面
-      ctx.fillStyle = 'rgba(14, 82, 103, 0.18)';
-      ctx.fillRect(0, h * 0.6, w, h * 0.4);
-
-      // 波浪层
-      waves.forEach((wv) => {
+      // 波浪层（深海蓝/青）
+      const waveColors = [
+        'rgba(20, 90, 130, 0.55)',
+        'rgba(30, 120, 165, 0.45)',
+        'rgba(60, 170, 200, 0.32)',
+        'rgba(255, 210, 100, 0.10)'
+      ];
+      waves.forEach((wv, idx) => {
         ctx.beginPath();
         ctx.moveTo(0, h);
         const offset = (mx - 0.5) * 60;
@@ -238,13 +240,13 @@
         }
         ctx.lineTo(w, h);
         ctx.closePath();
-        ctx.fillStyle = wv.color;
+        ctx.fillStyle = waveColors[idx] || wv.color;
         ctx.fill();
       });
 
-      // 鼠标光晕 - 太阳/月亮反射
+      // 鼠标光晕 - 月亮反射
       const sun = ctx.createRadialGradient(w * mx, h * (my * 0.3 + 0.15), 4, w * mx, h * (my * 0.3 + 0.15), 220);
-      sun.addColorStop(0, 'rgba(255, 230, 130, 0.55)');
+      sun.addColorStop(0, 'rgba(255, 230, 130, 0.25)');
       sun.addColorStop(1, 'rgba(255, 230, 130, 0)');
       ctx.fillStyle = sun;
       ctx.fillRect(0, 0, w, h);

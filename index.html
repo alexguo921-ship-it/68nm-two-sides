@@ -27,24 +27,24 @@
   .nav .cta:hover{background:var(--terracotta)}
 
   /* HERO */
-  .hero{min-height:100vh;background:#000 url('assets/houyan_aerial.png') center/cover;position:relative;display:flex;align-items:center;color:#fff;padding:120px 50px 80px}
-  .hero::after{content:'';position:absolute;inset:0;background:linear-gradient(120deg,rgba(14,82,103,.4) 0%,rgba(14,24,32,.78) 100%)}
-  .hero .frame{position:absolute;inset:90px 30px 30px;border:3px solid var(--ng-yellow);pointer-events:none;z-index:1}
-  .hero .frame::before{content:'';position:absolute;left:-3px;top:30%;width:14px;height:40%;background:#000;border-left:3px solid var(--ng-yellow)}
-  .hero .frame::before{display:none}
-  .hero .inner{position:relative;z-index:2;max-width:1200px;margin:0 auto;width:100%}
-  .hero .vol{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;letter-spacing:6px;color:var(--ng-yellow);margin-bottom:20px}
-  .hero h1{font-family:'Noto Serif SC',serif;font-size:128px;font-weight:900;line-height:.95;letter-spacing:-3px;margin-bottom:24px}
-  .hero h1 em{font-style:normal;color:var(--ng-yellow)}
-  .hero .lead{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:30px;color:var(--ng-yellow);margin-bottom:18px;letter-spacing:1px}
-  .hero .desc{font-size:20px;max-width:680px;line-height:1.65;margin-bottom:50px;color:rgba(255,255,255,.92)}
-  .hero .ctas{display:flex;gap:20px;flex-wrap:wrap}
+  .hero{min-height:100vh;background:#0a1525 url('assets/houyan_aerial.png') center/cover;position:relative;display:flex;align-items:center;color:#fff;padding:120px 50px 80px;overflow:hidden}
+  .hero::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,16,28,.55) 0%,rgba(8,16,28,.15) 35%,rgba(8,16,28,.55) 75%,rgba(8,16,28,.92) 100%);z-index:1}
+  .hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 18% 50%,rgba(14,82,103,.55) 0%,rgba(14,24,32,.7) 70%);z-index:1}
+  .hero .frame{position:absolute;inset:90px 30px 30px;border:3px solid var(--ng-yellow);pointer-events:none;z-index:3}
+  .hero .frame::before{content:'';position:absolute;left:-3px;top:30%;width:14px;height:40%;background:transparent}
+  .hero .inner{position:relative;z-index:3;max-width:1200px;margin:0 auto;width:100%;padding:36px 40px;background:linear-gradient(135deg,rgba(10,21,37,.55) 0%,rgba(10,21,37,.32) 100%);-webkit-backdrop-filter:saturate(150%) blur(8px);backdrop-filter:saturate(150%) blur(8px);border-left:5px solid var(--ng-yellow);border-radius:0 4px 4px 0;box-shadow:0 24px 60px -12px rgba(0,0,0,.45)}
+  .hero .vol{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;letter-spacing:6px;color:var(--ng-yellow);margin-bottom:20px;text-shadow:0 2px 8px rgba(0,0,0,.55)}
+  .hero h1{font-family:'Noto Serif SC',serif;font-size:118px;font-weight:900;line-height:.95;letter-spacing:-3px;margin-bottom:22px;color:#fff;text-shadow:0 8px 32px rgba(0,0,0,.7),0 1px 2px rgba(0,0,0,.85)}
+  .hero h1 em{font-style:normal;color:var(--ng-yellow);text-shadow:0 8px 32px rgba(0,0,0,.7),0 0 18px rgba(255,204,0,.35)}
+  .hero .lead{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:28px;color:#ffe066;margin-bottom:14px;letter-spacing:1px;text-shadow:0 3px 12px rgba(0,0,0,.65)}
+  .hero .desc{font-size:18px;max-width:640px;line-height:1.7;margin-bottom:36px;color:#f4eedd;text-shadow:0 2px 10px rgba(0,0,0,.75)}
+  .hero .ctas{display:flex;gap:18px;flex-wrap:wrap}
   .hero .ctas a{padding:16px 30px;font-size:14px;letter-spacing:3px;font-weight:700;font-family:'Cormorant Garamond',serif;border:2px solid var(--ng-yellow);transition:all .3s}
-  .hero .ctas a.primary{background:var(--ng-yellow);color:var(--ink)}
+  .hero .ctas a.primary{background:var(--ng-yellow);color:var(--ink);box-shadow:0 8px 24px rgba(255,204,0,.35)}
   .hero .ctas a.primary:hover{background:var(--terracotta);border-color:var(--terracotta);color:#fff}
-  .hero .ctas a.ghost{color:var(--ng-yellow)}
+  .hero .ctas a.ghost{color:var(--ng-yellow);background:rgba(0,0,0,.18);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
   .hero .ctas a.ghost:hover{background:var(--ng-yellow);color:var(--ink)}
-  .hero .scroll-tip{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);color:var(--ng-yellow);font-family:'Cormorant Garamond',serif;font-size:12px;letter-spacing:3px;z-index:2}
+  .hero .scroll-tip{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);color:var(--ng-yellow);font-family:'Cormorant Garamond',serif;font-size:12px;letter-spacing:3px;z-index:3;text-shadow:0 2px 8px rgba(0,0,0,.7)}
   .hero .scroll-tip::after{content:'↓';display:block;text-align:center;margin-top:4px;animation:bounce 1.6s ease infinite}
   @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
 
@@ -160,16 +160,133 @@
   footer .credits strong{color:var(--ng-yellow);font-style:normal;font-family:'Noto Sans SC';font-weight:600}
   footer .copy{max-width:1200px;margin:30px auto 0;padding-top:20px;border-top:1px solid #3a342b;font-size:12px;color:#7a5a3a;display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px}
 
+  /* ============== 响应式 ============== */
+  /* 平板 / 中屏 */
   @media (max-width:980px){
-    .hero h1{font-size:72px}
-    .hero .lead{font-size:22px}
+    .nav{padding:14px 20px}
+    .nav .brand{font-size:16px}
     .nav .links{display:none}
-    .roles,.nums,.pkgs,.sells,.sells.reverse,.ai-grid,.b-grid,.gallery{grid-template-columns:1fr;direction:ltr}
-    .gallery{grid-auto-rows:200px}
+    .lang-switcher button{padding:5px 8px!important;font-size:10px!important}
+    .cta{padding:8px 16px!important;font-size:11px!important}
+
+    .hero{padding:90px 20px 70px;min-height:88vh}
+    .hero .frame{inset:70px 14px 14px}
+    .hero .inner{padding:24px 22px;border-left-width:4px}
+    .hero h1{font-size:64px;line-height:1;margin-bottom:18px}
+    .hero .lead{font-size:20px;margin-bottom:12px}
+    .hero .desc{font-size:15px;line-height:1.65;margin-bottom:26px}
+    .hero .vol{font-size:11px;letter-spacing:4px}
+    .hero .ctas a{padding:13px 22px;font-size:12px;letter-spacing:2px}
+
+    .roles,.nums,.pkgs,.sells,.sells.reverse,.ai-grid,.b-grid,.gallery{grid-template-columns:1fr!important;direction:ltr;gap:24px!important}
+    .gallery{grid-auto-rows:180px}
     .gallery .g.big{grid-row:auto;grid-column:auto}
-    section.sect,.b-block{padding:60px 24px}
-    .sec-head h2{font-size:36px}
-    footer .ftop{grid-template-columns:1fr}
+    section.sect,.b-block{padding:60px 22px}
+    .sec-head{flex-direction:column;align-items:flex-start;gap:8px;margin-bottom:32px;padding-bottom:18px}
+    .sec-head h2{font-size:30px;line-height:1.25}
+    .sec-head .right{text-align:left;font-size:11px}
+    footer{padding:46px 22px 24px}
+    footer .ftop{grid-template-columns:1fr;gap:24px}
+    footer .copy{flex-direction:column;align-items:flex-start;gap:8px}
+
+    /* 套餐卡 */
+    .pkg{padding:28px 22px}
+    .pkg h3{font-size:24px}
+    .pkg .price{font-size:34px}
+
+    /* role-card */
+    .role-card{padding:30px 24px}
+    .role-card h3{font-size:26px}
+    .role-card .lead{font-size:14px}
+    .role-card ul li{font-size:14px}
+
+    /* 蓝眼泪区 */
+    #bluetears{padding:72px 22px!important}
+    #bluetears > div[style*="grid-template-columns"]{grid-template-columns:repeat(2,1fr)!important;gap:14px!important}
+    #bluetears h2{font-size:26px!important}
+    #bluetears p[style]{font-size:15px!important}
+
+    /* 文创区 */
+    #merch [style*="grid-template-columns"]{grid-template-columns:repeat(2,1fr)!important}
+
+    /* AI 模块 */
+    .ai-grid,.ai-grid > div[style*="grid-template-columns"]{grid-template-columns:1fr!important}
+
+    /* 卷标导航条 */
+    .nav .lang-switcher{margin-right:6px}
+
+    /* BGM 浮窗 */
+    .bgm-fab{right:14px!important;bottom:14px!important;width:42px!important;height:42px!important}
+  }
+
+  /* 手机 */
+  @media (max-width:640px){
+    .nav{padding:10px 14px}
+    .nav .brand{font-size:14px}
+    .nav .lang-switcher button{padding:4px 7px!important;font-size:9px!important}
+    .cta{padding:6px 12px!important;font-size:10px!important;letter-spacing:1px!important}
+
+    .hero{padding:78px 14px 64px;min-height:84vh}
+    .hero .frame{inset:60px 8px 8px;border-width:2px}
+    .hero .inner{padding:20px 16px;border-left-width:3px}
+    .hero h1{font-size:46px;letter-spacing:-1px;margin-bottom:14px}
+    .hero .lead{font-size:16px;margin-bottom:10px}
+    .hero .desc{font-size:14px;line-height:1.6;margin-bottom:22px}
+    .hero .vol{font-size:10px;letter-spacing:3px;margin-bottom:14px}
+    .hero .ctas{gap:10px}
+    .hero .ctas a{padding:12px 18px;font-size:11px;letter-spacing:1.5px}
+    .hero .scroll-tip{font-size:10px;letter-spacing:2px}
+
+    section.sect,.b-block{padding:48px 16px}
+    .sec-head h2{font-size:24px}
+    .sec-head .en{font-size:11px;letter-spacing:3px}
+
+    /* 大数字 */
+    .nums{grid-template-columns:repeat(2,1fr)!important;gap:12px!important}
+    .num-it{padding:14px 12px!important}
+    .num-it .v{font-size:34px!important}
+    .num-it .l{font-size:11px!important}
+
+    /* 角色卡 / 套餐卡 / AI 卡 */
+    .role-card{padding:24px 18px}
+    .role-card h3{font-size:22px}
+    .role-card ul li{font-size:13px}
+    .pkg{padding:22px 18px}
+    .pkg h3{font-size:20px}
+    .pkg .price{font-size:28px}
+
+    /* 文创区 */
+    #merch [style*="grid-template-columns"]{grid-template-columns:1fr!important;gap:14px!important}
+
+    /* 蓝眼泪 4 卡 → 2 卡 */
+    #bluetears > div[style*="grid-template-columns"]{grid-template-columns:1fr!important}
+    #bluetears h2{font-size:22px!important}
+
+    /* 表格图册 */
+    .gallery{grid-auto-rows:160px}
+
+    /* footer */
+    footer{padding:36px 16px 20px}
+    footer .brand{font-size:22px}
+    footer h4{font-size:12px;letter-spacing:2px}
+    footer p,footer a{font-size:12px}
+
+    /* 滚动条 */
+    ::-webkit-scrollbar{width:4px}
+
+    /* BGM 浮窗 */
+    .bgm-fab{right:10px!important;bottom:10px!important;width:38px!important;height:38px!important}
+
+    /* 海浪降级（性能） */
+    .hero::before{background:linear-gradient(180deg,rgba(8,16,28,.65) 0%,rgba(8,16,28,.5) 50%,rgba(8,16,28,.95) 100%)}
+  }
+
+  /* 超小屏（≤380px） */
+  @media (max-width:380px){
+    .hero h1{font-size:38px}
+    .hero .lead{font-size:14px}
+    .hero .desc{font-size:13px}
+    .sec-head h2{font-size:20px}
   }
 
   .lang-switcher button.active{background:var(--ink)!important;color:var(--ng-yellow)!important}
