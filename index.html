@@ -597,8 +597,13 @@
     border-left:4px solid #b06ad8;
     border-radius:0 4px 4px 0;
   }
+  /* About 创作者照片：使用竖幅肖像比例，避免被 4:3 风景裁切 */
+  #about .sells .img{aspect-ratio:3/4;max-height:620px;background:#1a1612}
+  #about .sells .img .creator-photo{object-fit:cover;object-position:center 26%;filter:saturate(.96) contrast(1.04) brightness(.98)}
   @media (max-width:640px){
     #dialect .sells .text{padding:18px}
+    #about .sells .img{aspect-ratio:4/5;max-height:none}
+    #about .sells .img .creator-photo{object-position:center 22%}
   }
 
   /* ============== English mobile overflow fixes ============== */
@@ -1121,8 +1126,8 @@
     </div>
     <div class="sells">
       <div class="img">
-        <img src="assets/real/pingtan_beach.jpg" alt="平潭海岸">
-        <div class="cap">FIELDWORK · MAY 2026 · PINGTAN</div>
+        <img class="creator-photo" src="assets/creator_photo.png?v=20260521-2328" alt="郭嘉 Jack 个人照片">
+        <div class="cap">CREATOR PORTRAIT · GUO JIA · JACK</div>
       </div>
       <div class="text">
         <h3>郭嘉 · Jack</h3>
