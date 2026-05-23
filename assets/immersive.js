@@ -127,7 +127,8 @@
     audio.src = SRC;
     audio.loop = false;                // ⚠ 关键：不用原生 loop（会回到 0 触发静音段），改手动 seek
     audio.volume = VOLUME;
-    audio.preload = 'auto';
+    // 微信内置浏览器：preload=metadata 减少初始下载与解码负载，避免与图片争带宽
+    audio.preload = /micromessenger|wechat/i.test(navigator.userAgent) ? 'metadata' : 'auto';
     audio.crossOrigin = 'anonymous';   // 允许 Web Audio 解码（同源不影响）
     audio.setAttribute('playsinline', '');
     audio.setAttribute('webkit-playsinline', '');
@@ -212,7 +213,12 @@
 
     // ============ Web Audio 静音段检测 ============
     // 仅在第一次没缓存或缓存为 0 时执行；解码完成后写 localStorage
+    // 微信 / X5 / WKWebView 性能优化：跳过 Web Audio 解码（mp3 已物理裁剪静音段）
+    const IS_WX = /micromessenger|wechat/i.test(navigator.userAgent);
+    const IS_LOW_END = IS_WX || /Android.*(?:Chrome\/[1-7]\d\.|Mobile)/i.test(navigator.userAgent);
+
     function detectSilenceOffset() {
+      if (IS_LOW_END) return;          // 微信/低端移动浏览器：跳过 Web Audio，减少 CPU 占用
       if (startOffset > 0) return;     // 已经有缓存，跳过
       if (!window.AudioContext && !window.webkitAudioContext) return;
 

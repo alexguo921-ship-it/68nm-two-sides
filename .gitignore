@@ -25,3 +25,7 @@
 # 部署平台本地状态
 .vercel/
 .wrangler/
+
+
+# 大图原始 PNG 备份（仅本地保留，已转 webp 上线）
+/assets/.png_originals/

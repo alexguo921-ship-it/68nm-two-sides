@@ -340,13 +340,13 @@ function renderMe(){
     <div class="benefit"><strong>生日神秘礼</strong><br>若生日信息与本人证件一致，可在合作咖啡馆/文创店领取神秘小礼品。该福利仅限注册用户，每年一次。</div>
     <div class="benefit"><strong>我的资产</strong><br>漫游护照 0 枚章 · PASS 卡未开通 · AI 明信片 0 张 · 论坛发帖 0 条</div>`;
   const saved = localStorage.getItem('68nm_avatar');
-  if (saved) document.getElementById('avatarBox').innerHTML = `<img src="${saved}">`;
+  if (saved) document.getElementById('avatarBox').innerHTML = `<img decoding="async" loading="lazy" src="${saved}">`;
 }
 
 function uploadAvatar(e){
   const file = e.target.files && e.target.files[0]; if(!file) return;
   const reader = new FileReader();
-  reader.onload = ev => { document.getElementById('avatarBox').innerHTML = `<img src="${ev.target.result}">`; localStorage.setItem('68nm_avatar', ev.target.result); };
+  reader.onload = ev => { document.getElementById('avatarBox').innerHTML = `<img decoding="async" loading="lazy" src="${ev.target.result}">`; localStorage.setItem('68nm_avatar', ev.target.result); };
   reader.readAsDataURL(file);
 }
 function saveProfile(){
